@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>미래아이엔씨 사원 대시보드 (파일럿) v0.5</title>
+<title>미래아이엔씨 사원 대시보드 (파일럿) v0.6</title>
 <style>
 :root{--bg:#f4f6fa;--surface:#fff;--surface2:#f1f3f8;--border:#e1e5ee;--text:#1d2433;--text-sub:#5b6478;--text-muted:#8a93a6;--primary:#1565c0;--primary-soft:#e8f1fc;--danger:#c62828;--danger-soft:#fdecec;--warn:#e65100;--warn-soft:#fff3e8;--ok:#2e7d32;--ok-soft:#e9f5ea;--purple:#6a1b9a;--purple-soft:#f3e5f5;}
 *{box-sizing:border-box;}
@@ -143,7 +143,7 @@ table.list tr.r:hover td{background:var(--surface2);}
   <div class="top">
     <div id="testBanner" class="test-banner hidden">테스트 시트에 연결되어 있음 · 실제 업무 데이터 아님</div>
     <div class="top-in">
-      <h1>사원 대시보드<small>파일럿 v0.5</small></h1>
+      <h1>사원 대시보드<small>파일럿 v0.6</small></h1>
       <div class="who"><span id="whoName"></span><button class="btn sm" onclick="loadRows()">새로고침</button><button class="btn sm" id="btnLogout" onclick="logout()">로그아웃</button></div>
     </div>
     <div class="tabs">
@@ -167,6 +167,7 @@ table.list tr.r:hover td{background:var(--surface2);}
 // 파일럿 Apps Script 웹앱 주소. 비워두면 로그인 화면의 '서버 주소 설정'으로 입력 (이 브라우저에 저장됨)
 // 테스트 기간 자동 로그인 (테스트 시트 하나만 연결된 동안만 사용). 파일럿 사원 확정되면 null로 바꾸면 로그인 화면이 다시 나옴
 const AUTO_LOGIN = null;
+const APP_VER = 'v0.6';   // 화면 버전. 바뀌면 이전 접속 기록(테스트 계정 등)을 버리고 다시 로그인
 const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycby040Dne4lMk2Ulgzf5gLG5CPFskadcI4jiBjhuBY7zuMaepufQBoHjoaxHcnVQ5Xvt/exec';
 const PROMO_GRADES = ['단기','장기','권한오픈','권한+브리핑'];
 const INACTIVE_GRADES = ['이관완료','선택없음','희망건'];
@@ -203,7 +204,7 @@ async function doLogin(){
   const r=await api('auth',{role,password:pw});
   if(!r.success){err.textContent=r.error||'로그인 실패';return;}
   err.textContent='';S.token=r.token;S.role=r.role;S.name=r.name;
-  sstore('m2_sess',JSON.stringify({token:r.token,role:r.role,name:r.name,testMode:r.testMode}));
+  sstore('m2_sess',JSON.stringify({token:r.token,role:r.role,name:r.name,testMode:r.testMode,ver:APP_VER}));
   enterApp(r.testMode);
 }
 function logout(expired){sstore('m2_sess',null);if(AUTO_LOGIN&&expired){S.token='';doLogin();return;}S.token='';S.rows=[];closeCard();document.getElementById('appView').classList.add('hidden');document.getElementById('loginView').classList.remove('hidden');if(expired)document.getElementById('lgErr').textContent='세션이 만료되어 다시 로그인이 필요합니다';}
@@ -466,6 +467,7 @@ async function saveInfo(){
 // ── 시작 ──────────────────────────────────────────────────────────
 (function init(){
   let sess=null;try{sess=JSON.parse(sstore('m2_sess')||'null');}catch(e){}
+  if(sess&&sess.ver!==APP_VER){sess=null;sstore('m2_sess',null);}
   if(sess&&sess.token){S.token=sess.token;S.role=sess.role;S.name=sess.name;enterApp(sess.testMode);}
   else if(AUTO_LOGIN){document.getElementById('lgRole').value=AUTO_LOGIN.role;document.getElementById('lgPw').value=AUTO_LOGIN.password;document.getElementById('loginView').classList.remove('hidden');doLogin();}
   else document.getElementById('loginView').classList.remove('hidden');

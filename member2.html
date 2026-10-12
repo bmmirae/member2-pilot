@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>미래아이엔씨 사원 대시보드 (파일럿) v0.2</title>
+<style>
+:root{--bg:#f4f6fa;--surface:#fff;--surface2:#f1f3f8;--border:#e1e5ee;--text:#1d2433;--text-sub:#5b6478;--text-muted:#8a93a6;--primary:#1565c0;--primary-soft:#e8f1fc;--danger:#c62828;--danger-soft:#fdecec;--warn:#e65100;--warn-soft:#fff3e8;--ok:#2e7d32;--ok-soft:#e9f5ea;--purple:#6a1b9a;--purple-soft:#f3e5f5;}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Pretendard','Malgun Gothic',sans-serif;font-size:14px;}
+button{font-family:inherit;cursor:pointer;}
+input,select,textarea{font-family:inherit;font-size:14px;}
+.hidden{display:none!important;}
+/* 상단 */
+.top{position:sticky;top:0;z-index:20;background:var(--surface);border-bottom:1px solid var(--border);}
+.top-in{max-width:1100px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:10px;}
+.top h1{font-size:16px;margin:0;font-weight:700;}
+.top h1 small{font-size:11px;opacity:.55;font-weight:400;margin-left:4px;}
+.who{margin-left:auto;font-size:12px;color:var(--text-sub);display:flex;gap:8px;align-items:center;}
+.btn{border:1px solid var(--border);background:var(--surface);border-radius:8px;padding:7px 12px;font-size:13px;color:var(--text);}
+.btn:hover{background:var(--surface2);}
+.btn.primary{background:var(--primary);border-color:var(--primary);color:#fff;font-weight:600;}
+.btn.primary:hover{filter:brightness(1.08);}
+.btn.sm{padding:4px 9px;font-size:12px;white-space:nowrap;}
+.btn:disabled{opacity:.5;cursor:default;}
+.test-banner{background:var(--warn-soft);color:var(--warn);font-size:12px;text-align:center;padding:5px;}
+.tabs{max-width:1100px;margin:0 auto;padding:0 16px;display:flex;gap:4px;}
+.tab{border:none;background:none;padding:10px 14px;font-size:14px;color:var(--text-sub);border-bottom:2px solid transparent;}
+.tab.on{color:var(--primary);border-bottom-color:var(--primary);font-weight:700;}
+.tab .cnt{display:inline-block;min-width:18px;padding:0 5px;margin-left:4px;border-radius:9px;background:var(--danger);color:#fff;font-size:11px;line-height:18px;font-weight:700;}
+main{max-width:1100px;margin:0 auto;padding:16px;}
+/* 로그인 */
+.login{max-width:340px;margin:12vh auto;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px 24px;}
+.login h2{margin:0 0 4px;font-size:18px;}
+.login p{margin:0 0 18px;color:var(--text-sub);font-size:12px;}
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:12px;}
+.field label{font-size:12px;color:var(--text-sub);font-weight:600;}
+.field label .req{color:var(--danger);}
+.field label .rec{color:var(--warn);font-weight:400;}
+.inp{border:1px solid var(--border);border-radius:8px;padding:9px 10px;background:var(--surface);color:var(--text);width:100%;}
+.inp:focus{outline:2px solid var(--primary-soft);border-color:var(--primary);}
+textarea.inp{resize:vertical;min-height:70px;line-height:1.5;}
+.err{color:var(--danger);font-size:12px;min-height:16px;margin-top:4px;}
+/* 섹션/카드 */
+.sec{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:14px;overflow:hidden;}
+.sec-h{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--border);}
+.sec-h h3{margin:0;font-size:14px;}
+.sec-h .n{font-size:12px;color:var(--text-muted);}
+.sec-h .desc{margin-left:auto;font-size:11px;color:var(--text-muted);}
+.empty{padding:18px;text-align:center;color:var(--text-muted);font-size:13px;}
+.item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--surface2);cursor:pointer;}
+.item:last-child{border-bottom:none;}
+.item:hover{background:var(--surface2);}
+.item .co{font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.item .meta{font-size:12px;color:var(--text-sub);white-space:nowrap;}
+.badge{display:inline-block;font-size:11px;font-weight:700;border-radius:6px;padding:2px 7px;white-space:nowrap;border:1px solid transparent;}
+.g-단기{background:#e3f2fd;color:#1565c0;border-color:#90caf9;}
+.g-장기{background:#ede7f6;color:#4527a0;border-color:#b39ddb;}
+.g-권한오픈{background:#e8f5e9;color:#2e7d32;border-color:#a5d6a7;}
+.g-권한브리핑{background:#e0f2f1;color:#00695c;border-color:#80cbc4;}
+.g-이관완료{background:#263238;color:#fff;}
+.g-기타{background:var(--surface2);color:var(--text-sub);border-color:var(--border);}
+.chip{display:inline-block;font-size:11px;border-radius:5px;padding:1px 6px;margin-left:4px;}
+.chip.warn{background:var(--warn-soft);color:var(--warn);}
+.chip.danger{background:var(--danger-soft);color:var(--danger);}
+.chip.ok{background:var(--ok-soft);color:var(--ok);}
+.chip.plan{background:var(--primary-soft);color:var(--primary);}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px;}
+.stat .v{font-size:22px;font-weight:800;}
+.stat .l{font-size:12px;color:var(--text-sub);}
+/* 리스트 */
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px;}
+.toolbar .inp{max-width:260px;}
+.fchip{border:1px solid var(--border);background:var(--surface);border-radius:16px;padding:5px 11px;font-size:12px;color:var(--text-sub);}
+.fchip.on{background:var(--primary);border-color:var(--primary);color:#fff;font-weight:600;}
+table.list{width:100%;border-collapse:collapse;background:var(--surface);}
+table.list th{font-size:12px;color:var(--text-sub);text-align:left;font-weight:600;padding:9px 10px;border-bottom:1px solid var(--border);background:var(--surface2);white-space:nowrap;}
+table.list td{padding:9px 10px;border-bottom:1px solid var(--surface2);font-size:13px;vertical-align:middle;}
+table.list tr.r{cursor:pointer;}
+table.list tr.r:hover td{background:var(--surface2);}
+.muted{color:var(--text-muted);}
+/* 폼 */
+.form{max-width:640px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 12px;}
+.fold{margin:6px 0 12px;font-size:13px;color:var(--primary);background:none;border:none;padding:0;}
+.quick{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;}
+.quick .btn.on{background:var(--primary-soft);border-color:var(--primary);color:var(--primary);font-weight:600;}
+.hint{font-size:11px;color:var(--text-muted);}
+/* 업체 카드 (드로어) */
+.dim{position:fixed;inset:0;background:rgba(15,20,35,.35);z-index:40;}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(520px,100%);background:var(--bg);z-index:41;display:flex;flex-direction:column;box-shadow:-8px 0 24px rgba(0,0,0,.12);}
+.dr-h{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 16px;display:flex;gap:10px;align-items:flex-start;}
+.dr-h .co{font-size:17px;font-weight:800;flex:1;word-break:break-all;}
+.dr-b{flex:1;overflow-y:auto;padding:14px 16px 24px;}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:12px;}
+.box h4{margin:0 0 10px;font-size:13px;display:flex;align-items:center;gap:6px;}
+.box h4 .r{margin-left:auto;}
+.kv{display:grid;grid-template-columns:86px 1fr;gap:6px 10px;font-size:13px;}
+.kv .k{color:var(--text-muted);}
+.kv .v{word-break:break-all;}
+.kv a{color:var(--primary);text-decoration:none;}
+.tl{position:relative;padding-left:18px;}
+.tl:before{content:'';position:absolute;left:5px;top:6px;bottom:6px;width:2px;background:var(--border);}
+.tl-i{position:relative;padding:0 0 12px;}
+.tl-i:before{content:'';position:absolute;left:-17px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--surface);border:2px solid var(--text-muted);}
+.tl-i.first:before{border-color:var(--purple);background:var(--purple);}
+.tl-i.done:before{border-color:var(--primary);background:var(--primary);}
+.tl-i.plan:before{border-color:var(--primary);border-style:dashed;}
+.tl-i.over:before{border-color:var(--danger);border-style:dashed;}
+.tl-i.nomemo:before{border-color:var(--text-muted);background:var(--text-muted);}
+.tl-d{font-size:12px;font-weight:700;display:flex;gap:6px;align-items:center;}
+.tl-m{font-size:13px;margin-top:3px;white-space:pre-wrap;line-height:1.5;color:var(--text);}
+.tl-gap{font-size:11px;color:var(--text-muted);font-weight:400;}
+.saving{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1e2130;color:#fff;padding:9px 16px;border-radius:20px;font-size:13px;z-index:60;}
+.loading{padding:40px;text-align:center;color:var(--text-sub);}
+@media (max-width:640px){
+  .stats{grid-template-columns:repeat(2,1fr);}
+  .grid2{grid-template-columns:1fr;}
+  .hide-m{display:none;}
+  .tab{padding:10px 10px;font-size:13px;}
+  .top h1{font-size:14px;white-space:nowrap;}
+  .who #whoName,.sec-h .desc{display:none;}
+  .sec-h h3{white-space:nowrap;}
+}
+</style>
+</head>
+<body>
+
+<!-- 로그인 -->
+<div id="loginView" class="login hidden">
+  <h2>사원 대시보드</h2>
+  <p>파일럿 버전 · 사번과 비밀번호로 로그인</p>
+  <div class="field"><label>사번 (아이디)</label><input id="lgRole" class="inp" autocomplete="username"></div>
+  <div class="field"><label>비밀번호</label><input id="lgPw" class="inp" type="password" autocomplete="current-password"></div>
+  <button class="btn primary" style="width:100%;padding:10px;" onclick="doLogin()">로그인</button>
+  <div id="lgErr" class="err"></div>
+  <div style="margin-top:14px;text-align:right;"><button class="fold" onclick="setApiUrl()">서버 주소 설정</button></div>
+</div>
+
+<!-- 앱 -->
+<div id="appView" class="hidden">
+  <div class="top">
+    <div id="testBanner" class="test-banner hidden">테스트 시트에 연결되어 있음 · 실제 업무 데이터 아님</div>
+    <div class="top-in">
+      <h1>사원 대시보드<small>파일럿 v0.2</small></h1>
+      <div class="who"><span id="whoName"></span><button class="btn sm" onclick="loadRows()">새로고침</button><button class="btn sm" onclick="logout()">로그아웃</button></div>
+    </div>
+    <div class="tabs">
+      <button class="tab on" data-tab="today" onclick="switchTab('today')">오늘 할 일<span id="cntToday" class="cnt hidden"></span></button>
+      <button class="tab" data-tab="db" onclick="switchTab('db')">내 가망DB</button>
+      <button class="tab" data-tab="new" onclick="switchTab('new')">+ 신규등록</button>
+    </div>
+  </div>
+  <main>
+    <div id="tabToday"></div>
+    <div id="tabDb" class="hidden"></div>
+    <div id="tabNew" class="hidden"></div>
+  </main>
+</div>
+
+<div id="drawerWrap" class="hidden"><div class="dim" onclick="closeCard()"></div><div class="drawer" id="drawer"></div></div>
+<div id="savingToast" class="saving hidden"></div>
+
+<script>
+// ── 설정 ──────────────────────────────────────────────────────────
+// 파일럿 Apps Script 웹앱 주소. 비워두면 로그인 화면의 '서버 주소 설정'으로 입력 (이 브라우저에 저장됨)
+const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycby040Dne4lMk2Ulgzf5gLG5CPFskadcI4jiBjhuBY7zuMaepufQBoHjoaxHcnVQ5Xvt/exec';
+const PROMO_GRADES = ['단기','장기','권한오픈','권한+브리핑'];
+const INACTIVE_GRADES = ['이관완료','선택없음','희망건'];
+const S = { token:'', role:'', name:'', rows:[], today:'', grades:[], tab:'today', dbFilter:'전체', dbSearch:'', newFold:true, openId:'' };
+
+function store(k,v){try{if(v===undefined)return localStorage.getItem(k);if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,v);}catch(e){return null;}}
+function sstore(k,v){try{if(v===undefined)return sessionStorage.getItem(k);if(v===null)sessionStorage.removeItem(k);else sessionStorage.setItem(k,v);}catch(e){return null;}}
+function apiUrl(){return store('m2_api')||DEFAULT_API_URL;}
+function setApiUrl(){const v=prompt('파일럿 Apps Script 웹앱 주소 (…/exec)',apiUrl()||'');if(v===null)return;store('m2_api',v.trim()||null);}
+
+// ── 서버 호출 (조회=GET, 저장=POST) ──────────────────────────────────
+async function api(action,params,post){
+  const url=apiUrl();
+  if(!url)return{success:false,error:'서버 주소가 설정되지 않았습니다 (로그인 화면 하단 \'서버 주소 설정\')'};
+  const p=Object.assign({token:S.token,role:S.role},params||{});
+  try{
+    const res=post
+      ?await fetch(url,{method:'POST',body:JSON.stringify({action,params:p})})
+      :await fetch(url+'?action='+encodeURIComponent(action)+'&params='+encodeURIComponent(JSON.stringify(p)));
+    const j=await res.json();
+    if(j&&j.expired){logout(true);}
+    return j;
+  }catch(e){return{success:false,error:'서버 연결 실패: '+e.message};}
+}
+function toast(msg,ms){const t=document.getElementById('savingToast');t.textContent=msg;t.classList.remove('hidden');clearTimeout(toast._t);if(ms)toast._t=setTimeout(()=>t.classList.add('hidden'),ms);}
+function hideToast(){document.getElementById('savingToast').classList.add('hidden');}
+
+// ── 로그인 ────────────────────────────────────────────────────────
+async function doLogin(){
+  const role=document.getElementById('lgRole').value.trim(),pw=document.getElementById('lgPw').value;
+  const err=document.getElementById('lgErr');err.textContent='';
+  if(!role||!pw){err.textContent='사번과 비밀번호를 입력하세요';return;}
+  err.textContent='확인 중…';
+  const r=await api('auth',{role,password:pw});
+  if(!r.success){err.textContent=r.error||'로그인 실패';return;}
+  err.textContent='';S.token=r.token;S.role=r.role;S.name=r.name;
+  sstore('m2_sess',JSON.stringify({token:r.token,role:r.role,name:r.name,testMode:r.testMode}));
+  enterApp(r.testMode);
+}
+function logout(expired){sstore('m2_sess',null);S.token='';S.rows=[];closeCard();document.getElementById('appView').classList.add('hidden');document.getElementById('loginView').classList.remove('hidden');if(expired)document.getElementById('lgErr').textContent='세션이 만료되어 다시 로그인이 필요합니다';}
+function enterApp(testMode){
+  document.getElementById('loginView').classList.add('hidden');
+  document.getElementById('appView').classList.remove('hidden');
+  document.getElementById('whoName').textContent=S.name+' 님';
+  document.getElementById('testBanner').classList.toggle('hidden',!testMode);
+  loadRows();
+}
+document.getElementById('lgPw').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+
+// ── 데이터 ────────────────────────────────────────────────────────
+async function loadRows(){
+  document.getElementById('tabToday').innerHTML='<div class="loading">불러오는 중…</div>';
+  const r=await api('rows',{});
+  if(!r.success){document.getElementById('tabToday').innerHTML='<div class="empty">'+esc(r.error||'불러오기 실패')+'</div>';return;}
+  S.rows=r.rows;S.today=r.today;S.grades=r.grades;
+  if(r.assignedIds)toast('새 행 '+r.assignedIds+'건에 ID를 부여했음',2500);
+  renderAll();
+  if(S.openId)openCard(S.openId);
+}
+function upsertRow(row){const i=S.rows.findIndex(x=>x.id===row.id);if(i>=0)S.rows[i]=row;else S.rows.push(row);}
+
+// ── 날짜 유틸 ─────────────────────────────────────────────────────
+function ymd(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function parseYmd(s){const m=String(s||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);return m?new Date(+m[1],+m[2]-1,+m[3]):null;}
+function isYmd(s){return /^\d{4}-\d{2}-\d{2}$/.test(String(s||''));}
+function addDays(s,n){const d=parseYmd(s);d.setDate(d.getDate()+n);return ymd(d);}
+function addBizDays(s,n){const d=parseYmd(s);let k=0;while(k<n){d.setDate(d.getDate()+1);const w=d.getDay();if(w!==0&&w!==6)k++;}return ymd(d);}
+function diffDays(a,b){return Math.round((parseYmd(b)-parseYmd(a))/86400000);}
+function fmtD(s){const d=parseYmd(s);if(!d)return s||'-';return (d.getMonth()+1)+'/'+d.getDate()+' ('+'일월화수목금토'[d.getDay()]+')';}
+function esc(t){return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+
+// ── 행 파생값: 예정/완료/누락 ─────────────────────────────────────────
+function derive(r){
+  const t=S.today;
+  const valid=r.recalls.filter(x=>isYmd(x.date));
+  const done=valid.filter(x=>x.memo);                                // 메모 있음 = 실제 통화 기록
+  const plans=valid.filter(x=>!x.memo&&x.date>=t).sort((a,b)=>a.date.localeCompare(b.date)); // 오늘 이후 메모 없는 칸 = 예정
+  const past=valid.filter(x=>x.date<=t).sort((a,b)=>a.date.localeCompare(b.date));
+  const lastContact=past.length?past[past.length-1].date:(isYmd(r.firstCall)?r.firstCall:'');
+  // 다음 재콜 = M열 재콜예정일 우선, 없으면 재콜칸의 미래 날짜(메모 없음)
+  const next=isYmd(r.nextRecall)?r.nextRecall:(plans.length?plans[0].date:'');
+  // 누락: 지난 날짜 중 가장 최근 칸이 메모 없이 남아있고(14일 이내), 앞으로 예정도 없음
+  const lastPast=past.length?past[past.length-1]:null;
+  // 놓침: 예정일이 지났고(30일 이내) 그 날 이후 재콜 기록이 없음
+  const missed=(next&&next<t&&diffDays(next,t)<=30&&!past.some(x=>x.date>=next))?next:'';
+  const inactive=INACTIVE_GRADES.includes(r.grade);
+  const monthStart=t.slice(0,8)+'01';
+  const promoMissing=(isYmd(r.firstCall)&&r.firstCall>=monthStart&&PROMO_GRADES.includes(r.grade))
+    ?[!r.budgetNum&&'예산',!r.advertiserManager&&'광고주담당자',!r.phone&&'연락처',!r.email&&'이메일'].filter(Boolean):[];
+  return{done,plans,past,next,lastContact,missed,inactive,promoMissing,recallCnt:past.length};
+}
+function gradeBadge(g){const k=g==='권한+브리핑'?'권한브리핑':(['단기','장기','권한오픈','이관완료'].includes(g)?g:'기타');return '<span class="badge g-'+k+'">'+esc(g||'미분류')+'</span>';}
+
+// ── 렌더 ──────────────────────────────────────────────────────────
+function renderAll(){renderToday();renderDb();renderNew();}
+function switchTab(t){S.tab=t;document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.tab===t));['today','db','new'].forEach(k=>document.getElementById('tab'+k[0].toUpperCase()+k.slice(1)).classList.toggle('hidden',k!==t));}
+
+function renderToday(){
+  const t=S.today;
+  const L={due:[],missed:[],new3:[],promo:[]};
+  S.rows.forEach(r=>{
+    const d=derive(r);
+    if(d.inactive)return;
+    if(d.next===t)L.due.push(r);
+    if(d.missed)L.missed.push(r);
+    if(isYmd(r.firstCall)&&diffDays(r.firstCall,t)<=3&&diffDays(r.firstCall,t)>=0&&d.past.length===0&&d.next!==t)L.new3.push(r);
+    if(d.promoMissing.length)L.promo.push(r);
+  });
+  const total=L.due.length+L.missed.length;
+  const c=document.getElementById('cntToday');c.textContent=total;c.classList.toggle('hidden',!total);
+  const weekEnd=addDays(t,7);
+  const weekPlans=S.rows.filter(r=>{const n=derive(r).next;return !derive(r).inactive&&n>t&&n<=weekEnd;}).length;
+  const doneToday=S.rows.reduce((n,r)=>n+r.recalls.filter(x=>x.date===t&&x.memo).length,0);
+  const newToday=S.rows.filter(r=>r.firstCall===t).length;
+  const sec=(title,desc,list,metaFn)=>'<div class="sec"><div class="sec-h"><h3>'+title+'</h3><span class="n">'+list.length+'건</span><span class="desc">'+desc+'</span></div>'+
+    (list.length?list.map(r=>'<div class="item" onclick="openCard(\''+esc(r.id)+'\')">'+gradeBadge(r.grade)+'<span class="co">'+esc(r.company)+'</span><span class="meta">'+metaFn(r)+'</span></div>').join(''):'<div class="empty">없음</div>')+'</div>';
+  document.getElementById('tabToday').innerHTML=
+    '<div class="stats">'+
+      '<div class="stat"><div class="v">'+L.due.length+'</div><div class="l">오늘 재콜 예정</div></div>'+
+      '<div class="stat"><div class="v" style="color:var(--primary)">'+doneToday+'</div><div class="l">오늘 재콜 기록</div></div>'+
+      '<div class="stat"><div class="v">'+newToday+'</div><div class="l">오늘 신규등록</div></div>'+
+      '<div class="stat"><div class="v">'+weekPlans+'</div><div class="l">이번 7일 예정</div></div>'+
+    '</div>'+
+    sec('오늘 재콜 예정','오늘 날짜로 잡힌 재콜',L.due,r=>'마지막 컨택 '+fmtD(derive(r).lastContact))+
+    sec('놓친 재콜','재콜예정일이 지났는데 기록 없음 (최근 30일)',L.missed,r=>'<span class="chip danger">'+fmtD(derive(r).missed)+' 예정</span>')+
+    sec('신규 3일 팔로업','첫콜 3일 이내, 재콜 기록 없음',L.new3,r=>'첫콜 '+fmtD(r.firstCall))+
+    sec('신규P 미인정','이번 달 신규 중 권장 항목 누락',L.promo,r=>'<span class="chip warn">'+derive(r).promoMissing.join('·')+' 없음</span>');
+}
+
+function renderDb(){
+  const grades=['전체'].concat(S.grades.filter(g=>S.rows.some(r=>r.grade===g)));
+  if(S.rows.some(r=>!r.grade))grades.push('미분류');
+  const q=S.dbSearch.trim().toLowerCase();
+  const list=S.rows.filter(r=>{
+    if(S.dbFilter!=='전체'&&(S.dbFilter==='미분류'?!!r.grade:r.grade!==S.dbFilter))return false;
+    if(q&&![r.company,r.phone,r.keyword,r.advertiserManager].join(' ').toLowerCase().includes(q))return false;
+    return true;
+  }).map(r=>({r,d:derive(r)})).sort((a,b)=>{
+    // 다음 재콜 빠른 순 → 예정 없는 건은 마지막 컨택 오래된 순
+    if(a.d.next&&b.d.next)return a.d.next.localeCompare(b.d.next);
+    if(a.d.next)return -1;if(b.d.next)return 1;
+    return (a.d.lastContact||'').localeCompare(b.d.lastContact||'');
+  });
+  const t=S.today;
+  document.getElementById('tabDb').innerHTML=
+    '<div class="toolbar"><input class="inp" id="dbSearch" placeholder="업체명·연락처·키워드 검색" value="'+esc(S.dbSearch)+'" oninput="S.dbSearch=this.value;renderDbKeep()">'+
+    grades.map(g=>'<button class="fchip'+(S.dbFilter===g?' on':'')+'" onclick="S.dbFilter=\''+esc(g)+'\';renderDb()">'+esc(g)+'</button>').join('')+
+    '<span class="hint" style="margin-left:auto;">'+list.length+'건</span></div>'+
+    '<div class="sec"><table class="list"><thead><tr><th>가망도</th><th>업체명</th><th class="hide-m">첫콜</th><th>마지막 컨택</th><th>다음 재콜</th><th class="hide-m">재콜</th></tr></thead><tbody>'+
+    (list.length?list.map(({r,d})=>'<tr class="r" onclick="openCard(\''+esc(r.id)+'\')"><td>'+gradeBadge(r.grade)+'</td><td><b>'+esc(r.company)+'</b>'+(d.promoMissing.length?'<span class="chip warn">신규P 미인정</span>':'')+'</td><td class="hide-m muted">'+fmtD(r.firstCall)+'</td><td>'+(d.lastContact?fmtD(d.lastContact)+' <span class="muted">('+diffDays(d.lastContact,t)+'일 전)</span>':'-')+'</td><td>'+(d.missed?'<span class="chip danger">'+fmtD(d.next)+' 놓침</span>':(d.next?'<span class="chip '+(d.next===t?'danger':(d.next<t?'':'plan'))+'">'+fmtD(d.next)+'</span>':'<span class="muted">-</span>'))+'</td><td class="hide-m">'+d.recallCnt+'회</td></tr>').join(''):'<tr><td colspan="6" class="empty">해당 건 없음</td></tr>')+
+    '</tbody></table></div>';
+}
+function renderDbKeep(){const el=document.getElementById('dbSearch');const pos=el.selectionStart;renderDb();const n=document.getElementById('dbSearch');n.focus();n.setSelectionRange(pos,pos);}
+
+// ── 신규등록 ──────────────────────────────────────────────────────
+function gradeOptions(sel,withBlank){return (withBlank?'<option value="">선택</option>':'')+S.grades.map(g=>'<option'+(g===sel?' selected':'')+'>'+esc(g)+'</option>').join('');}
+function quickDates(prefix,inputId,base){
+  const b=base||S.today;
+  const opts=[['내일',addBizDays(b,1)],['3영업일',addBizDays(b,3)],['1주',addDays(b,7)],['2주',addDays(b,14)]];
+  return '<div class="quick" id="'+prefix+'Quick">'+opts.map(o=>'<button type="button" class="btn sm" data-d="'+o[1]+'" onclick="pickDate(\''+prefix+'\',\''+inputId+'\',\''+o[1]+'\')">'+o[0]+'</button>').join('')+'</div>';
+}
+function pickDate(prefix,inputId,d){document.getElementById(inputId).value=d;syncQuick(prefix,d);}
+function syncQuick(prefix,d){document.querySelectorAll('#'+prefix+'Quick .btn').forEach(b=>b.classList.toggle('on',b.dataset.d===d));}
+function renderNew(){
+  const f=(id,label,type,extra)=>'<div class="field"><label>'+label+'</label>'+(type==='textarea'?'<textarea id="'+id+'" class="inp" '+(extra||'')+'></textarea>':'<input id="'+id+'" class="inp" type="'+(type||'text')+'" '+(extra||'')+'>')+'</div>';
+  document.getElementById('tabNew').innerHTML='<div class="form">'+
+    '<div class="grid2">'+f('nCompany','업체명 <span class="req">*</span>','text','oninput="dupCheck()"')+f('nPhone','연락처 <span class="req">*</span>','tel')+'</div>'+
+    '<div id="nDup" class="err" style="margin-top:-8px;margin-bottom:6px;"></div>'+
+    f('nContent','첫콜 내용 <span class="req">*</span>','textarea','placeholder="통화 요약, 니즈, 다음 액션"')+
+    '<div class="grid2"><div class="field"><label>가망도 <span class="req">*</span></label><select id="nGrade" class="inp">'+gradeOptions('',true)+'</select></div>'+
+    '<div class="field"><label>다음 재콜일 <span class="req">*</span></label><input id="nNext" class="inp" type="date" min="'+S.today+'" onchange="syncQuick(\'n\',this.value)">'+quickDates('n','nNext')+'</div></div>'+
+    '<div class="grid2">'+f('nBudget','예산 <span class="rec">(권장 · 신규P 요건)</span>','text','inputmode="numeric"')+f('nManager','광고주 담당자 <span class="rec">(권장)</span>')+'</div>'+
+    f('nEmail','이메일 <span class="rec">(권장)</span>','email')+
+    '<button class="fold" onclick="S.newFold=!S.newFold;document.getElementById(\'nMore\').classList.toggle(\'hidden\',S.newFold);this.textContent=S.newFold?\'+ 추가 항목 (키워드·순위·URL·컨택포인트)\':\'− 추가 항목 접기\'">+ 추가 항목 (키워드·순위·URL·컨택포인트)</button>'+
+    '<div id="nMore" class="hidden"><div class="grid2">'+f('nKeyword','키워드')+f('nRank','순위')+'</div><div class="grid2">'+f('nUrl','URL','url')+f('nContactPoint','컨택포인트')+'</div></div>'+
+    '<div style="display:flex;gap:8px;align-items:center;margin-top:6px;"><button class="btn primary" id="nSave" onclick="saveNew()">등록</button><span class="hint">첫콜 날짜는 오늘, 담당자는 본인으로 자동 기록됨</span></div>'+
+    '<div id="nErr" class="err"></div></div>';
+}
+function dupCheck(){const v=document.getElementById('nCompany').value.replace(/\s/g,'');const m=v&&S.rows.find(r=>r.company.replace(/\s/g,'')===v);document.getElementById('nDup').innerHTML=m?'이미 등록된 업체임 · <a href="#" onclick="openCard(\''+esc(m.id)+'\');return false;">카드 열기</a>':'';}
+async function saveNew(force){
+  const g=id=>document.getElementById(id).value.trim();
+  const data={company:g('nCompany'),phone:g('nPhone'),content:g('nContent'),grade:g('nGrade'),nextDate:g('nNext'),budget:g('nBudget'),advertiserManager:g('nManager'),email:g('nEmail'),keyword:g('nKeyword'),rank:g('nRank'),url:g('nUrl'),contactPoint:g('nContactPoint')};
+  const err=document.getElementById('nErr');
+  const miss=[['company','업체명'],['phone','연락처'],['content','첫콜 내용'],['grade','가망도'],['nextDate','다음 재콜일']].filter(x=>!data[x[0]]).map(x=>x[1]);
+  if(miss.length){err.textContent=miss.join(', ')+' 입력 필요';return;}
+  const rec=[!data.budget&&'예산',!data.advertiserManager&&'광고주 담당자',!data.email&&'이메일'].filter(Boolean);
+  if(rec.length&&PROMO_GRADES.includes(data.grade)&&!force&&!confirm(rec.join(', ')+'이(가) 비어 있어 신규P로 인정되지 않음.\n그대로 등록할까요?'))return;
+  err.textContent='';const btn=document.getElementById('nSave');btn.disabled=true;toast('저장 중…');
+  const r=await api('create',{data,force:!!force},true);
+  btn.disabled=false;hideToast();
+  if(!r.success){
+    if(r.duplicate&&confirm(r.error+'\n같은 이름으로 그래도 등록할까요?'))return saveNew(true);
+    err.textContent=r.error||'저장 실패';return;
+  }
+  upsertRow(r.row);S.newFold=true;renderAll();toast('등록 완료',1800);
+  switchTab('db');openCard(r.row.id);
+}
+
+// ── 업체 카드 ─────────────────────────────────────────────────────
+function openCard(id){
+  const r=S.rows.find(x=>x.id===id);if(!r)return;
+  S.openId=id;
+  const d=derive(r),t=S.today;
+  // 타임라인: 첫콜 → 날짜순 재콜 (간격 표시)
+  const items=[{type:'first',date:r.firstCall,memo:r.content}].concat(r.recalls.filter(x=>isYmd(x.date)).sort((a,b)=>a.date.localeCompare(b.date)).map(x=>({type:x.memo?'done':(x.date>=t?'plan':'nomemo'),date:x.date,memo:x.memo})));
+  if(isYmd(r.nextRecall)&&!items.some(it=>it.type==='plan'&&it.date===r.nextRecall))items.push({type:r.nextRecall>=t?'plan':'over',date:r.nextRecall,memo:''});
+  const odd=r.recalls.filter(x=>!isYmd(x.date));
+  let prev=isYmd(r.firstCall)?r.firstCall:'';
+  const tl=items.map(it=>{
+    const gap=(prev&&isYmd(it.date)&&it.type!=='first')?'<span class="tl-gap">+'+diffDays(prev,it.date)+'일</span>':'';
+    if(it.type!=='plan'&&it.type!=='over')prev=it.date||prev;
+    const label={first:'<span class="badge" style="background:var(--purple-soft);color:var(--purple)">첫콜</span>',done:'',plan:'<span class="chip plan">예정</span>',over:'<span class="chip danger">예정일 지남</span>',nomemo:'<span class="chip" style="background:var(--surface2);color:var(--text-muted)">메모 없음</span>'}[it.type];
+    return '<div class="tl-i '+it.type+'"><div class="tl-d">'+label+(isYmd(it.date)?fmtD(it.date):esc(it.date||'날짜 없음'))+gap+'</div>'+(it.memo?'<div class="tl-m">'+esc(it.memo)+'</div>':'')+'</div>';
+  }).join('')+(odd.length?'<div class="hint">날짜 형식이 아닌 재콜칸: '+odd.map(x=>esc(x.date)).join(', ')+'</div>':'');
+  const tel=r.phone?'<a href="tel:'+esc(r.phone.replace(/[^0-9+]/g,''))+'">'+esc(r.phone)+'</a>':'<span class="muted">-</span>';
+  const url=r.url?'<a href="'+esc(/^https?:/i.test(r.url)?r.url:'http://'+r.url)+'" target="_blank" rel="noopener">'+esc(r.url)+'</a>':'<span class="muted">-</span>';
+  const v=x=>x?esc(x):'<span class="muted">-</span>';
+  const recWarn=x=>x?esc(x):'<span class="chip warn" style="margin:0">없음 · 신규P 요건</span>';
+  document.getElementById('drawer').innerHTML=
+    '<div class="dr-h"><div class="co">'+esc(r.company)+'<div class="hint" style="font-weight:400;margin-top:3px;">첫콜 '+fmtD(r.firstCall)+' · 재콜 '+d.recallCnt+'회'+(d.next?' · 다음 '+fmtD(d.next):'')+'</div></div>'+
+    '<select class="inp" style="width:auto;" onchange="saveGrade(this)">'+gradeOptions(r.grade,!r.grade)+'</select>'+
+    '<button class="btn sm" onclick="closeCard()">닫기</button></div>'+
+    '<div class="dr-b">'+
+      '<div class="box"><h4>재콜 기록</h4>'+
+        '<div class="field"><label>메모</label><textarea id="cMemo" class="inp" placeholder="통화 내용 (비워두고 다음 재콜일만 바꿀 수도 있음)"></textarea></div>'+
+        '<div class="grid2"><div class="field"><label>통화일</label><input id="cDate" class="inp" type="date" value="'+t+'" max="'+t+'"></div>'+
+        '<div class="field"><label>다음 재콜일'+(d.next?' <span class="hint">(현재 '+fmtD(d.next)+' → 변경)</span>':'')+'</label><input id="cNext" class="inp" type="date" min="'+addDays(t,1)+'" onchange="syncQuick(\'c\',this.value)">'+quickDates('c','cNext')+'</div></div>'+
+        '<button class="btn primary" id="cSave" onclick="saveRecall()">저장</button><div id="cErr" class="err"></div>'+
+      '</div>'+
+      '<div class="box"><h4>히스토리</h4><div class="tl">'+tl+'</div></div>'+
+      '<div class="box" id="infoBox"><h4>업체 정보<button class="btn sm r" onclick="editInfo()">수정</button></h4><div class="kv">'+
+        '<div class="k">연락처</div><div class="v">'+tel+'</div>'+
+        '<div class="k">예산</div><div class="v">'+recWarn(r.budget)+'</div>'+
+        '<div class="k">광고주 담당자</div><div class="v">'+recWarn(r.advertiserManager)+'</div>'+
+        '<div class="k">이메일</div><div class="v">'+recWarn(r.email)+'</div>'+
+        '<div class="k">키워드</div><div class="v">'+v(r.keyword)+(r.rank?' <span class="muted">('+esc(r.rank)+'위)</span>':'')+'</div>'+
+        '<div class="k">URL</div><div class="v">'+url+'</div>'+
+        '<div class="k">컨택포인트</div><div class="v">'+v(r.contactPoint)+'</div>'+
+        '<div class="k">시트 위치</div><div class="v muted">'+r.rowNum+'행 · '+esc(r.id)+'</div>'+
+      '</div></div>'+
+    '</div>';
+  document.getElementById('drawerWrap').classList.remove('hidden');
+}
+function closeCard(){S.openId='';document.getElementById('drawerWrap').classList.add('hidden');}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&S.openId)closeCard();});
+
+async function saveRecall(){
+  const r=S.rows.find(x=>x.id===S.openId);if(!r)return;
+  const memo=document.getElementById('cMemo').value.trim(),date=document.getElementById('cDate').value,nextDate=document.getElementById('cNext').value;
+  const err=document.getElementById('cErr');
+  if(!memo&&!nextDate){err.textContent='메모 또는 다음 재콜일을 입력하세요';return;}
+  if(nextDate&&nextDate<=date){err.textContent='다음 재콜일은 통화일 이후여야 함';return;}
+  if(memo&&!nextDate&&!(derive(r).next>date)&&!INACTIVE_GRADES.includes(r.grade)&&!confirm('재콜예정일을 새로 정하지 않았음 (현재 '+(derive(r).next?fmtD(derive(r).next):'없음')+').\n그대로 저장할까요?'))return;
+  err.textContent='';document.getElementById('cSave').disabled=true;toast('저장 중…');
+  const res=await api('recall',{id:r.id,memo,date,nextDate},true);
+  hideToast();
+  if(!res.success){document.getElementById('cSave').disabled=false;err.textContent=res.error||'저장 실패';return;}
+  upsertRow(res.row);renderAll();openCard(res.row.id);toast('저장 완료',1500);
+}
+async function saveGrade(sel){
+  const r=S.rows.find(x=>x.id===S.openId);if(!r)return;
+  const g=sel.value;if(g===r.grade)return;
+  toast('가망도 저장 중…');
+  const res=await api('update',{id:r.id,fields:{grade:g},base:{grade:r.grade}},true);
+  hideToast();
+  if(!res.success){
+    if(res.conflict&&res.row){upsertRow(res.row);renderAll();openCard(res.row.id);alert(res.error+'\n최신 값으로 다시 불러왔음');return;}
+    alert(res.error||'저장 실패');sel.value=r.grade;return;
+  }
+  upsertRow(res.row);renderAll();openCard(res.row.id);toast(r.grade+' → '+g,1800);
+}
+const EDIT_FIELDS=[['company','업체명'],['phone','연락처'],['budget','예산'],['advertiserManager','광고주 담당자'],['email','이메일'],['keyword','키워드'],['rank','순위'],['url','URL'],['contactPoint','컨택포인트'],['content','첫콜 내용','textarea']];
+function editInfo(){
+  const r=S.rows.find(x=>x.id===S.openId);if(!r)return;
+  document.getElementById('infoBox').innerHTML='<h4>업체 정보 수정</h4>'+EDIT_FIELDS.map(([k,l,tp])=>'<div class="field"><label>'+l+'</label>'+(tp==='textarea'?'<textarea class="inp" data-k="'+k+'">'+esc(r[k])+'</textarea>':'<input class="inp" data-k="'+k+'" value="'+esc(r[k])+'">')+'</div>').join('')+
+    '<div style="display:flex;gap:8px;"><button class="btn primary" id="eSave" onclick="saveInfo()">저장</button><button class="btn" onclick="openCard(S.openId)">취소</button></div><div id="eErr" class="err"></div>';
+}
+async function saveInfo(){
+  const r=S.rows.find(x=>x.id===S.openId);if(!r)return;
+  const fields={},base={};
+  document.querySelectorAll('#infoBox [data-k]').forEach(el=>{const k=el.dataset.k,v=el.value.trim();if(v!==(r[k]||'')){fields[k]=v;base[k]=r[k]||'';}});
+  const err=document.getElementById('eErr');
+  if(!Object.keys(fields).length){openCard(r.id);return;}
+  if(fields.company===''){err.textContent='업체명은 비울 수 없음';return;}
+  document.getElementById('eSave').disabled=true;toast('저장 중…');
+  const res=await api('update',{id:r.id,fields,base},true);
+  hideToast();
+  if(!res.success){
+    if(res.conflict&&res.row){upsertRow(res.row);renderAll();alert(res.error+'\n최신 값으로 다시 불러왔으니 확인 후 다시 수정하세요');openCard(res.row.id);return;}
+    document.getElementById('eSave').disabled=false;err.textContent=res.error||'저장 실패';return;
+  }
+  upsertRow(res.row);renderAll();openCard(res.row.id);toast('저장 완료',1500);
+}
+
+// ── 시작 ──────────────────────────────────────────────────────────
+(function init(){
+  let sess=null;try{sess=JSON.parse(sstore('m2_sess')||'null');}catch(e){}
+  if(sess&&sess.token){S.token=sess.token;S.role=sess.role;S.name=sess.name;enterApp(sess.testMode);}
+  else document.getElementById('loginView').classList.remove('hidden');
+})();
+</script>
+</body>
+</html>

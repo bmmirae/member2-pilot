@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>미래아이엔씨 통합DB (파일럿) v0.12</title>
+<title>미래아이엔씨 통합DB (파일럿) v0.13</title>
 <style>
 :root{--bg:#f0f2f5;--surface:#fff;--surface2:#f5f7ff;--border:#e8eaf6;--text:#333;--text-sub:#777;--text-muted:#aaa;--header-bg:linear-gradient(135deg,#0B13E7,#080ead);--primary:#3949ab;--primary-soft:#e8eaf6;--th-bg:#e8eaf6;--danger:#c62828;--danger-soft:#fdecec;--warn:#e65100;--warn-soft:#fff3e8;--ok:#2e7d32;--ok-soft:#e9f5ea;--purple:#6a1b9a;--purple-soft:#f3e5f5;}
 *{box-sizing:border-box;}
@@ -87,6 +87,18 @@ textarea.inp{resize:vertical;min-height:70px;line-height:1.5;}
 .gtile .gl{font-size:12px;color:var(--text-sub);font-weight:600;}
 .gtile.on{background:var(--primary-soft);box-shadow:0 0 0 2px var(--primary) inset;}
 .gt-all{border-left-color:var(--primary);}.gt-단기{border-left-color:#1565c0;}.gt-장기{border-left-color:#4527a0;}.gt-권한오픈{border-left-color:#2e7d32;}.gt-권한브리핑{border-left-color:#00695c;}.gt-이관완료{border-left-color:#263238;}.gt-기타{border-left-color:#b0b7c3;}
+.rchart{position:relative;}
+.rtip{position:absolute;pointer-events:none;background:#1e2130;color:#fff;font-size:12px;line-height:1.6;padding:8px 11px;border-radius:8px;min-width:170px;z-index:5;box-shadow:0 4px 14px rgba(0,0,0,.2);}
+.rtip .muted{color:#aab;}
+.rdot{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:5px;vertical-align:middle;}
+.rlegend{display:flex;gap:12px;font-size:12px;color:var(--text-sub);}
+.rchart rect.hit{cursor:pointer;}
+.rchart rect.hit:hover{fill:rgba(57,73,171,.06);}
+.rgrid{display:grid;grid-template-columns:repeat(3,1fr);}
+.rgrid>div{border-right:1px solid var(--surface2);min-width:0;}
+.rgrid>div:last-child{border-right:none;}
+.rsub{font-size:12px;font-weight:700;padding:10px 14px;border-bottom:1px solid var(--surface2);background:var(--surface2);}
+@media (max-width:900px){.rgrid{grid-template-columns:1fr;}}
 .fchip{border:1px solid var(--border);background:var(--surface);border-radius:16px;padding:5px 11px;font-size:12px;color:var(--text-sub);}
 .fchip.on{background:var(--primary);border-color:var(--primary);color:#fff;font-weight:600;}
 table.list{width:100%;border-collapse:collapse;background:var(--surface);}
@@ -182,19 +194,21 @@ table.nlist td.wide{max-width:320px;}
     <div id="testBanner" class="test-banner hidden">테스트 시트에 연결되어 있음 · 실제 업무 데이터 아님</div>
     <div class="hdr"><div class="top-in">
       <div class="logo"><img src="data:image/png;base64,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" alt="CI"></div>
-      <h1>미래아이엔씨 통합DB <span style="font-size:12px;opacity:.6;font-weight:400;">파일럿 v0.12</span></h1>
+      <h1>미래아이엔씨 통합DB <span style="font-size:12px;opacity:.6;font-weight:400;">파일럿 v0.13</span></h1>
       <div class="who"><span id="whoName" class="user-chip"></span><button class="hbtn" onclick="loadRows()">새로고침</button><button class="hbtn" id="btnLogout" onclick="logout()">로그아웃</button></div>
     </div></div>
     <div class="tabs">
       <button class="tab on" data-tab="today" onclick="switchTab('today')">오늘 할 일<span id="cntToday" class="cnt hidden"></span></button>
       <button class="tab" data-tab="db" onclick="switchTab('db')">내 가망DB</button>
       <button class="tab" data-tab="new" onclick="switchTab('new')">+ 신규등록</button>
+      <button class="tab" data-tab="report" onclick="switchTab('report')">리포트</button>
     </div>
   </div>
   <main>
     <div id="tabToday"></div>
     <div id="tabDb" class="hidden"></div>
     <div id="tabNew" class="hidden"></div>
+    <div id="tabReport" class="hidden"></div>
   </main>
 </div>
 
@@ -206,7 +220,7 @@ table.nlist td.wide{max-width:320px;}
 // 파일럿 Apps Script 웹앱 주소. 비워두면 로그인 화면의 '서버 주소 설정'으로 입력 (이 브라우저에 저장됨)
 // 테스트 기간 자동 로그인 (테스트 시트 하나만 연결된 동안만 사용). 파일럿 사원 확정되면 null로 바꾸면 로그인 화면이 다시 나옴
 const AUTO_LOGIN = null;
-const APP_VER = 'v0.12';   // 화면 버전. 바뀌면 이전 접속 기록(테스트 계정 등)을 버리고 다시 로그인
+const APP_VER = 'v0.13';   // 화면 버전. 바뀌면 이전 접속 기록(테스트 계정 등)을 버리고 다시 로그인
 const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycby040Dne4lMk2Ulgzf5gLG5CPFskadcI4jiBjhuBY7zuMaepufQBoHjoaxHcnVQ5Xvt/exec';
 const PROMO_GRADES = ['단기','장기','권한오픈','권한+브리핑'];
 const INACTIVE_GRADES = ['이관완료','선택없음','희망건'];
@@ -262,7 +276,7 @@ async function loadRows(){
   document.getElementById('tabToday').innerHTML='<div class="loading">불러오는 중…</div>';
   const r=await api('rows',{});
   if(!r.success){document.getElementById('tabToday').innerHTML='<div class="empty">'+esc(r.error||'불러오기 실패')+'</div>';return;}
-  S.rows=r.rows;S.today=r.today;S.grades=r.grades;S.readOnly=!!r.readOnly;
+  S.rows=r.rows;S.today=r.today;S.grades=r.grades;S.readOnly=!!r.readOnly;S.history=r.history||[];
   const tb=document.getElementById('testBanner');if(S.readOnly){tb.textContent='불러오기 확인 단계(읽기 전용) · 저장은 아직 안 됨';tb.classList.remove('hidden');}
   if(r.assignedIds)toast('새 행 '+r.assignedIds+'건에 ID를 부여했음',2500);
   renderAll();
@@ -308,8 +322,9 @@ function gradeRank(g){const i=GRADE_ORDER.indexOf(gradeGroup(g));return i<0?GRAD
 function gradeBadge(g){const k=g==='권한+브리핑'?'권한브리핑':(['단기','장기','권한오픈','이관완료'].includes(g)?g:'기타');return '<span class="badge g-'+k+'">'+esc(gradeGroup(g))+'</span>';}
 
 // ── 렌더 ──────────────────────────────────────────────────────────
-function renderAll(){renderToday();renderDb();if(document.getElementById('newLists'))renderNewLists();else renderNew();}
-function switchTab(t){S.tab=t;document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.tab===t));['today','db','new'].forEach(k=>document.getElementById('tab'+k[0].toUpperCase()+k.slice(1)).classList.toggle('hidden',k!==t));}
+function renderAll(){renderToday();renderDb();renderReport();if(document.getElementById('newLists'))renderNewLists();else renderNew();}
+function switchTab(t){S.tab=t;document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.tab===t));['today','db','new','report'].forEach(k=>document.getElementById('tab'+k[0].toUpperCase()+k.slice(1)).classList.toggle('hidden',k!==t));if(t==='report')renderReport();}
+window.addEventListener('resize',()=>{if(S.tab==='report'){clearTimeout(window._rr);window._rr=setTimeout(renderReport,150);}});
 
 function renderToday(){
   const t=S.today;
@@ -444,6 +459,100 @@ async function saveNew(force){
     err.textContent=r.error||'저장 실패';return;
   }
   upsertRow(r.row);renderNew();renderToday();renderDb();toast('등록 완료 · 아래 오늘 신규DB에 추가됨',2200);
+}
+
+// ── 리포트: 신규 · 재콜 · 이관 전환을 일별(영업일)/주별/월별로 집계 ─────────
+// 출처: 신규=B열 첫콜날짜, 재콜=재콜칸 날짜(메모 없어도 포함), 이관=가망도이력(없으면 마지막 재콜일→첫콜일로 대체)
+const RPT_COLORS={new:'#2a78d6',recall:'#eb6834',transfer:'#1baf7a'};
+const RPT_LABEL={new:'신규',recall:'재콜',transfer:'이관 전환'};
+function rptEvents(){
+  const t=S.today,ev=[];
+  S.rows.forEach(r=>{
+    if(isYmd(r.firstCall)&&r.firstCall<=t)ev.push({type:'new',date:r.firstCall,r});
+    r.recalls.forEach(x=>{if(isYmd(x.date)&&x.date<=t)ev.push({type:'recall',date:x.date,r,memo:x.memo});});
+  });
+  // 이관: 업체별 가장 최근 '이관완료' 기록 1건
+  const byCo={};S.rows.forEach(r=>{byCo[r.company]=r;});
+  const tr={};(S.history||[]).forEach(h=>{if(h.to==='이관완료'&&byCo[h.company]&&h.date<=t&&(!tr[h.company]||h.date>tr[h.company]))tr[h.company]=h.date;});
+  S.rows.forEach(r=>{
+    if(r.grade!=='이관완료')return;
+    let d=tr[r.company],est=false;
+    if(!d){const past=r.recalls.filter(x=>isYmd(x.date)&&x.date<=t).map(x=>x.date).sort();d=past.length?past[past.length-1]:(isYmd(r.firstCall)?r.firstCall:'');est=true;}
+    if(d)ev.push({type:'transfer',date:d,r,est});
+  });
+  return ev;
+}
+function mondayOf(s){const d=parseYmd(s);const w=(d.getDay()+6)%7;d.setDate(d.getDate()-w);return ymd(d);}
+function rptBuckets(mode){
+  const t=S.today,out=[];
+  if(mode==='day'){let d=parseYmd(t);while(out.length<30){const w=d.getDay();if(w!==0&&w!==6){const k=ymd(d);out.unshift({key:k,label:(d.getMonth()+1)+'/'+d.getDate(),title:fmtD(k)});}d.setDate(d.getDate()-1);}}
+  else if(mode==='week'){let m=parseYmd(mondayOf(t));for(let i=0;i<12;i++){const k=ymd(m),e=new Date(m);e.setDate(e.getDate()+4);out.unshift({key:k,label:(m.getMonth()+1)+'/'+m.getDate()+'주',title:fmtD(k)+' 시작 주 (주말 기록 포함)'});m.setDate(m.getDate()-7);}}
+  else{const d=parseYmd(t);d.setDate(1);for(let i=0;i<12;i++){const k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');out.unshift({key:k,label:String(d.getFullYear()).slice(2)+'.'+(d.getMonth()+1),title:d.getFullYear()+'년 '+(d.getMonth()+1)+'월'});d.setMonth(d.getMonth()-1);}}
+  return out;
+}
+function rptKey(date,mode){if(mode==='day'){const w=parseYmd(date).getDay();return (w===0||w===6)?null:date;}if(mode==='week')return mondayOf(date);return date.slice(0,7);}
+function rptAggregate(mode){
+  const bs=rptBuckets(mode),idx={};bs.forEach((b,i)=>{idx[b.key]=i;b.new=[];b.recall=[];b.transfer=[];});
+  rptEvents().forEach(e=>{const k=rptKey(e.date,mode);if(k!==null&&idx[k]!==undefined)bs[idx[k]][e.type].push(e);});
+  return bs;
+}
+// 막대그래프 (SVG 직접 그림): 같은 단위(건수) → 축 하나, 그룹 막대
+function rptChart(id,bs,types){
+  const W=Math.max(560,(document.getElementById('tabReport').clientWidth||1200)-30),H=240,padL=36,padR=8,padT=16,padB=30,iw=W-padL-padR,ih=H-padT-padB;
+  const max=Math.max(1,...bs.map(b=>Math.max(...types.map(tp=>b[tp].length))));
+  const step=max<=5?1:Math.ceil(max/4/5)*5||1,top=Math.ceil(max/step)*step,ticks=[];for(let v=0;v<=top;v+=step)ticks.push(v);
+  const gw=iw/bs.length,gap=2,bw=Math.max(2,Math.min(22,(gw*0.72-gap*(types.length-1))/types.length));
+  const y=v=>padT+ih-(v/top)*ih;
+  const every=Math.ceil(bs.length/15);
+  let g='';
+  ticks.forEach(v=>{g+='<line x1="'+padL+'" x2="'+(W-padR)+'" y1="'+y(v)+'" y2="'+y(v)+'" stroke="#e8eaf0" stroke-width="1"/><text x="'+(padL-6)+'" y="'+(y(v)+4)+'" text-anchor="end" font-size="11" fill="#8a8f9c">'+v+'</text>';});
+  bs.forEach((b,i)=>{
+    const gx=padL+gw*i+(gw-(bw*types.length+gap*(types.length-1)))/2;
+    types.forEach((tp,j)=>{const v=b[tp].length;if(!v)return;const x=gx+j*(bw+gap),yy=y(v),h=padT+ih-yy,r=Math.min(4,bw/2,h);
+      g+='<path d="M'+x+','+(padT+ih)+'V'+(yy+r)+'Q'+x+','+yy+' '+(x+r)+','+yy+'H'+(x+bw-r)+'Q'+(x+bw)+','+yy+' '+(x+bw)+','+(yy+r)+'V'+(padT+ih)+'Z" fill="'+RPT_COLORS[tp]+'"/>';
+      if(types.length===1)g+='<text x="'+(x+bw/2)+'" y="'+(yy-4)+'" text-anchor="middle" font-size="11" font-weight="700" fill="#555">'+v+'</text>';});
+    if(i%every===0||i===bs.length-1)g+='<text x="'+(padL+gw*i+gw/2)+'" y="'+(H-10)+'" text-anchor="middle" font-size="11" fill="#8a8f9c">'+esc(b.label)+'</text>';
+    g+='<rect class="hit" x="'+(padL+gw*i)+'" y="'+padT+'" width="'+gw+'" height="'+ih+'" fill="transparent" data-i="'+i+'"'+(S.rptSel===b.key?' style="fill:rgba(57,73,171,.08)"':'')+'/>';
+  });
+  g+='<line x1="'+padL+'" x2="'+(W-padR)+'" y1="'+(padT+ih)+'" y2="'+(padT+ih)+'" stroke="#c9cdd6" stroke-width="1"/>';
+  return '<div class="rchart" id="'+id+'"><svg viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" style="max-width:100%;height:auto;display:block;">'+g+'</svg><div class="rtip hidden"></div></div>';
+}
+function rptBindHover(id,bs,types){
+  const box=document.getElementById(id);if(!box)return;const tip=box.querySelector('.rtip');
+  box.querySelectorAll('rect.hit').forEach(rc=>{
+    rc.addEventListener('mousemove',ev=>{const b=bs[+rc.dataset.i];
+      tip.innerHTML='<b>'+esc(b.title)+'</b>'+types.map(tp=>'<div><span class="rdot" style="background:'+RPT_COLORS[tp]+'"></span>'+RPT_LABEL[tp]+' <b>'+b[tp].length+'</b>건'+(tp==='recall'?' <span class="muted">('+new Set(b.recall.map(e=>e.r.id)).size+'개 업체)</span>':'')+'</div>').join('')+'<div class="muted" style="margin-top:3px;">클릭하면 업체 목록</div>';
+      tip.classList.remove('hidden');const bx=box.getBoundingClientRect();let x=ev.clientX-bx.left+14;if(x>bx.width-200)x=ev.clientX-bx.left-200;tip.style.left=x+'px';tip.style.top=(ev.clientY-bx.top-10)+'px';});
+    rc.addEventListener('mouseleave',()=>tip.classList.add('hidden'));
+    rc.addEventListener('click',()=>{const b=bs[+rc.dataset.i];S.rptSel=S.rptSel===b.key?'':b.key;renderReport();});
+  });
+}
+function renderReport(){
+  const el=document.getElementById('tabReport');if(!el)return;
+  const mode=S.rptMode||'week';const bs=rptAggregate(mode);
+  const cur=bs[bs.length-1],prev=bs[bs.length-2];
+  const unit={day:'오늘',week:'이번 주',month:'이번 달'}[mode],punit={day:'전 영업일',week:'지난주',month:'지난달'}[mode];
+  const tile=(tp,label,v,pv,sub)=>{const d=v-pv;return '<div class="stat"><div class="l"><span class="rdot" style="background:'+RPT_COLORS[tp]+'"></span>'+label+'</div><div class="v">'+v+'</div><div class="hint">'+punit+' '+pv+' · '+(d>0?'<span style="color:#2e7d32">▲'+d+'</span>':d<0?'<span style="color:#c62828">▼'+(-d)+'</span>':'변동 없음')+(sub||'')+'</div></div>';};
+  const coCnt=b=>new Set(b.recall.map(e=>e.r.id)).size;
+  const sel=bs.find(b=>b.key===S.rptSel);
+  let detail='';
+  if(sel){
+    const list=(tp)=>{const items=sel[tp];if(!items.length)return '<div class="empty" style="padding:10px;">없음</div>';
+      return items.sort((a,b)=>a.date.localeCompare(b.date)).map(e=>'<div class="item" onclick="openCard(\''+esc(e.r.id)+'\')">'+gradeBadge(e.r.grade)+'<span class="co">'+esc(e.r.company)+'</span><span class="meta">'+fmtD(e.date)+(tp==='recall'?' · '+(e.memo?esc(e.memo.length>40?e.memo.slice(0,40)+'…':e.memo):'<span class="muted">메모 없음</span>'):'')+(e.est?' <span class="chip">날짜 추정</span>':'')+'</span></div>').join('');};
+    detail='<div class="sec"><div class="sec-h"><h3>'+esc(sel.title)+' 상세</h3><span class="desc"><a href="#" onclick="S.rptSel=\'\';renderReport();return false;">닫기</a></span></div>'+
+      '<div class="rgrid"><div><div class="rsub"><span class="rdot" style="background:'+RPT_COLORS.new+'"></span>신규 '+sel.new.length+'건</div>'+list('new')+'</div>'+
+      '<div><div class="rsub"><span class="rdot" style="background:'+RPT_COLORS.recall+'"></span>재콜 '+sel.recall.length+'건 ('+coCnt(sel)+'개 업체)</div>'+list('recall')+'</div>'+
+      '<div><div class="rsub"><span class="rdot" style="background:'+RPT_COLORS.transfer+'"></span>이관 전환 '+sel.transfer.length+'건</div>'+list('transfer')+'</div></div></div>';
+  }
+  el.innerHTML=
+    '<div class="toolbar">'+['day','week','month'].map(m=>'<button class="fchip'+(mode===m?' on':'')+'" onclick="S.rptMode=\''+m+'\';S.rptSel=\'\';renderReport()">'+{day:'일별 (영업일 30일)',week:'주별 (12주)',month:'월별 (12개월)'}[m]+'</button>').join('')+
+    '<span class="hint" style="margin-left:auto;">신규=첫콜날짜 · 재콜=재콜칸 날짜 · 이관=가망도이력 기준</span></div>'+
+    '<div class="stats">'+tile('new',unit+' 신규',cur.new.length,prev.new.length)+tile('recall',unit+' 재콜',cur.recall.length,prev.recall.length,' · '+coCnt(cur)+'개 업체')+tile('transfer',unit+' 이관 전환',cur.transfer.length,prev.transfer.length)+
+      '<div class="stat"><div class="l">기간 합계 ('+bs.length+(mode==='day'?'영업일':mode==='week'?'주':'개월')+')</div><div class="v" style="font-size:16px;line-height:1.7;">신규 '+bs.reduce((n,b)=>n+b.new.length,0)+' · 재콜 '+bs.reduce((n,b)=>n+b.recall.length,0)+' · 이관 '+bs.reduce((n,b)=>n+b.transfer.length,0)+'</div></div></div>'+
+    '<div class="sec"><div class="sec-h"><h3>신규 · 재콜</h3><span class="rlegend"><span><span class="rdot" style="background:'+RPT_COLORS.new+'"></span>신규</span><span><span class="rdot" style="background:'+RPT_COLORS.recall+'"></span>재콜</span></span><span class="desc">막대를 누르면 업체 목록</span></div><div style="padding:8px 14px 4px;">'+rptChart('rcA',bs,['new','recall'])+'</div></div>'+
+    '<div class="sec"><div class="sec-h"><h3><span class="rdot" style="background:'+RPT_COLORS.transfer+'"></span>이관 전환</h3><span class="desc">가망도이력 기록이 없는 예전 건은 마지막 재콜일로 추정</span></div><div style="padding:8px 14px 4px;">'+rptChart('rcB',bs,['transfer'])+'</div></div>'+
+    detail;
+  rptBindHover('rcA',bs,['new','recall']);rptBindHover('rcB',bs,['transfer']);
 }
 
 // ── 업체 카드 ─────────────────────────────────────────────────────

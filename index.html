@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>미래아이엔씨 통합DB (파일럿) v0.25</title>
+<title>미래아이엔씨 통합DB (파일럿) v0.27</title>
 <style>
 :root{--bg:#f0f2f5;--surface:#fff;--surface2:#f5f7ff;--border:#e8eaf6;--text:#333;--text-sub:#777;--text-muted:#aaa;--header-bg:linear-gradient(135deg,#0B13E7,#080ead);--primary:#3949ab;--primary-soft:#e8eaf6;--th-bg:#e8eaf6;--danger:#c62828;--danger-soft:#fdecec;--warn:#e65100;--warn-soft:#fff3e8;--ok:#2e7d32;--ok-soft:#e9f5ea;--purple:#6a1b9a;--purple-soft:#f3e5f5;}
 *{box-sizing:border-box;}
@@ -48,6 +48,7 @@ input,select,textarea{font-family:inherit;font-size:14px;}
 .sec.new-box .sec-h{border-bottom-color:#dfe2f5;}
 .sec.new-box .sec-h h3{font-size:16px;color:#1a237e;}
 .sec.new-box .inp{background:#fff;border-color:#c5cae9;}
+.uwrap{position:relative;display:block;}.uwrap .inp{padding-right:38px;width:100%;box-sizing:border-box;}.uwrap .u{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:12px;color:#8a8fa3;pointer-events:none;}
 .sec.new-box .inp.ro{background:#eef0ff;}
 .sec.new-box #nSave{padding:9px 22px;font-size:14px;background:linear-gradient(135deg,#0B13E7,#3949ab);border:none;box-shadow:0 3px 10px rgba(11,19,231,.25);}
 .snip-sec{border-top:1px dashed #c5cae9;margin:0 14px;padding:10px 0 14px;}
@@ -273,8 +274,8 @@ table.nlist td.wide{max-width:320px;}
     <div id="testBanner" class="test-banner hidden">테스트 시트에 연결되어 있음 · 실제 업무 데이터 아님</div>
     <div class="hdr"><div class="top-in">
       <div class="logo"><img src="data:image/png;base64,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" alt="CI"></div>
-      <h1>미래아이엔씨 통합DB <span style="font-size:12px;opacity:.6;font-weight:400;">파일럿 v0.25</span></h1>
-      <div class="who"><select id="viewPick" class="hbtn hidden" style="padding:5px 10px;" title="볼 인원 선택" onchange="changeViewAs(this.value)"></select><span id="whoName" class="user-chip"></span><button class="hbtn" onclick="loadRows()">새로고침</button><button class="hbtn" id="btnLogout" onclick="logout()">로그아웃</button></div>
+      <h1>미래아이엔씨 통합DB <span style="font-size:12px;opacity:.6;font-weight:400;">파일럿 v0.27</span></h1>
+      <div class="who"><select id="viewPick" class="hbtn hidden" style="padding:5px 10px;" title="볼 인원 선택" onchange="changeViewAs(this.value)"></select><span id="whoName" class="user-chip"></span><a id="sheetLink" class="hbtn hidden" target="_blank" rel="noopener" style="text-decoration:none;" title="내 구글시트 새 창으로 열기">📄 내 구글시트</a><button class="hbtn" onclick="loadRows()">새로고침</button><button class="hbtn" id="btnLogout" onclick="logout()">로그아웃</button></div>
     </div></div>
     <div class="tabs">
       <button class="tab tab-new" data-tab="new" onclick="switchTab('new')"><span class="plus">+</span>신규등록</button>
@@ -303,7 +304,7 @@ table.nlist td.wide{max-width:320px;}
 // 파일럿 Apps Script 웹앱 주소. 비워두면 로그인 화면의 '서버 주소 설정'으로 입력 (이 브라우저에 저장됨)
 // 테스트 기간 자동 로그인 (테스트 시트 하나만 연결된 동안만 사용). 파일럿 사원 확정되면 null로 바꾸면 로그인 화면이 다시 나옴
 const AUTO_LOGIN = null;
-const APP_VER = 'v0.25';   // 화면 버전. 바뀌면 이전 접속 기록(테스트 계정 등)을 버리고 다시 로그인
+const APP_VER = 'v0.27';   // 화면 버전. 바뀌면 이전 접속 기록(테스트 계정 등)을 버리고 다시 로그인
 const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycby040Dne4lMk2Ulgzf5gLG5CPFskadcI4jiBjhuBY7zuMaepufQBoHjoaxHcnVQ5Xvt/exec';
 const PROMO_GRADES = ['단기','장기','권한오픈','권한+브리핑'];
 const INACTIVE_GRADES = ['이관완료','선택없음','희망건'];
@@ -365,7 +366,7 @@ async function loadRows(){
   document.getElementById('tabToday').innerHTML='<div class="loading">불러오는 중…</div>';
   const r=await api('rows',{});
   if(!r.success){document.getElementById('tabToday').innerHTML='<div class="empty">'+esc(r.error||'불러오기 실패')+'</div>';return;}
-  S.rows=r.rows;S.today=r.today;S.grades=r.grades;S.readOnly=!!r.readOnly;S.history=r.history||[];
+  {const sl=document.getElementById('sheetLink');if(r.sheetUrl){sl.href=r.sheetUrl;sl.textContent='📄 '+(r.masterView?(r.viewAs||'')+' 구글시트':'내 구글시트');sl.classList.remove('hidden');}else sl.classList.add('hidden');}S.rows=r.rows;S.today=r.today;S.grades=r.grades;S.readOnly=!!r.readOnly;S.history=r.history||[];
   const tb=document.getElementById('testBanner');
   if(S.master){const v=r.viewAs||S.viewAs;tb.textContent=v==='(테스트 시트)'?'관리자 · 테스트 시트 · 저장하면 테스트 시트에 실제로 기록됨':'관리자 보기 · '+v+' 데이터 · 저장하면 오류 (테스트 시트에서만 저장 가능)';tb.classList.remove('hidden');}
   else if(S.readOnly){tb.textContent='불러오기 확인 단계(읽기 전용) · 저장은 아직 안 됨';tb.classList.remove('hidden');}
@@ -642,7 +643,7 @@ function renderNew(){
       cell('w-date',L('B','첫콜날짜')+'<div class="inp ro">'+fmtD(S.today)+'</div>')+
       cell('w-kw',L('C','키워드')+inp('nKeyword'))+
       cell('w-rank',L('D','순위')+inp('nRank','text','inputmode="numeric"'))+
-      cell('w-budget',L('E','예산','rec')+inp('nBudget','text','inputmode="numeric"'))+
+      cell('w-budget',L('E','예산','rec')+budgetInp('id="nBudget"',''))+
       cell('w-co',L('F','업체명','req')+inp('nCompany','text','oninput="dupCheck()"')+'<div id="nDup" class="err"></div>')+
       cell('w-content',L('G','첫콜내용','req')+'<textarea id="nContent" class="inp" rows="2" placeholder="통화 요약, 니즈, 다음 액션"></textarea>')+
       cell('w-url',L('H','URL')+inp('nUrl','url'))+
@@ -696,7 +697,7 @@ function renderNewLists(){
 function dupCheck(){const v=document.getElementById('nCompany').value.replace(/\s/g,'');const m=v&&S.rows.find(r=>r.company.replace(/\s/g,'')===v);document.getElementById('nDup').innerHTML=m?'이미 등록된 업체임 · <a href="#" onclick="openCard(\''+esc(m.id)+'\');return false;">카드 열기</a>':'';}
 async function saveNew(force){
   const g=id=>document.getElementById(id).value.trim();
-  const data={company:g('nCompany'),phone:g('nPhone'),content:g('nContent'),grade:g('nGrade'),nextDate:g('nNext'),budget:g('nBudget'),advertiserManager:g('nManager'),email:g('nEmail'),keyword:g('nKeyword'),rank:g('nRank'),url:g('nUrl'),contactPoint:g('nContactPoint')};
+  const data={company:g('nCompany'),phone:g('nPhone'),content:g('nContent'),grade:g('nGrade'),nextDate:g('nNext'),budget:toManwon(g('nBudget')),advertiserManager:g('nManager'),email:g('nEmail'),keyword:g('nKeyword'),rank:g('nRank'),url:g('nUrl'),contactPoint:g('nContactPoint')};
   const err=document.getElementById('nErr');
   const miss=[['grade','가망도'],['company','업체명'],['content','첫콜내용'],['phone','직통연락처'],['nextDate','재콜예정일']].filter(x=>!data[x[0]]).map(x=>x[1]);
   if(miss.length){err.textContent=miss.join(', ')+' 입력 필요';return;}
@@ -879,16 +880,19 @@ async function saveGrade(sel){
   }
   upsertRow(res.row);renderAll();openCard(res.row.id);toast(r.grade+' → '+g,1800);
 }
+// 예산: 만원 단위 숫자만 입력 → 시트엔 '300만원' 형태로 저장
+function toManwon(v){v=String(v||'').trim();if(!v)return '';const m=v.replace(/,/g,'').match(/^(\d+(?:\.\d+)?)\s*(만원|만)?$/);return m?Number(m[1]).toLocaleString('ko-KR')+'만원':null;}
+function budgetInp(attr,val){const n=toManwon(val);const v=n?String(val).replace(/[^0-9.]/g,''):(val||'');return '<span class="uwrap"><input '+attr+' class="inp" type="text" inputmode="numeric" placeholder="예: 300" value="'+esc(v)+'" oninput="this.value=this.value.replace(/[^0-9]/g,\'\')"><span class="u">만원</span></span>';}
 const EDIT_FIELDS=[['company','업체명'],['phone','직통연락처'],['budget','예산'],['advertiserManager','담당자명'],['email','이메일'],['keyword','키워드'],['rank','순위'],['url','URL'],['contactPoint','컨택포인트'],['content','첫콜 내용','textarea']];
 function editInfo(){
   const r=S.rows.find(x=>x.id===S.openId);if(!r)return;
-  document.getElementById('infoBox').innerHTML='<h4>업체 정보 수정</h4>'+EDIT_FIELDS.map(([k,l,tp])=>'<div class="field"><label>'+l+'</label>'+(tp==='textarea'?'<textarea class="inp" data-k="'+k+'">'+esc(r[k])+'</textarea>':'<input class="inp" data-k="'+k+'" value="'+esc(r[k])+'">')+'</div>').join('')+
+  document.getElementById('infoBox').innerHTML='<h4>업체 정보 수정</h4>'+EDIT_FIELDS.map(([k,l,tp])=>'<div class="field"><label>'+l+'</label>'+(k==='budget'?budgetInp('data-k="budget"',r.budget):tp==='textarea'?'<textarea class="inp" data-k="'+k+'">'+esc(r[k])+'</textarea>':'<input class="inp" data-k="'+k+'" value="'+esc(r[k])+'">')+'</div>').join('')+
     '<div style="display:flex;gap:8px;"><button class="btn primary" id="eSave" onclick="saveInfo()">저장</button><button class="btn" onclick="openCard(S.openId)">취소</button></div><div id="eErr" class="err"></div>';
 }
 async function saveInfo(){
   const r=S.rows.find(x=>x.id===S.openId);if(!r)return;
   const fields={},base={};
-  document.querySelectorAll('#infoBox [data-k]').forEach(el=>{const k=el.dataset.k,v=el.value.trim();if(v!==(r[k]||'')){fields[k]=v;base[k]=r[k]||'';}});
+  document.querySelectorAll('#infoBox [data-k]').forEach(el=>{const k=el.dataset.k;let v=el.value.trim();if(k==='budget'){const n=toManwon(v);if(n===null||n===toManwon(r.budget))return;v=n;}if(v!==(r[k]||'')){fields[k]=v;base[k]=r[k]||'';}});
   const err=document.getElementById('eErr');
   if(!Object.keys(fields).length){openCard(r.id);return;}
   if(fields.company===''){err.textContent='업체명은 비울 수 없음';return;}

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>미래아이엔씨 통합DB (파일럿) v0.18</title>
+<title>미래아이엔씨 통합DB (파일럿) v0.19</title>
 <style>
 :root{--bg:#f0f2f5;--surface:#fff;--surface2:#f5f7ff;--border:#e8eaf6;--text:#333;--text-sub:#777;--text-muted:#aaa;--header-bg:linear-gradient(135deg,#0B13E7,#080ead);--primary:#3949ab;--primary-soft:#e8eaf6;--th-bg:#e8eaf6;--danger:#c62828;--danger-soft:#fdecec;--warn:#e65100;--warn-soft:#fff3e8;--ok:#2e7d32;--ok-soft:#e9f5ea;--purple:#6a1b9a;--purple-soft:#f3e5f5;}
 *{box-sizing:border-box;}
@@ -61,6 +61,40 @@ input,select,textarea{font-family:inherit;font-size:14px;}
 .snip .inp:focus{outline:none;background:#fff;border-radius:6px;}
 .snip .scopy{flex-shrink:0;padding:4px 8px;}
 @media (max-width:1100px){.snips{grid-template-columns:repeat(2,1fr);}}
+/* 오늘 할 일 처리 목록 */
+.thead,.tmain{display:grid;grid-template-columns:120px minmax(130px,1.2fr) 160px 90px minmax(180px,2.4fr) 140px 70px 230px;gap:10px;align-items:center;}
+.thead{padding:8px 14px;font-size:11px;color:var(--text-muted);font-weight:700;border-bottom:1px solid var(--surface2);background:var(--surface2);}
+.trow{border-bottom:1px solid var(--surface2);}
+.trow:last-child{border-bottom:none;}
+.trow.busy{opacity:.45;pointer-events:none;}
+.tmain{padding:9px 14px;font-size:13px;}
+.tmain>span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.tgrade{cursor:pointer;display:inline-flex;align-items:center;gap:3px;}
+.tgrade .caret{font-size:10px;color:var(--text-muted);}
+.tgrade .gsel{padding:3px 4px;font-size:12px;width:110px;}
+.tco{font-weight:700;cursor:pointer;}
+.tco:hover{color:var(--primary);text-decoration:underline;}
+.tph .cp{padding:1px 5px;font-size:11px;}
+.tmemo{color:var(--text-sub);}
+.tcnt,.tbud,.tmgr{color:var(--text-sub);font-size:12px;}
+.tact{display:flex;gap:4px;justify-content:flex-end;}
+.tact .act-done{background:var(--primary);border-color:var(--primary);color:#fff;font-weight:600;}
+.tact .act-abs{color:var(--warn);border-color:#ffcc80;}
+.texp{padding:0 14px 12px 144px;}
+.dform{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--primary-soft);border-radius:10px;padding:10px 12px;}
+.dform #dMemo{flex:1;min-width:260px;}
+.dform .dnext,.dform .dgrade{display:flex;align-items:center;gap:6px;}
+.dform .dnext .inp{width:150px;}
+.dform .quick{margin:0;}
+.dform .dgrade .inp{width:120px;}
+.tprog{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-sub);}
+.tprog .bar{width:180px;height:8px;background:var(--surface2);border-radius:4px;overflow:hidden;}
+.tprog .bar div{height:100%;background:var(--ok);border-radius:4px;transition:width .3s;}
+details.simple-sec>summary{cursor:pointer;list-style:none;}
+details.simple-sec>summary::-webkit-details-marker{display:none;}
+details.simple-sec>summary h3::before{content:'▸ ';color:var(--text-muted);}
+details.simple-sec[open]>summary h3::before{content:'▾ ';}
+@media (max-width:1100px){.thead{display:none;}.tmain{grid-template-columns:1fr 1fr;}.tmain .tmemo{grid-column:1/-1;}.tact{grid-column:1/-1;justify-content:flex-start;}.texp{padding-left:14px;}}
 .tab .cnt{display:inline-block;min-width:18px;padding:0 5px;margin-left:4px;border-radius:9px;background:var(--danger);color:#fff;font-size:11px;line-height:18px;font-weight:700;}
 main{max-width:1700px;margin:0 auto;padding:20px 32px;}
 /* 로그인 */
@@ -222,7 +256,7 @@ table.nlist td.wide{max-width:320px;}
     <div id="testBanner" class="test-banner hidden">테스트 시트에 연결되어 있음 · 실제 업무 데이터 아님</div>
     <div class="hdr"><div class="top-in">
       <div class="logo"><img src="data:image/png;base64,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" alt="CI"></div>
-      <h1>미래아이엔씨 통합DB <span style="font-size:12px;opacity:.6;font-weight:400;">파일럿 v0.18</span></h1>
+      <h1>미래아이엔씨 통합DB <span style="font-size:12px;opacity:.6;font-weight:400;">파일럿 v0.19</span></h1>
       <div class="who"><select id="viewPick" class="hbtn hidden" style="padding:5px 10px;" title="볼 인원 선택" onchange="changeViewAs(this.value)"></select><span id="whoName" class="user-chip"></span><button class="hbtn" onclick="loadRows()">새로고침</button><button class="hbtn" id="btnLogout" onclick="logout()">로그아웃</button></div>
     </div></div>
     <div class="tabs">
@@ -248,7 +282,7 @@ table.nlist td.wide{max-width:320px;}
 // 파일럿 Apps Script 웹앱 주소. 비워두면 로그인 화면의 '서버 주소 설정'으로 입력 (이 브라우저에 저장됨)
 // 테스트 기간 자동 로그인 (테스트 시트 하나만 연결된 동안만 사용). 파일럿 사원 확정되면 null로 바꾸면 로그인 화면이 다시 나옴
 const AUTO_LOGIN = null;
-const APP_VER = 'v0.18';   // 화면 버전. 바뀌면 이전 접속 기록(테스트 계정 등)을 버리고 다시 로그인
+const APP_VER = 'v0.19';   // 화면 버전. 바뀌면 이전 접속 기록(테스트 계정 등)을 버리고 다시 로그인
 const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycby040Dne4lMk2Ulgzf5gLG5CPFskadcI4jiBjhuBY7zuMaepufQBoHjoaxHcnVQ5Xvt/exec';
 const PROMO_GRADES = ['단기','장기','권한오픈','권한+브리핑'];
 const INACTIVE_GRADES = ['이관완료','선택없음','희망건'];
@@ -295,10 +329,10 @@ function enterApp(testMode){
   document.getElementById('whoName').textContent='👤 '+S.name;
   document.getElementById('testBanner').classList.toggle('hidden',!testMode);
   document.getElementById('btnLogout').classList.toggle('hidden',!!AUTO_LOGIN);
-  // 마스터: 파일럿 인원 선택 (보기 전용) — 신규등록 탭 숨김
+  // 마스터: 파일럿 인원 선택 (화면은 사원과 동일, 저장은 테스트 시트만 가능)
   const pick=document.getElementById('viewPick');
-  if(S.master){pick.innerHTML=S.members.map(n=>'<option'+(n===S.viewAs?' selected':'')+'>'+esc(n)+'</option>').join('');pick.classList.remove('hidden');document.querySelector('.tab-new').classList.add('hidden');if(S.tab==='new')switchTab('today');}
-  else{pick.classList.add('hidden');document.querySelector('.tab-new').classList.remove('hidden');}
+  if(S.master){pick.innerHTML=S.members.map(n=>'<option'+(n===S.viewAs?' selected':'')+'>'+esc(n)+'</option>').join('');pick.classList.remove('hidden');}
+  else pick.classList.add('hidden');
   loadRows();
 }
 function changeViewAs(v){S.viewAs=v;S.openId='';closeCard();S.rptSel='';S.dbSearch='';const sb=document.getElementById('dbSearch');if(sb)sb.value='';
@@ -312,7 +346,7 @@ async function loadRows(){
   if(!r.success){document.getElementById('tabToday').innerHTML='<div class="empty">'+esc(r.error||'불러오기 실패')+'</div>';return;}
   S.rows=r.rows;S.today=r.today;S.grades=r.grades;S.readOnly=!!r.readOnly;S.history=r.history||[];
   const tb=document.getElementById('testBanner');
-  if(S.master){tb.textContent='관리자 보기 모드 · '+(r.viewAs||S.viewAs)+' 데이터 · 저장 불가';tb.classList.remove('hidden');}
+  if(S.master){const v=r.viewAs||S.viewAs;tb.textContent=v==='(테스트 시트)'?'관리자 · 테스트 시트 · 저장하면 테스트 시트에 실제로 기록됨':'관리자 보기 · '+v+' 데이터 · 저장하면 오류 (테스트 시트에서만 저장 가능)';tb.classList.remove('hidden');}
   else if(S.readOnly){tb.textContent='불러오기 확인 단계(읽기 전용) · 저장은 아직 안 됨';tb.classList.remove('hidden');}
   if(r.assignedIds)toast('새 행 '+r.assignedIds+'건에 ID를 부여했음',2500);
   renderAll();
@@ -362,36 +396,122 @@ function renderAll(){renderToday();renderDb();renderReport();if(document.getElem
 function switchTab(t){S.tab=t;document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.tab===t));['today','db','new','report'].forEach(k=>document.getElementById('tab'+k[0].toUpperCase()+k.slice(1)).classList.toggle('hidden',k!==t));if(t==='report')renderReport();}
 window.addEventListener('resize',()=>{if(S.tab==='report'){clearTimeout(window._rr);window._rr=setTimeout(renderReport,150);}});
 
+// ── 오늘 할 일: 목록에서 바로 처리 (통화완료 / 부재 / 미루기 / 가망도 변경) ──
+// 미루기는 재콜칸 기록이 없어서, 오늘 미룬 업체를 '오늘 완료'에 보여주려고 이 브라우저 탭에만 잠시 기억함
+function ppKey(){return 'm2_pp_'+S.role+'_'+(S.viewAs||'')+'_'+S.today;}
+function getPP(){try{return JSON.parse(sessionStorage.getItem(ppKey())||'{}');}catch(e){return {};}}
+function setPP(o){try{sessionStorage.setItem(ppKey(),JSON.stringify(o));}catch(e){}}
+function lastMemo(r){const m=r.recalls.filter(x=>isYmd(x.date)&&x.memo).sort((a,b)=>b.date.localeCompare(a.date))[0];return m?{date:m.date,text:m.memo}:(r.content?{date:r.firstCall,text:r.content,first:true}:null);}
+function copyText(v){if(!v)return;const done=()=>toast('복사됨: '+v,1400);const fb=()=>{const t=document.createElement('textarea');t.value=v;t.style.position='fixed';t.style.opacity='0';document.body.appendChild(t);t.select();try{document.execCommand('copy');done();}catch(e){}t.remove();};if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(v).then(done,fb);else fb();}
+function taskRow(r,opt){
+  const d=derive(r),t=S.today,lm=lastMemo(r),id=esc(r.id);
+  const memo=lm?(lm.first?'<span class="chip" style="background:var(--purple-soft);color:var(--purple);margin:0 4px 0 0">첫콜</span>':'<span class="muted">'+(parseYmd(lm.date)?(parseYmd(lm.date).getMonth()+1)+'/'+parseYmd(lm.date).getDate():'')+'</span> ')+esc(lm.text):'<span class="muted">메모 없음</span>';
+  return '<div class="trow" id="tr-'+id+'">'+
+    '<div class="tmain">'+
+      '<span class="tgrade" title="눌러서 가망도 변경" onclick="gradePick(\''+id+'\',this)">'+gradeBadge(r.grade)+'<span class="caret">▾</span></span>'+
+      '<span class="tco" onclick="openCard(\''+id+'\')" title="업체 카드 열기">'+esc(r.company)+(opt&&opt.missed?' <span class="chip danger">'+fmtD(d.missed)+' 예정</span>':'')+'</span>'+
+      '<span class="tph">'+(r.phone?esc(r.phone)+' <button class="btn sm cp" title="연락처 복사" data-v="'+esc(r.phone)+'" onclick="copyText(this.dataset.v)">📋</button>':'<span class="muted">-</span>')+'</span>'+
+      '<span class="tmgr" title="담당자명">'+(r.advertiserManager?esc(r.advertiserManager):'<span class="muted">-</span>')+'</span>'+
+      '<span class="tmemo" title="'+esc(lm?lm.text:'')+'">'+memo+'</span>'+
+      '<span class="tcnt">재콜 '+d.recallCnt+'회'+(isYmd(r.firstCall)?' · 첫콜 '+diffDays(r.firstCall,t)+'일':'')+'</span>'+
+      '<span class="tbud" title="예산">'+(r.budget?esc(r.budget):'<span class="muted">-</span>')+'</span>'+
+      '<span class="tact"><button class="btn sm act-done" onclick="openDone(\''+id+'\')">통화완료</button><button class="btn sm act-abs" onclick="quickAbsent(\''+id+'\')">부재</button><button class="btn sm" onclick="openPost(\''+id+'\')">미루기 ▾</button></span>'+
+    '</div><div class="texp hidden" id="tx-'+id+'"></div></div>';
+}
+function closeExp(){document.querySelectorAll('.texp').forEach(x=>{x.classList.add('hidden');x.innerHTML='';});}
+function openDone(id){
+  const r=S.rows.find(x=>x.id===id);if(!r)return;closeExp();const t=S.today;
+  const box=document.getElementById('tx-'+id);
+  box.innerHTML='<div class="dform"><input id="dMemo" class="inp" placeholder="통화 내용 (필수)" onkeydown="if(event.key===\'Enter\')saveDone(\''+esc(id)+'\')">'+
+    '<div class="dnext"><span class="hint">다음 재콜</span><input id="dNext" class="inp" type="date" min="'+addDays(t,1)+'" onchange="syncQuick(\'d\',this.value)">'+quickDates('d','dNext')+'</div>'+
+    '<div class="dgrade"><span class="hint">가망도</span><select id="dGrade" class="inp">'+gradeOptions(r.grade,!r.grade)+'</select></div>'+
+    '<button class="btn primary" onclick="saveDone(\''+esc(id)+'\')">저장</button><button class="btn" onclick="closeExp()">취소</button></div>';
+  box.classList.remove('hidden');document.getElementById('dMemo').focus();
+}
+function rowBusy(id,on){const el=document.getElementById('tr-'+id);if(el)el.classList.toggle('busy',on);}
+async function saveDone(id){
+  const r=S.rows.find(x=>x.id===id);if(!r)return;const t=S.today;
+  const memo=document.getElementById('dMemo').value.trim(),nextDate=document.getElementById('dNext').value,grade=document.getElementById('dGrade').value;
+  if(!memo){toast('통화 내용을 입력하세요',1500);document.getElementById('dMemo').focus();return;}
+  if(!nextDate&&grade!=='이관완료'&&!INACTIVE_GRADES.includes(grade)&&!confirm('다음 재콜일을 정하지 않았음. 그대로 저장할까요?'))return;
+  const params={id,memo,date:t,nextDate};if(grade&&grade!==r.grade)params.grade=grade;
+  rowBusy(id,true);toast('저장 중…');
+  const res=await api('recall',params,true);hideToast();rowBusy(id,false);
+  if(!res.success){alert(res.error||'저장 실패');return;}
+  upsertRow(res.row);renderAll();toast('통화완료 저장'+(params.grade?' · 가망도 '+params.grade:''),1600);
+}
+async function quickAbsent(id){
+  const t=S.today,next=addBizDays(t,1);rowBusy(id,true);toast('부재 기록 중…');
+  const res=await api('recall',{id,memo:'부재',date:t,nextDate:next},true);hideToast();rowBusy(id,false);
+  if(!res.success){alert(res.error||'저장 실패');return;}
+  upsertRow(res.row);renderAll();toast('부재 기록 · 다음 재콜 '+fmtD(next),1600);
+}
+function openPost(id){
+  closeExp();const t=S.today,box=document.getElementById('tx-'+id);
+  const opts=[['내일 (+1영업일)',addBizDays(t,1)],['+3영업일',addBizDays(t,3)],['+1주',addDays(t,7)],['+2주',addDays(t,14)]];
+  box.innerHTML='<div class="dform"><span class="hint">재콜예정일만 옮김 (통화 기록 없음)</span>'+opts.map(o=>'<button class="btn sm" onclick="postpone(\''+esc(id)+'\',\''+o[1]+'\')">'+o[0]+' · '+fmtD(o[1])+'</button>').join('')+'<button class="btn sm" onclick="closeExp()">취소</button></div>';
+  box.classList.remove('hidden');
+}
+async function postpone(id,next){
+  rowBusy(id,true);toast('일정 변경 중…');
+  const res=await api('recall',{id,memo:'',nextDate:next},true);hideToast();rowBusy(id,false);
+  if(!res.success){alert(res.error||'저장 실패');return;}
+  const pp=getPP();pp[id]=next;setPP(pp);
+  upsertRow(res.row);renderAll();toast('재콜예정일 '+fmtD(next)+'로 미룸',1600);
+}
+function gradePick(id,el){
+  const r=S.rows.find(x=>x.id===id);if(!r||el.querySelector('select'))return;
+  el.innerHTML='<select class="inp gsel" onclick="event.stopPropagation()" onchange="saveGradeInline(\''+esc(id)+'\',this.value)" onblur="renderToday()">'+gradeOptions(r.grade,!r.grade)+'</select>';
+  el.querySelector('select').focus();
+}
+async function saveGradeInline(id,g){
+  const r=S.rows.find(x=>x.id===id);if(!r||g===r.grade){renderToday();return;}
+  rowBusy(id,true);toast('가망도 저장 중…');
+  const res=await api('update',{id,fields:{grade:g},base:{grade:r.grade}},true);hideToast();
+  if(!res.success){if(res.row)upsertRow(res.row);renderAll();alert(res.error||'저장 실패');return;}
+  upsertRow(res.row);renderAll();toast(r.grade+' → '+g,1500);
+}
 function renderToday(){
-  const t=S.today;
-  const L={due:[],missed:[],new3:[],promo:[]};
+  const t=S.today,pp=getPP();
+  const pending=[],simple=[],done=[],missed=[],new3=[],promo=[];
   S.rows.forEach(r=>{
-    const d=derive(r);
+    const d=derive(r),recToday=r.recalls.some(x=>x.date===t);
+    if(recToday||pp[r.id])done.push(r);
     if(d.inactive)return;
-    if(d.next===t)L.due.push(r);
-    if(d.missed)L.missed.push(r);
-    if(isYmd(r.firstCall)&&diffDays(r.firstCall,t)<=3&&diffDays(r.firstCall,t)>=0&&d.past.length===0&&d.next!==t)L.new3.push(r);
-    if(d.promoMissing.length)L.promo.push(r);
+    if(d.next===t&&!recToday)(r.grade==='단순재콜'?simple:pending).push(r);
+    else if(d.missed&&!recToday&&r.grade!=='단순재콜')missed.push(r);
+    if(isYmd(r.firstCall)&&diffDays(r.firstCall,t)<=3&&diffDays(r.firstCall,t)>=0&&d.past.length===0&&d.next!==t)new3.push(r);
+    if(d.promoMissing.length)promo.push(r);
   });
-  const total=L.due.length+L.missed.length;
-  const c=document.getElementById('cntToday');c.textContent=total;c.classList.toggle('hidden',!total);
+  // 정렬: 가망도 높은 순(권한+브리핑 → 권한오픈 → 단기 → 장기) → 같은 가망도는 예산 큰 순
+  const byPri=(a,b)=>gradeRank(a.grade)-gradeRank(b.grade)||(b.budgetNum||0)-(a.budgetNum||0);
+  pending.sort(byPri);missed.sort(byPri);simple.sort(byPri);
+  const c=document.getElementById('cntToday');const cnt=pending.length+missed.length;c.textContent=cnt;c.classList.toggle('hidden',!cnt);
   const weekEnd=addDays(t,7);
-  const weekPlans=S.rows.filter(r=>{const n=derive(r).next;return !derive(r).inactive&&n>t&&n<=weekEnd;}).length;
-  const doneToday=S.rows.reduce((n,r)=>n+r.recalls.filter(x=>x.date===t&&x.memo).length,0);
+  const weekPlans=S.rows.filter(r=>{const d=derive(r);return !d.inactive&&d.next>t&&d.next<=weekEnd;}).length;
   const newToday=S.rows.filter(r=>r.firstCall===t).length;
-  const sec=(title,desc,list,metaFn)=>'<div class="sec"><div class="sec-h"><h3>'+title+'</h3><span class="n">'+list.length+'건</span><span class="desc">'+desc+'</span></div>'+
-    (list.length?list.map(r=>'<div class="item" onclick="openCard(\''+esc(r.id)+'\')">'+gradeBadge(r.grade)+'<span class="co">'+esc(r.company)+'</span><span class="meta">'+metaFn(r)+'</span></div>').join(''):'<div class="empty">없음</div>')+'</div>';
+  const total=pending.length+done.length,pct=total?Math.round(done.length/total*100):0;
+  const head='<div class="thead"><span>가망도</span><span>업체명</span><span>직통연락처</span><span>담당자</span><span>최근 메모</span><span>재콜 · 경과</span><span>예산</span><span></span></div>';
+  const list=(arr,opt)=>arr.length?head+arr.map(r=>taskRow(r,opt)).join(''):'<div class="empty">없음</div>';
+  const doneRows=done.map(r=>{const today=r.recalls.filter(x=>x.date===t);const memos=today.map(x=>x.memo).filter(Boolean);
+    const lab=today.length?(memos.length&&memos.every(m=>m==='부재')?'<span class="chip warn">부재</span>':'<span class="chip ok">완료</span>'):'<span class="chip plan">미룸 → '+fmtD(pp[r.id])+'</span>';
+    return '<div class="item" onclick="openCard(\''+esc(r.id)+'\')">'+gradeBadge(r.grade)+'<span class="co">'+esc(r.company)+'</span><span class="meta">'+lab+(memos.filter(m=>m!=='부재').length?' '+esc(memos.filter(m=>m!=='부재').join(' / ')):'')+(isYmd(r.nextRecall)&&r.nextRecall>t?' <span class="muted">· 다음 '+fmtD(r.nextRecall)+'</span>':'')+'</span></div>';}).join('');
+  const simpleSec='<details class="sec simple-sec"'+(S.simpleOpen?' open':'')+' ontoggle="S.simpleOpen=this.open"><summary class="sec-h"><h3>단순재콜</h3><span class="n">'+simple.length+'건</span><span class="desc">오늘 예정 · 진행률 집계에서 제외 · 눌러서 펼치기</span></summary>'+list(simple)+'</details>';
+  const sec=(title,desc,arr,metaFn)=>'<div class="sec"><div class="sec-h"><h3>'+title+'</h3><span class="n">'+arr.length+'건</span><span class="desc">'+desc+'</span></div>'+
+    (arr.length?arr.map(r=>'<div class="item" onclick="openCard(\''+esc(r.id)+'\')">'+gradeBadge(r.grade)+'<span class="co">'+esc(r.company)+'</span><span class="meta">'+metaFn(r)+'</span></div>').join(''):'<div class="empty">없음</div>')+'</div>';
   document.getElementById('tabToday').innerHTML=
     '<div class="stats">'+
-      '<div class="stat"><div class="v">'+L.due.length+'</div><div class="l">오늘 재콜 예정</div></div>'+
-      '<div class="stat"><div class="v" style="color:var(--primary)">'+doneToday+'</div><div class="l">오늘 재콜 기록</div></div>'+
+      '<div class="stat"><div class="v">'+pending.length+'</div><div class="l">오늘 남은 재콜</div></div>'+
+      '<div class="stat"><div class="v" style="color:var(--ok)">'+done.length+'</div><div class="l">오늘 처리 (완료·부재·미룸)</div></div>'+
       '<div class="stat"><div class="v">'+newToday+'</div><div class="l">오늘 신규등록</div></div>'+
       '<div class="stat"><div class="v">'+weekPlans+'</div><div class="l">이번 7일 예정</div></div>'+
     '</div>'+
-    sec('오늘 재콜 예정','오늘 날짜로 잡힌 재콜',L.due,r=>'마지막 컨택 '+fmtD(derive(r).lastContact))+
-    sec('놓친 재콜','재콜예정일이 지났는데 기록 없음 (최근 30일)',L.missed,r=>'<span class="chip danger">'+fmtD(derive(r).missed)+' 예정</span>')+
-    sec('신규 3일 팔로업','첫콜 3일 이내, 재콜 기록 없음',L.new3,r=>'첫콜 '+fmtD(r.firstCall))+
-    sec('신규P 미인정','이번 달 신규 중 권장 항목 누락',L.promo,r=>'<span class="chip warn">'+derive(r).promoMissing.join('·')+' 없음</span>');
+    '<div class="sec"><div class="sec-h"><h3>오늘 재콜 예정</h3><span class="n">'+pending.length+'건 남음</span><div class="tprog"><div class="bar"><div style="width:'+pct+'%"></div></div><span>'+total+'건 중 '+done.length+'건 처리 ('+pct+'%)</span></div></div>'+list(pending)+'</div>'+
+    '<div class="sec"><div class="sec-h"><h3>놓친 재콜</h3><span class="n">'+missed.length+'건</span><span class="desc">재콜예정일이 지났는데 기록 없음 (최근 30일)</span></div>'+list(missed,{missed:true})+'</div>'+
+    simpleSec+
+    '<div class="sec"><div class="sec-h"><h3>오늘 완료</h3><span class="n">'+done.length+'건</span><span class="desc">오늘 재콜 기록·부재·미룸 처리한 업체</span></div>'+(doneRows||'<div class="empty">아직 없음</div>')+'</div>'+
+    sec('신규 3일 팔로업','첫콜 3일 이내, 재콜 기록 없음',new3,r=>'첫콜 '+fmtD(r.firstCall))+
+    sec('신규P 미인정','이번 달 신규 중 권장 항목 누락',promo,r=>'<span class="chip warn">'+derive(r).promoMissing.join('·')+' 없음</span>');
 }
 
 function renderDb(){

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>미래아이엔씨 통합DB (파일럿) v0.27</title>
+<title>미래아이엔씨 통합DB (파일럿) v0.28</title>
 <style>
 :root{--bg:#f0f2f5;--surface:#fff;--surface2:#f5f7ff;--border:#e8eaf6;--text:#333;--text-sub:#777;--text-muted:#aaa;--header-bg:linear-gradient(135deg,#0B13E7,#080ead);--primary:#3949ab;--primary-soft:#e8eaf6;--th-bg:#e8eaf6;--danger:#c62828;--danger-soft:#fdecec;--warn:#e65100;--warn-soft:#fff3e8;--ok:#2e7d32;--ok-soft:#e9f5ea;--purple:#6a1b9a;--purple-soft:#f3e5f5;}
 *{box-sizing:border-box;}
@@ -253,6 +253,54 @@ table.nlist td.wide{max-width:320px;}
   .who #whoName,.sec-h .desc{display:none;}
   .sec-h h3{white-space:nowrap;}
 }
+/* 전광판 */
+.bb{display:flex;align-items:center;gap:12px;height:44px;padding:0 10px 0 6px;margin-bottom:16px;border-radius:12px;background:#fff;border:1px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,.04);overflow:hidden;transition:background .4s,border-color .4s;}
+.bb.k-cele{background:linear-gradient(90deg,#fff8e1,#fff 60%);border-color:#ffe08a;}
+.bb.k-pin{background:linear-gradient(90deg,#e8eaf6,#fff 60%);border-color:#c5cae9;}
+.bb-chip{flex-shrink:0;font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px;white-space:nowrap;}
+.kc-pin{background:#3949ab;color:#fff;}.kc-cele{background:#ffb300;color:#4a3000;}.kc-note{background:#e8eaf6;color:#3949ab;}.kc-none{background:#f0f1f5;color:#999;}
+.bb-vp{flex:1;min-width:0;height:44px;overflow:hidden;position:relative;cursor:pointer;}
+.bb-line{position:absolute;inset:0;display:flex;align-items:center;white-space:pre;overflow:hidden;text-overflow:ellipsis;transition:transform .5s ease,opacity .5s ease;}
+.bb-line.out{transform:translateY(-100%);opacity:0;}.bb-line.in{transform:translateY(100%);opacity:0;}
+.bb-line .t{overflow:hidden;text-overflow:ellipsis;}
+.bb-msg{color:#555;}.bb-meta{color:#aaa;font-size:12px;}
+.bb-nav{display:flex;align-items:center;gap:2px;color:#999;font-size:12px;flex-shrink:0;}
+.bb-nav button{border:none;background:none;color:#999;font-size:15px;padding:2px 5px;}
+.bb-dots{display:flex;gap:4px;margin:0 3px;}.bb-dots i{width:6px;height:6px;border-radius:50%;background:#d6d9ea;}.bb-dots i.on{background:var(--primary);}
+.bb-btn{flex-shrink:0;border:1px solid #ddd;background:#fff;color:#555;font-size:12px;border-radius:8px;padding:4px 10px;font-weight:600;}
+.bb-btn.m{border-color:#c5cae9;color:var(--primary);}
+.bm-dim{position:fixed;inset:0;background:rgba(20,24,60,.45);display:flex;align-items:center;justify-content:center;z-index:55;padding:16px;}
+.bm{background:#fff;border-radius:16px;width:720px;max-width:100%;max-height:88vh;padding:24px;box-shadow:0 20px 50px rgba(0,0,0,.25);position:relative;display:flex;flex-direction:column;}
+.bm h3{margin:0 0 12px;font-size:17px;}
+.bm-x{position:absolute;right:14px;top:12px;border:none;background:none;font-size:22px;color:#999;}
+.bm-tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;}.bm-tabs button{border:1px solid #ddd;background:#fff;border-radius:20px;padding:5px 12px;font-size:12px;color:#555;}.bm-tabs button.on{background:var(--primary);border-color:var(--primary);color:#fff;font-weight:700;}
+.bm-list{overflow:auto;flex:1;}
+.bm-day{font-size:12px;font-weight:700;color:#999;margin:14px 0 6px;}.bm-day:first-child{margin-top:0;}
+.bp{border:1px solid #eef0f7;border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;gap:12px;align-items:flex-start;}
+.bp.cele{background:#fffcf0;border-color:#ffe9a8;}.bp.pin{background:#f5f6ff;border-color:#d4d8f0;}.bp.old{opacity:.75;}
+.bp .tg{flex-shrink:0;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;}
+.bp .bx{flex:1;min-width:0;}.bp .bh{font-size:14px;}.bp .bt{color:#555;margin-top:4px;font-size:13px;white-space:pre-wrap;word-break:break-all;}
+.bp .bmeta{font-size:11px;color:#aaa;margin-top:6px;}
+.cheer{flex-shrink:0;border:1px solid #ffd666;background:#fff;border-radius:20px;padding:4px 10px;font-size:12px;color:#8a6100;}
+.cheer.on{background:#ffb300;border-color:#ffb300;color:#3a2700;font-weight:700;}
+.cele-box{width:440px;text-align:center;overflow:hidden;}
+.cele-box .big{font-size:46px;line-height:1;}
+.cele-box h2{margin:10px 0 4px;font-size:20px;}.cele-box p{margin:0 0 16px;color:#777;font-size:13px;}
+.cele-prev{background:#fff8e1;border:1px solid #ffe08a;border-radius:10px;padding:10px 12px;text-align:left;font-size:13px;margin:12px 0 16px;}
+.cele-prev small{display:block;color:#a07800;font-weight:700;margin-bottom:4px;font-size:11px;}
+.conf{position:absolute;top:-10px;width:8px;height:12px;border-radius:2px;animation:conf 2.2s linear infinite;opacity:.9;}
+@keyframes conf{to{transform:translateY(520px) rotate(540deg);}}
+.bf{display:grid;gap:10px;background:#f5f7ff;border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:14px;}
+.bf label.l{font-size:12px;color:#777;font-weight:600;display:block;margin-bottom:4px;}
+.bf .frow{display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap;}
+.seg{display:inline-flex;border:1px solid #c5cae9;border-radius:8px;overflow:hidden;}
+.seg button{border:none;background:#fff;padding:7px 14px;font-size:13px;color:#555;border-right:1px solid #c5cae9;}.seg button:last-child{border-right:none;}.seg button.on{background:var(--primary);color:#fff;font-weight:700;}
+.bf .hint{font-size:12px;color:var(--primary);background:#e8eaf6;border-radius:6px;padding:6px 10px;}
+.bmt{width:100%;border-collapse:collapse;font-size:13px;}.bmt th{background:#e8eaf6;text-align:left;padding:8px;font-size:12px;color:#555;position:sticky;top:0;}
+.bmt td{padding:8px;border-top:1px solid #f0f0f5;vertical-align:middle;}
+.st-on{color:var(--ok);font-weight:700;font-size:12px;}.st-off{color:#aaa;font-size:12px;}
+.lk{border:none;background:none;color:#888;font-size:12px;text-decoration:underline;padding:2px 4px;}
+@media (max-width:700px){.bb-dots,.bb-meta,.bb-btn:not(.m){display:none;}.bb{gap:6px;}.bm{padding:18px;}}
 </style>
 </head>
 <body>
@@ -274,7 +322,7 @@ table.nlist td.wide{max-width:320px;}
     <div id="testBanner" class="test-banner hidden">테스트 시트에 연결되어 있음 · 실제 업무 데이터 아님</div>
     <div class="hdr"><div class="top-in">
       <div class="logo"><img src="data:image/png;base64,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" alt="CI"></div>
-      <h1>미래아이엔씨 통합DB <span style="font-size:12px;opacity:.6;font-weight:400;">파일럿 v0.27</span></h1>
+      <h1>미래아이엔씨 통합DB <span style="font-size:12px;opacity:.6;font-weight:400;">파일럿 v0.28</span></h1>
       <div class="who"><select id="viewPick" class="hbtn hidden" style="padding:5px 10px;" title="볼 인원 선택" onchange="changeViewAs(this.value)"></select><span id="whoName" class="user-chip"></span><a id="sheetLink" class="hbtn hidden" target="_blank" rel="noopener" style="text-decoration:none;" title="내 구글시트 새 창으로 열기">📄 내 구글시트</a><button class="hbtn" onclick="loadRows()">새로고침</button><button class="hbtn" id="btnLogout" onclick="logout()">로그아웃</button></div>
     </div></div>
     <div class="tabs">
@@ -287,6 +335,13 @@ table.nlist td.wide{max-width:320px;}
     </div>
   </div>
   <main>
+    <div id="bb" class="bb hidden" onmouseenter="BB.paused=true" onmouseleave="BB.paused=false">
+      <span class="bb-chip kc-none" id="bbChip">전광판</span>
+      <div class="bb-vp" id="bbVp" onclick="openBoard()" title="클릭하면 전체 보기"></div>
+      <div class="bb-nav" id="bbNav"><button onclick="bbStep(-1)">‹</button><span class="bb-dots" id="bbDots"></span><button onclick="bbStep(1)">›</button></div>
+      <button class="bb-btn" onclick="openBoard()">전체 보기</button>
+      <button class="bb-btn m hidden" id="bbMgrBtn" onclick="openMgr()">관리</button>
+    </div>
     <div id="tabToday"></div>
     <div id="tabDb" class="hidden"></div>
     <div id="tabNew" class="hidden"></div>
@@ -298,13 +353,14 @@ table.nlist td.wide{max-width:320px;}
 
 <div id="drawerWrap" class="hidden"><div class="dim" onclick="closeCard()"></div><div class="drawer" id="drawer"></div></div>
 <div id="savingToast" class="saving hidden"></div>
+<div id="bmWrap" class="bm-dim hidden" onclick="if(event.target===this)closeBm()"><div class="bm" id="bmBox"></div></div>
 
 <script>
 // ── 설정 ──────────────────────────────────────────────────────────
 // 파일럿 Apps Script 웹앱 주소. 비워두면 로그인 화면의 '서버 주소 설정'으로 입력 (이 브라우저에 저장됨)
 // 테스트 기간 자동 로그인 (테스트 시트 하나만 연결된 동안만 사용). 파일럿 사원 확정되면 null로 바꾸면 로그인 화면이 다시 나옴
 const AUTO_LOGIN = null;
-const APP_VER = 'v0.27';   // 화면 버전. 바뀌면 이전 접속 기록(테스트 계정 등)을 버리고 다시 로그인
+const APP_VER = 'v0.28';   // 화면 버전. 바뀌면 이전 접속 기록(테스트 계정 등)을 버리고 다시 로그인
 const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycby040Dne4lMk2Ulgzf5gLG5CPFskadcI4jiBjhuBY7zuMaepufQBoHjoaxHcnVQ5Xvt/exec';
 const PROMO_GRADES = ['단기','장기','권한오픈','권한+브리핑'];
 const INACTIVE_GRADES = ['이관완료','선택없음','희망건'];
@@ -326,6 +382,7 @@ async function api(action,params,post){
       :await fetch(url+'?action='+encodeURIComponent(action)+'&params='+encodeURIComponent(JSON.stringify(p)));
     const j=await res.json();
     if(j&&j.expired){logout(true);}
+    if(j&&j.celePending&&j.celePending.length)queueCele(j.celePending);
     return j;
   }catch(e){return{success:false,error:'서버 연결 실패: '+e.message};}
 }
@@ -373,6 +430,7 @@ async function loadRows(){
   if(r.assignedIds)toast('새 행 '+r.assignedIds+'건에 ID를 부여했음',2500);
   renderAll();
   if(S.openId)openCard(S.openId);
+  loadBoard();
 }
 function upsertRow(row){const i=S.rows.findIndex(x=>x.id===row.id);if(i>=0)S.rows[i]=row;else S.rows.push(row);}
 
@@ -914,6 +972,158 @@ async function saveInfo(){
   else if(AUTO_LOGIN){document.getElementById('lgRole').value=AUTO_LOGIN.role;document.getElementById('lgPw').value=AUTO_LOGIN.password;document.getElementById('loginView').classList.remove('hidden');doLogin();}
   else document.getElementById('loginView').classList.remove('hidden');
 })();
+
+// ════ 전광판 (공지 · 이관 축하 · 응원) ════════════════════════════
+const BB={items:[],i:0,paused:false,pages:[],hasMore:false,page:0,filter:'',celeQ:[],celeSeen:{},mgr:null,timer:null,poll:null};
+const DOW='일월화수목금토';
+function tsD(ts){const d=parseYmd(String(ts).slice(0,10));return d?(d.getMonth()+1)+'/'+d.getDate()+'('+DOW[d.getDay()]+')':'';}
+function tsHM(ts){return String(ts).slice(11,16);}
+function tsMD(ts){const d=parseYmd(String(ts).slice(0,10));return d?(d.getMonth()+1)+'/'+d.getDate():'';}
+function celeName(it){return (it.team?it.team+' ':'')+it.author;}
+function bbChip(it){return it.kind==='이관'?['🎉 이관','kc-cele']:it.pinned?['📌 공지','kc-pin']:['📢 공지','kc-note'];}
+async function loadBoard(){
+  if(!S.token)return;
+  const r=await api('board',{page:0});
+  if(!r||!r.success)return;
+  BB.items=r.active||[];BB.pages=[{label:'지난 7일',items:r.list||[]}];BB.hasMore=!!r.hasMore;BB.page=0;BB.now=r.now;
+  if(BB.i>=BB.items.length)BB.i=0;
+  document.getElementById('bb').classList.remove('hidden');
+  document.getElementById('bbMgrBtn').classList.toggle('hidden',!S.master);
+  bbRender(true);
+  if(!document.getElementById('bmWrap').classList.contains('hidden')&&BB.view==='board')renderBoard();
+  if(!BB.timer)BB.timer=setInterval(()=>{if(!BB.paused&&BB.items.length>1&&document.visibilityState==='visible')bbStep(1);},6000);
+  if(!BB.poll)BB.poll=setInterval(loadBoard,5*60*1000);
+}
+function bbLine(it){
+  if(it.kind==='이관')return '<span class="t"><b>'+esc(celeName(it))+'</b>님 이관을 축하드립니다! '+(it.body?'<span class="bb-msg">“'+esc(it.body)+'”</span> ':'')+'<span class="bb-meta">· '+tsHM(it.start)+(it.cheers?' · 👏 '+it.cheers:'')+'</span></span>';
+  return '<span class="t"><b>'+esc(it.title)+'</b>'+(it.body?' <span class="bb-meta">· 클릭해서 자세히</span>':'')+'</span>';
+}
+function bbRender(noAnim){
+  const vp=document.getElementById('bbVp'),chip=document.getElementById('bbChip'),bb=document.getElementById('bb');
+  const it=BB.items[BB.i];
+  const html=it?bbLine(it):'<span class="t" style="color:#aaa">오늘 올라온 소식이 없음 · 클릭하면 지난 글 보기</span>';
+  const old=vp.querySelector('.bb-line');const n=document.createElement('div');n.className='bb-line'+(old&&!noAnim?' in':'');n.innerHTML=html;vp.appendChild(n);
+  if(old){if(noAnim)old.remove();else{requestAnimationFrame(()=>{old.classList.add('out');n.classList.remove('in');});setTimeout(()=>old.remove(),520);}}
+  const c=it?bbChip(it):['전광판','kc-none'];chip.textContent=c[0];chip.className='bb-chip '+c[1];
+  bb.className='bb'+(it&&it.kind==='이관'?' k-cele':it&&it.pinned?' k-pin':'');
+  document.getElementById('bbNav').style.visibility=BB.items.length>1?'visible':'hidden';
+  document.getElementById('bbDots').innerHTML=BB.items.length<=10?BB.items.map((x,j)=>'<i class="'+(j===BB.i?'on':'')+'"></i>').join(''):'<span>'+(BB.i+1)+'/'+BB.items.length+'</span>';
+}
+function bbStep(d){if(!BB.items.length)return;BB.i=(BB.i+d+BB.items.length)%BB.items.length;bbRender();}
+function closeBm(){document.getElementById('bmWrap').classList.add('hidden');BB.view='';if(BB.celeQ.length)setTimeout(showCele,300);}
+function openBm(html,cls){const b=document.getElementById('bmBox');b.className='bm'+(cls?' '+cls:'');b.innerHTML='<button class="bm-x" onclick="closeBm()">×</button>'+html;document.getElementById('bmWrap').classList.remove('hidden');}
+
+// ── 게시판 ──
+function openBoard(){BB.view='board';BB.filter='';openBm('<h3>📋 전광판 게시판</h3><div class="bm-tabs" id="bmTabs"></div><div class="bm-list" id="bmList"></div>');renderBoard();}
+function bpHtml(it,old){
+  const c=bbChip(it),cls=it.kind==='이관'?'cele':it.pinned?'pin':'';
+  const meta=it.kind==='이관'?(old?tsD(it.start)+' ':'')+tsHM(it.start):esc(it.author)+' · '+tsMD(it.start)+' 등록 · '+(old?tsMD(it.end)+' 종료':'~'+tsMD(it.end)+' 노출');
+  const head=it.kind==='이관'?'<b>'+esc(celeName(it))+'</b>님 이관을 축하드립니다!':'<b>'+esc(it.title)+'</b>';
+  const body=it.kind==='이관'?(it.body?'“'+esc(it.body)+'”':''):esc(it.body);
+  return '<div class="bp '+cls+(old?' old':'')+'"><span class="tg '+c[1]+'">'+c[0]+'</span><div class="bx"><div class="bh">'+head+'</div>'+(body?'<div class="bt">'+body+'</div>':'')+'<div class="bmeta">'+meta+'</div></div>'+
+    '<button class="cheer'+(it.mine?' on':'')+'" data-cid="'+esc(it.id)+'" onclick="cheer(\''+esc(it.id)+'\')" title="응원하기">👏 '+(it.cheers||0)+'</button></div>';
+}
+function renderBoard(){
+  const f=BB.filter,ok=it=>!f||(f==='공지'?it.kind==='공지':it.kind==='이관');
+  document.getElementById('bmTabs').innerHTML=[['','전체'],['공지','📢 공지'],['이관','🎉 이관 축하']].map(([k,l])=>'<button class="'+(f===k?'on':'')+'" onclick="BB.filter=\''+k+'\';renderBoard()">'+l+'</button>').join('');
+  const act=BB.items.filter(ok);
+  let h='<div class="bm-day">지금 노출 중 · '+tsD(BB.now||'')+'</div>'+(act.length?act.map(it=>bpHtml(it,false)).join(''):'<div class="bm-day" style="font-weight:400">없음</div>');
+  BB.pages.forEach(p=>{const l=p.items.filter(ok);h+='<div class="bm-day">'+p.label+'</div>'+(l.length?l.map(it=>bpHtml(it,true)).join(''):'<div class="bm-day" style="font-weight:400">없음</div>');});
+  h+='<div style="text-align:center;margin:10px 0 4px">'+(BB.hasMore?'<button class="btn" id="bmMore" onclick="boardMore()">이전 7일 더보기 ▾</button>':'<span class="bm-day" style="font-weight:400">더 이전 글 없음</span>')+'</div>';
+  const el=document.getElementById('bmList'),st=el.scrollTop;el.innerHTML=h;el.scrollTop=st;
+}
+async function boardMore(){
+  const b=document.getElementById('bmMore');if(b){b.disabled=true;b.textContent='불러오는 중…';}
+  const p=BB.page+1,r=await api('board',{page:p});
+  if(!r||!r.success){toast((r&&r.error)||'불러오기 실패',2500);if(b){b.disabled=false;b.textContent='이전 7일 더보기 ▾';}return;}
+  BB.page=p;BB.hasMore=!!r.hasMore;
+  BB.pages.push({label:tsD(addTsDays(r.now,-7*(p+1)))+' ~ '+tsD(addTsDays(r.now,-7*p)),items:r.list||[]});
+  renderBoard();
+}
+function addTsDays(ts,n){const d=parseYmd(String(ts).slice(0,10));if(!d)return '';d.setDate(d.getDate()+n);return ymd(d);}
+async function cheer(id){
+  const all=[].concat(BB.items,...BB.pages.map(p=>p.items),BB.mgr||[]).filter(x=>x.id===id);if(!all.length)return;
+  const on=!all[0].mine;all.forEach(x=>{x.mine=on;x.cheers=(x.cheers||0)+(on?1:-1);});
+  document.querySelectorAll('[data-cid="'+id+'"]').forEach(b=>{b.classList.toggle('on',on);b.textContent='👏 '+all[0].cheers;});
+  bbRender(true);
+  const r=await api('boardCheer',{id},true);
+  if(!r||!r.success){toast((r&&r.error)||'응원 저장 실패',2500);return;}
+  all.forEach(x=>{x.mine=r.mine;x.cheers=r.cheers;});
+  document.querySelectorAll('[data-cid="'+id+'"]').forEach(b=>{b.classList.toggle('on',r.mine);b.textContent='👏 '+r.cheers;});
+}
+
+// ── 이관 축하 한마디 ──
+function queueCele(list){list.forEach(c=>{if(!BB.celeSeen[c.id]){BB.celeSeen[c.id]=1;BB.celeQ.push(c);}});if(document.getElementById('bmWrap').classList.contains('hidden'))showCele();}
+function showCele(){
+  const c=BB.celeQ.shift();if(!c)return;BB.view='cele';BB.cele=c;
+  openBm('<div class="big">🎉</div><h2>이관 완료를 축하합니다!</h2><p>한마디 남기면 24시간 동안 전광판에 함께 노출됩니다</p>'+
+    '<textarea class="inp" id="celeMsg" rows="2" maxlength="50" style="width:100%;resize:none" placeholder="예: 다들 도와주셔서 감사합니다! 🙌" oninput="celePrev()"></textarea><div style="text-align:right;font-size:11px;color:#aaa;margin-top:4px"><span id="celeCnt">0</span>/50</div>'+
+    '<div class="cele-prev"><small>전광판 미리보기</small>🎉 <b>'+esc(celeName(c))+'</b>님 이관을 축하드립니다! <span id="celePv" style="color:#555"></span></div>'+
+    '<div style="display:flex;gap:8px;justify-content:center"><button class="btn" onclick="sendCele(true)">건너뛰기 (기본 문구만)</button><button class="btn primary" id="celeBtn" onclick="sendCele(false)">전광판에 올리기</button></div>','cele-box');
+  const box=document.getElementById('bmBox'),cs=['#ffb300','#3949ab','#e53935','#1baf7a','#8e24aa'];
+  for(let k=0;k<26;k++){const e=document.createElement('i');e.className='conf';e.style.left=Math.random()*100+'%';e.style.background=cs[k%5];e.style.animationDelay=(Math.random()*2)+'s';box.appendChild(e);}
+  setTimeout(()=>{const t=document.getElementById('celeMsg');if(t)t.focus();},100);
+}
+function celePrev(){const v=document.getElementById('celeMsg').value;document.getElementById('celeCnt').textContent=v.length;document.getElementById('celePv').textContent=v?'“'+v+'”':'';}
+async function sendCele(skip){
+  const c=BB.cele;if(!c)return;const msg=(document.getElementById('celeMsg')||{}).value||'';
+  if(!skip&&!msg.trim()){skip=true;}
+  const b=document.getElementById('celeBtn');if(b)b.disabled=true;
+  const r=await api('boardCele',{id:c.id,msg:msg.trim(),skip},true);
+  if(!r||!r.success){toast((r&&r.error)||'저장 실패',2500);if(b)b.disabled=false;return;}
+  toast(skip?'전광판에 축하 문구가 올라갔음':'한마디가 전광판에 올라갔음',2000);
+  closeBm();loadBoard();
+}
+
+// ── 관리 (마스터) ──
+const PERIOD_L={day:'일간',week:'주간',month:'월간',custom:'직접'};
+async function openMgr(){BB.view='mgr';BB.edit=null;BB.per='day';openBm('<h3>📢 전광판 관리 <span style="font-size:12px;color:#aaa;font-weight:400">마스터 전용</span></h3><div id="bfForm"></div><div class="bm-list" id="bmMgr"><div class="loading">불러오는 중…</div></div>','');renderMgrForm();loadMgr();}
+async function loadMgr(){const r=await api('board',{page:0,manage:true});if(!r||!r.success){document.getElementById('bmMgr').innerHTML='<div class="empty">'+esc((r&&r.error)||'불러오기 실패')+'</div>';return;}BB.mgr=r.manage||[];BB.mgrNow=r.now;renderMgrList();}
+function perHint(){const n=S.today||ymd(new Date()),d=parseYmd(n),add=k=>{const x=new Date(d);x.setDate(x.getDate()+k);return (x.getMonth()+1)+'/'+x.getDate();};
+  return {day:'지금부터 24시간',week:'지금부터 7일 (~'+add(7)+')',month:'지금부터 30일 (~'+add(30)+')',custom:'시작일 0시 ~ 종료일 24시'}[BB.per];}
+function renderMgrForm(reset){
+  // 기간 버튼 눌러 다시 그릴 때 입력 중인 내용 유지
+  const gv=id=>{const el=document.getElementById(id);return el?(el.type==='checkbox'?el.checked:el.value):undefined;};
+  const keep=!reset&&document.getElementById('bfTitle')?{title:gv('bfTitle'),body:gv('bfBody'),pinned:gv('bfPin'),from:gv('bfFrom'),to:gv('bfTo')}:null;
+  const e=keep?Object.assign({},BB.edit||{},keep,{start:keep.from?keep.from+' 00:00:00':(BB.edit||{}).start,end:keep.to?addTsDays(keep.to,1)+' 00:00:00':(BB.edit||{}).end}):(BB.edit||{});const per=BB.per;
+  document.getElementById('bfForm').innerHTML='<div class="bf">'+(BB.edit?'<div style="font-size:12px;font-weight:700;color:var(--warn)">✏️ 공지 수정 중 · <button class="lk" onclick="BB.edit=null;BB.per=\'day\';renderMgrForm(true)">새 공지로</button></div>':'')+
+    '<div><label class="l">제목 <span style="font-weight:400;color:#aaa">· 전광판에 흐르는 한 줄 (40자)</span></label><input class="inp" id="bfTitle" maxlength="40" value="'+esc(e.title||'')+'" placeholder="예: 10/17(금) 오후 3시 BM본부 전체 회의"></div>'+
+    '<div><label class="l">본문 <span style="font-weight:400;color:#aaa">· 게시판에서 보이는 내용 (선택)</span></label><textarea class="inp" id="bfBody" rows="3" maxlength="1000" placeholder="예: 장소: 대회의실&#10;주간 실적 각자 지참">'+esc(e.body||'')+'</textarea></div>'+
+    '<div class="frow"><div><label class="l">노출 기간</label><div class="seg">'+['day','week','month','custom'].map(k=>'<button class="'+(per===k?'on':'')+'" onclick="BB.per=\''+k+'\';renderMgrForm()">'+(k==='custom'?'직접 지정':PERIOD_L[k])+'</button>').join('')+'</div></div>'+
+    (per==='custom'?'<div><label class="l">시작일</label><input class="inp" type="date" id="bfFrom" value="'+esc(e.start?e.start.slice(0,10):(S.today||''))+'"></div><div><label class="l">종료일</label><input class="inp" type="date" id="bfTo" value="'+esc(e.end?addTsDays(e.end,-1):(S.today||''))+'"></div>':'')+
+    '<div><label class="l">옵션</label><label style="display:flex;gap:6px;align-items:center;height:34px;font-size:13px"><input type="checkbox" id="bfPin"'+(e.pinned?' checked':'')+'> 📌 상단 고정 (항상 먼저)</label></div>'+
+    '<div style="margin-left:auto"><button class="btn primary" id="bfSave" onclick="saveNotice()">'+(BB.edit?'수정 저장':'등록')+'</button></div></div>'+
+    '<div class="hint">노출: '+(BB.edit&&per!=='custom'?'처음 등록 시각부터 '+PERIOD_L[per]+' 기간':perHint())+'</div><div id="bfErr" class="err"></div></div>';
+}
+async function saveNotice(){
+  const g=id=>{const el=document.getElementById(id);return el?el.value.trim():'';};
+  const p={title:g('bfTitle'),body:g('bfBody'),period:BB.per,pinned:document.getElementById('bfPin').checked,from:g('bfFrom'),to:g('bfTo')};
+  if(BB.edit)p.id=BB.edit.id;
+  const err=document.getElementById('bfErr');if(!p.title){err.textContent='제목을 입력하세요';return;}
+  if(p.period==='custom'&&(!p.from||!p.to||p.from>p.to)){err.textContent='시작일·종료일을 확인하세요';return;}
+  const b=document.getElementById('bfSave');b.disabled=true;
+  const r=await api('boardSave',p,true);
+  if(!r||!r.success){err.textContent=(r&&r.error)||'저장 실패';b.disabled=false;return;}
+  toast(BB.edit?'공지 수정됨':'공지 등록됨',1800);BB.edit=null;BB.per='day';renderMgrForm(true);loadMgr();loadBoard();
+}
+function mgrState(it){const n=BB.mgrNow||'';
+  if(it.status==='숨김')return['<span class="st-off">숨김</span>','show'];
+  if(it.status==='취소')return['<span class="st-off">이관 취소됨</span>',''];
+  if(it.start>n)return['<span class="st-on" style="color:var(--primary)">예약</span>','hide'];
+  if(it.end<=n)return['<span class="st-off">종료</span>',it.kind==='공지'?'show':''];
+  return['<span class="st-on">노출 중</span>','hide'];}
+function renderMgrList(){
+  const l=BB.mgr||[];
+  document.getElementById('bmMgr').innerHTML='<table class="bmt"><thead><tr><th>종류</th><th>내용</th><th>기간</th><th>응원</th><th>상태</th><th></th></tr></thead><tbody>'+
+    (l.length?l.map(it=>{const c=bbChip(it),st=mgrState(it);
+      const txt=it.kind==='이관'?esc(celeName(it))+(it.company?' <span class="muted">('+esc(it.company)+')</span>':'')+' · '+(it.body?'“'+esc(it.body)+'”':'<span class="muted">(기본 문구)</span>'):'<b>'+esc(it.title)+'</b>'+(it.body?'<div class="muted" style="font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:320px">'+esc(it.body)+'</div>':'');
+      const per=it.kind==='이관'?'24시간 · '+tsMD(it.start)+' '+tsHM(it.start):(PERIOD_L[it.period]||'')+' · '+tsMD(it.start)+'~'+tsMD(addTsDays(it.end,it.end.slice(11)==='00:00:00'?-1:0));
+      return '<tr><td><span class="tg bb-chip '+c[1]+'" style="font-size:11px;padding:2px 8px">'+c[0]+'</span></td><td>'+txt+'</td><td style="white-space:nowrap;font-size:12px">'+per+'</td><td style="white-space:nowrap">👏 '+(it.cheers||0)+'</td><td style="white-space:nowrap">'+st[0]+'</td><td style="white-space:nowrap">'+
+        (it.kind==='공지'?'<button class="lk" onclick="editNotice(\''+esc(it.id)+'\')">수정</button>':'')+
+        (st[1]==='hide'?'<button class="lk" onclick="setBStatus(\''+esc(it.id)+'\',\'숨김\')">'+(it.kind==='이관'?'숨기기':'내리기')+'</button>':st[1]==='show'?'<button class="lk" onclick="setBStatus(\''+esc(it.id)+'\',\'노출\')">다시 노출</button>':'')+'</td></tr>';}).join(''):'<tr><td colspan="6" class="empty">등록된 글 없음</td></tr>')+'</tbody></table>';
+}
+function editNotice(id){const it=(BB.mgr||[]).find(x=>x.id===id);if(!it)return;BB.edit=it;BB.per=it.period||'day';renderMgrForm(true);document.getElementById('bfTitle').focus();}
+async function setBStatus(id,status){const r=await api('boardStatus',{id,status},true);if(!r||!r.success){toast((r&&r.error)||'변경 실패',2500);return;}toast(status==='숨김'?'전광판에서 내렸음':'다시 노출함',1800);loadMgr();loadBoard();}
 </script>
 </body>
 </html>

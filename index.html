@@ -24,15 +24,17 @@
           여러 건은 '이관 N건' 한 줄로, 관리 화면에 본인 확인 대기·대신 게시·패스 (서버 pilot.gs p0.13 필요)
   [v0.36] 재콜예정일 선택 항목으로 (신규등록·통화완료에 '재콜 없음' 버튼), 메일전송(주황)·희망건(분홍) 색상 추가 — 가망도 배지와 상단 건수 타일 색 통일, 미분류·단순재콜은 회색 (서버 p0.14 필요)
   [v0.37] 통화완료·부재·미루기·카드 재콜저장 후 10초간 '되돌리기' 버튼 (서버 p0.15 필요), 상단 건수 타일 숫자·선택 배경도 가망도 색으로
+  [v0.38] 나의 영업DB 가망도 타일 0건이어도 항상 표시(단순재콜 누락 해결), 단순재콜 색(갈색) 추가
+  [v0.39] 흐린 글자 가독성 개선: 흐린 회색 #aaa·#999 → #6b7280, 보조 글자 #777 → #4b5260 (대비 4.5:1 이상), 나의 영업DB 첫콜 날짜는 진한 글자로
 -->
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>미래아이엔씨 통합DB (파일럿) v0.37</title>
+<title>미래아이엔씨 통합DB (파일럿) v0.39</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#f0f2f5;--surface:#fff;--surface2:#f5f7ff;--border:#e8eaf6;--text:#333;--text-sub:#777;--text-muted:#aaa;--header-bg:linear-gradient(135deg,#0B13E7,#080ead);--primary:#3949ab;--primary-soft:#e8eaf6;--th-bg:#e8eaf6;--danger:#c62828;--danger-soft:#fdecec;--warn:#e65100;--warn-soft:#fff3e8;--ok:#2e7d32;--ok-soft:#e9f5ea;--purple:#6a1b9a;--purple-soft:#f3e5f5;}
+:root{--bg:#f0f2f5;--surface:#fff;--surface2:#f5f7ff;--border:#e8eaf6;--text:#333;--text-sub:#4b5260;--text-muted:#6b7280;--header-bg:linear-gradient(135deg,#0B13E7,#080ead);--primary:#3949ab;--primary-soft:#e8eaf6;--th-bg:#e8eaf6;--danger:#c62828;--danger-soft:#fdecec;--warn:#e65100;--warn-soft:#fff3e8;--ok:#2e7d32;--ok-soft:#e9f5ea;--purple:#6a1b9a;--purple-soft:#f3e5f5;}
 *{box-sizing:border-box;}
 body{margin:0;background:var(--bg);color:var(--text);font-family:'Nanum Gothic','NanumGothic','Malgun Gothic','Segoe UI',sans-serif;font-size:14px;min-height:100vh;}
 button{font-family:inherit;cursor:pointer;}
@@ -176,6 +178,7 @@ textarea.inp{resize:vertical;min-height:70px;line-height:1.5;}
 .g-이관완료{background:#263238;color:#fff;}
 .g-메일전송{background:#fff3e0;color:#e65100;border-color:#ffcc80;}
 .g-희망건{background:#fce4ec;color:#ad1457;border-color:#f48fb1;}
+.g-단순재콜{background:#efebe9;color:#5d4037;border-color:#bcaaa4;}
 .g-기타{background:var(--surface2);color:var(--text-sub);border-color:var(--border);}
 .chip{display:inline-block;font-size:11px;border-radius:5px;padding:1px 6px;margin-left:4px;}
 .chip.warn{background:var(--warn-soft);color:var(--warn);}
@@ -189,13 +192,14 @@ textarea.inp{resize:vertical;min-height:70px;line-height:1.5;}
 /* 리스트 */
 .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px;}
 .toolbar .inp{max-width:260px;}
-.gtiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-bottom:14px;}
+.gtiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:10px;margin-bottom:14px;}
 .gtile{display:flex;flex-direction:column;align-items:flex-start;gap:2px;background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--text-muted);border-radius:12px;padding:10px 14px;text-align:left;transition:transform .12s,box-shadow .12s;}
 .gtile:hover{transform:translateY(-2px);box-shadow:0 4px 14px rgba(0,0,0,.08);}
 .gtile .gv{font-size:22px;font-weight:800;color:var(--text);}
 .gtile .gl{font-size:12px;color:var(--text-sub);font-weight:600;}
+.gtile.zero{opacity:.5;}
 .gtile.on{background:var(--primary-soft);box-shadow:0 0 0 2px var(--primary) inset;}
-.gt-all{border-left-color:var(--primary);}.gt-단기{border-left-color:#1565c0;}.gt-장기{border-left-color:#4527a0;}.gt-권한오픈{border-left-color:#2e7d32;}.gt-권한브리핑{border-left-color:#00695c;}.gt-이관완료{border-left-color:#263238;}.gt-메일전송{border-left-color:#e65100;}.gt-희망건{border-left-color:#ad1457;}
+.gt-all{border-left-color:var(--primary);}.gt-단기{border-left-color:#1565c0;}.gt-장기{border-left-color:#4527a0;}.gt-권한오픈{border-left-color:#2e7d32;}.gt-권한브리핑{border-left-color:#00695c;}.gt-이관완료{border-left-color:#263238;}.gt-메일전송{border-left-color:#e65100;}.gt-희망건{border-left-color:#ad1457;}.gt-단순재콜{border-left-color:#5d4037;}.gt-단순재콜 .gv{color:#5d4037;}.gtile.on.gt-단순재콜{background:#efebe9;box-shadow:0 0 0 2px #5d4037 inset;}
 .gt-단기 .gv{color:#1565c0;}.gt-장기 .gv{color:#4527a0;}.gt-권한오픈 .gv{color:#2e7d32;}.gt-권한브리핑 .gv{color:#00695c;}.gt-메일전송 .gv{color:#e65100;}.gt-희망건 .gv{color:#ad1457;}
 .gtile.on.gt-단기{background:#e3f2fd;box-shadow:0 0 0 2px #1565c0 inset;}.gtile.on.gt-장기{background:#ede7f6;box-shadow:0 0 0 2px #4527a0 inset;}.gtile.on.gt-권한오픈{background:#e8f5e9;box-shadow:0 0 0 2px #2e7d32 inset;}.gtile.on.gt-권한브리핑{background:#e0f2f1;box-shadow:0 0 0 2px #00695c inset;}.gtile.on.gt-이관완료{background:#eceff1;box-shadow:0 0 0 2px #263238 inset;}.gtile.on.gt-메일전송{background:#fff3e0;box-shadow:0 0 0 2px #e65100 inset;}.gtile.on.gt-희망건{background:#fce4ec;box-shadow:0 0 0 2px #ad1457 inset;}.gt-기타{border-left-color:#b0b7c3;}
 .rchart{position:relative;}
@@ -273,7 +277,7 @@ table.nlist td.wide{max-width:320px;}
 .tl-gap{font-size:11px;color:var(--text-muted);font-weight:400;}
 .undo-bar{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1e2130;color:#fff;padding:6px 8px 6px 18px;border-radius:24px;font-size:13px;z-index:61;display:flex;align-items:center;gap:10px;box-shadow:0 6px 20px rgba(0,0,0,.25);}
 .undo-bar button{border:none;background:#ffd54f;color:#3a2700;font-weight:700;border-radius:16px;padding:6px 12px;font-size:13px;}
-.undo-bar button.x{background:transparent;color:#aaa;padding:4px 6px;font-size:16px;}
+.undo-bar button.x{background:transparent;color:var(--text-muted);padding:4px 6px;font-size:16px;}
 .saving{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1e2130;color:#fff;padding:9px 16px;border-radius:20px;font-size:13px;z-index:60;}
 .loading{padding:40px;text-align:center;color:var(--text-sub);}
 @media (max-width:640px){
@@ -295,29 +299,29 @@ table.nlist td.wide{max-width:320px;}
 .bb-chip{flex-shrink:0;font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px;white-space:nowrap;}
 .bb-tag{flex-shrink:0;font-size:11px;font-weight:800;letter-spacing:1.5px;color:var(--primary);padding:0 2px 0 8px;}
 .kc-quote{background:#f3e5f5;color:#6a1b9a;}.bp.quote{background:#fbf6fd;border-color:#ead7f2;}
-.kc-pin{background:#3949ab;color:#fff;}.kc-cele{background:#ffb300;color:#4a3000;}.kc-note{background:#e8eaf6;color:#3949ab;}.kc-none{background:#f0f1f5;color:#999;}
+.kc-pin{background:#3949ab;color:#fff;}.kc-cele{background:#ffb300;color:#4a3000;}.kc-note{background:#e8eaf6;color:#3949ab;}.kc-none{background:#f0f1f5;color:var(--text-muted);}
 .bb-vp{flex:1;min-width:0;height:44px;overflow:hidden;position:relative;cursor:pointer;}
 .bb-line{position:absolute;inset:0;display:flex;align-items:center;white-space:pre;overflow:hidden;text-overflow:ellipsis;transition:transform .5s ease,opacity .5s ease;}
 .bb-line.out{transform:translateY(-100%);opacity:0;}.bb-line.in{transform:translateY(100%);opacity:0;}
 .bb-line .t{overflow:hidden;text-overflow:ellipsis;}
-.bb-msg{color:#555;}.bb-meta{color:#aaa;font-size:12px;}
-.bb-nav{display:flex;align-items:center;gap:2px;color:#999;font-size:12px;flex-shrink:0;}
-.bb-nav button{border:none;background:none;color:#999;font-size:15px;padding:2px 5px;}
+.bb-msg{color:#555;}.bb-meta{color:var(--text-muted);font-size:12px;}
+.bb-nav{display:flex;align-items:center;gap:2px;color:var(--text-muted);font-size:12px;flex-shrink:0;}
+.bb-nav button{border:none;background:none;color:var(--text-muted);font-size:15px;padding:2px 5px;}
 .bb-dots{display:flex;gap:4px;margin:0 3px;}.bb-dots i{width:6px;height:6px;border-radius:50%;background:#d6d9ea;}.bb-dots i.on{background:var(--primary);}
 .bb-btn{flex-shrink:0;border:1px solid #ddd;background:#fff;color:#555;font-size:12px;border-radius:8px;padding:4px 10px;font-weight:600;}
 .bb-btn.m{border-color:#c5cae9;color:var(--primary);}
 .bm-dim{position:fixed;inset:0;background:rgba(20,24,60,.45);display:flex;align-items:center;justify-content:center;z-index:55;padding:16px;}
 .bm{background:#fff;border-radius:16px;width:720px;max-width:100%;max-height:88vh;padding:24px;box-shadow:0 20px 50px rgba(0,0,0,.25);position:relative;display:flex;flex-direction:column;}
 .bm h3{margin:0 0 12px;font-size:17px;}
-.bm-x{position:absolute;right:14px;top:12px;border:none;background:none;font-size:22px;color:#999;}
+.bm-x{position:absolute;right:14px;top:12px;border:none;background:none;font-size:22px;color:var(--text-muted);}
 .bm-tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;}.bm-tabs button{border:1px solid #ddd;background:#fff;border-radius:20px;padding:5px 12px;font-size:12px;color:#555;}.bm-tabs button.on{background:var(--primary);border-color:var(--primary);color:#fff;font-weight:700;}
 .bm-list{overflow:auto;flex:1;}
-.bm-day{font-size:12px;font-weight:700;color:#999;margin:14px 0 6px;}.bm-day:first-child{margin-top:0;}
+.bm-day{font-size:12px;font-weight:700;color:var(--text-muted);margin:14px 0 6px;}.bm-day:first-child{margin-top:0;}
 .bp{border:1px solid #eef0f7;border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;gap:12px;align-items:flex-start;}
 .bp.cele{background:#fffcf0;border-color:#ffe9a8;}.bp.pin{background:#f5f6ff;border-color:#d4d8f0;}.bp.old{opacity:.75;}
 .bp .tg{flex-shrink:0;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;}
 .bp .bx{flex:1;min-width:0;}.bp .bh{font-size:14px;}.bp .bt{color:#555;margin-top:4px;font-size:13px;white-space:pre-wrap;word-break:break-all;}
-.bp .bmeta{font-size:11px;color:#aaa;margin-top:6px;}
+.bp .bmeta{font-size:11px;color:var(--text-muted);margin-top:6px;}
 .cheer{flex-shrink:0;border:1px solid #ffd666;background:#fff;border-radius:20px;padding:4px 10px;font-size:12px;color:#8a6100;}
 .cheer.on{background:#ffb300;border-color:#ffb300;color:#3a2700;font-weight:700;}
 .cele-box{width:440px;text-align:center;overflow:hidden;}
@@ -325,7 +329,7 @@ table.nlist td.wide{max-width:320px;}
 .cele-box h2{margin:10px 0 4px;font-size:20px;}.cele-box p{margin:0 0 16px;color:#777;font-size:13px;}
 .cele-prev{background:#fff8e1;border:1px solid #ffe08a;border-radius:10px;padding:10px 12px;text-align:left;font-size:13px;margin:12px 0 16px;}
 .cf-list{text-align:left;max-height:180px;overflow:auto;border:1px solid #eef0f7;border-radius:10px;padding:6px 10px;margin-bottom:12px;}
-.cf-item{display:flex;align-items:center;gap:8px;padding:6px 2px;font-size:14px;cursor:pointer;}.cf-item span{margin-left:auto;font-size:11px;color:#aaa;}
+.cf-item{display:flex;align-items:center;gap:8px;padding:6px 2px;font-size:14px;cursor:pointer;}.cf-item span{margin-left:auto;font-size:11px;color:var(--text-muted);}
 .cf-ask{font-weight:700;color:#a07800;font-size:14px;margin-bottom:6px;text-align:left;}
 .cele-prev small{display:block;color:#a07800;font-weight:700;margin-bottom:4px;font-size:11px;}
 .conf{position:absolute;top:-10px;width:8px;height:12px;border-radius:2px;animation:conf 2.2s linear infinite;opacity:.9;}
@@ -338,7 +342,7 @@ table.nlist td.wide{max-width:320px;}
 .bf .hint{font-size:12px;color:var(--primary);background:#e8eaf6;border-radius:6px;padding:6px 10px;}
 .bmt{width:100%;border-collapse:collapse;font-size:13px;}.bmt th{background:#e8eaf6;text-align:left;padding:8px;font-size:12px;color:#555;position:sticky;top:0;}
 .bmt td{padding:8px;border-top:1px solid #f0f0f5;vertical-align:middle;}
-.st-on{color:var(--ok);font-weight:700;font-size:12px;}.st-off{color:#aaa;font-size:12px;}
+.st-on{color:var(--ok);font-weight:700;font-size:12px;}.st-off{color:var(--text-muted);font-size:12px;}
 .lk{border:none;background:none;color:#888;font-size:12px;text-decoration:underline;padding:2px 4px;}
 @media (max-width:700px){.bb-dots,.bb-meta,.bb-btn:not(.m){display:none;}.bb{gap:6px;}.bm{padding:18px;}}
 </style>
@@ -362,7 +366,7 @@ table.nlist td.wide{max-width:320px;}
     <div id="testBanner" class="test-banner hidden">테스트 시트에 연결되어 있음 · 실제 업무 데이터 아님</div>
     <div class="hdr"><div class="top-in">
       <div class="logo"><img src="data:image/png;base64,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" alt="CI"></div>
-      <h1>미래아이엔씨 통합DB <span style="font-size:12px;opacity:.6;font-weight:400;">파일럿 v0.37</span></h1>
+      <h1>미래아이엔씨 통합DB <span style="font-size:12px;opacity:.6;font-weight:400;">파일럿 v0.39</span></h1>
       <div class="who"><select id="viewPick" class="hbtn hidden" style="padding:5px 10px;" title="볼 인원 선택" onchange="changeViewAs(this.value)"></select><span id="whoName" class="user-chip"></span><a id="sheetLink" class="hbtn hidden" target="_blank" rel="noopener" style="text-decoration:none;" title="내 구글시트 새 창으로 열기">📄 내 구글시트</a><button class="hbtn" onclick="loadRows()">새로고침</button><button class="hbtn" id="btnLogout" onclick="logout()">로그아웃</button></div>
     </div></div>
     <div class="tabs">
@@ -401,7 +405,7 @@ table.nlist td.wide{max-width:320px;}
 // 파일럿 Apps Script 웹앱 주소. 비워두면 로그인 화면의 '서버 주소 설정'으로 입력 (이 브라우저에 저장됨)
 // 테스트 기간 자동 로그인 (테스트 시트 하나만 연결된 동안만 사용). 파일럿 사원 확정되면 null로 바꾸면 로그인 화면이 다시 나옴
 const AUTO_LOGIN = null;
-const APP_VER = 'v0.37';   // 화면 버전. 바뀌면 이전 접속 기록(테스트 계정 등)을 버리고 다시 로그인
+const APP_VER = 'v0.39';   // 화면 버전. 바뀌면 이전 접속 기록(테스트 계정 등)을 버리고 다시 로그인
 const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycby040Dne4lMk2Ulgzf5gLG5CPFskadcI4jiBjhuBY7zuMaepufQBoHjoaxHcnVQ5Xvt/exec';
 const PROMO_GRADES = ['단기','장기','권한오픈','권한+브리핑'];
 const INACTIVE_GRADES = ['이관완료','선택없음','희망건'];
@@ -514,12 +518,12 @@ function derive(r){
   const lastMemoObj=past.filter(x=>x.memo).slice(-1)[0]||null;
   return{done,plans,past,next,lastContact,missed,inactive,promoMissing,recallCnt:past.length,avgGap,flow,since,gapWarn,lastMemoObj};
 }
-function gradeKey(g){return g==='전체'?'all':(g==='권한+브리핑'?'권한브리핑':(['단기','장기','권한오픈','이관완료','메일전송','희망건'].includes(g)?g:'기타'));}
+function gradeKey(g){return g==='전체'?'all':(g==='권한+브리핑'?'권한브리핑':(['단기','장기','권한오픈','이관완료','메일전송','희망건','단순재콜'].includes(g)?g:'기타'));}
 // 가망도 표시 순서 (선택없음·빈칸 = 미분류로 묶음)
 const GRADE_ORDER=['이관완료','권한+브리핑','권한오픈','단기','장기','메일전송','희망건','단순재콜','미분류'];
 function gradeGroup(g){return (!g||g==='선택없음')?'미분류':g;}
 function gradeRank(g){const i=GRADE_ORDER.indexOf(gradeGroup(g));return i<0?GRADE_ORDER.length-1:i;}
-function gradeBadge(g){const k=g==='권한+브리핑'?'권한브리핑':(['단기','장기','권한오픈','이관완료','메일전송','희망건'].includes(g)?g:'기타');return '<span class="badge g-'+k+'">'+esc(gradeGroup(g))+'</span>';}
+function gradeBadge(g){const k=g==='권한+브리핑'?'권한브리핑':(['단기','장기','권한오픈','이관완료','메일전송','희망건','단순재콜'].includes(g)?g:'기타');return '<span class="badge g-'+k+'">'+esc(gradeGroup(g))+'</span>';}
 
 // ── 렌더 ──────────────────────────────────────────────────────────
 function renderAll(){renderToday();renderDb();renderReport();if(document.getElementById('newLists'))renderNewLists();else renderNew();}
@@ -693,7 +697,8 @@ function dbQuickSync(){
 }
 function renderDb(){
   const present=new Set(S.rows.map(r=>gradeGroup(r.grade)));
-  const grades=['전체'].concat(GRADE_ORDER.filter(g=>present.has(g)),[...present].filter(g=>!GRADE_ORDER.includes(g)));
+  // 가망도 타일은 0건이어도 항상 표시 (순서 고정)
+  const grades=['전체'].concat(GRADE_ORDER,[...present].filter(g=>!GRADE_ORDER.includes(g)));
   const q=S.dbSearch.trim().toLowerCase();
   // 날짜 필터: 첫콜(B열) 또는 마지막 컨택 기준, 시작~끝 (둘 중 하나만 있어도 됨)
   const df=S.dbDate,dateOf=r=>df.field==='last'?derive(r).lastContact:(isYmd(r.firstCall)?r.firstCall:'');
@@ -726,11 +731,11 @@ function renderDb(){
   }
   // 가망도별 건수 타일 (클릭 → 필터, 다시 클릭 → 전체)
   document.getElementById('dbTiles').innerHTML='<div class="gtiles">'+grades.map(g=>{const n=g==='전체'?base.length:base.filter(r=>gradeGroup(r.grade)===g).length;const k=gradeKey(g);
-      return '<button class="gtile gt-'+k+(S.dbFilter===g?' on':'')+'" onclick="S.dbFilter=(S.dbFilter===\''+esc(g)+'\'&&\''+esc(g)+'\'!==\'전체\')?\'전체\':\''+esc(g)+'\';renderDb()"><span class="gv">'+n+'</span><span class="gl">'+esc(g)+'</span></button>';}).join('')+'</div>';
+      return '<button class="gtile gt-'+k+(S.dbFilter===g?' on':'')+(n?'':' zero')+'" onclick="S.dbFilter=(S.dbFilter===\''+esc(g)+'\'&&\''+esc(g)+'\'!==\'전체\')?\'전체\':\''+esc(g)+'\';renderDb()"><span class="gv">'+n+'</span><span class="gl">'+esc(g)+'</span></button>';}).join('')+'</div>';
   document.getElementById('dbFilterChip').innerHTML=(S.dbFilter!=='전체'?'<span class="chip plan" style="font-size:12px;padding:4px 10px;">'+esc(S.dbFilter)+' 필터 중 · <a href="#" onclick="S.dbFilter=\'전체\';renderDb();return false;">해제</a></span>':'');
   document.getElementById('dbCount').textContent=list.length+'건';
   document.getElementById('dbTable').innerHTML='<div class="sec"><table class="list"><thead><tr>'+sortTh('grade','가망도')+sortTh('company','업체명')+sortTh('firstCall','첫콜','hide-m')+sortTh('lastContact','마지막 컨택')+sortTh('next','다음 재콜')+sortTh('recall','재콜','hide-m')+sortTh('avg','평균 간격','hide-m')+sortTh('budget','예산','hide-m')+'</tr></thead><tbody>'+
-    (list.length?list.map(({r,d})=>'<tr class="r" onclick="openCard(\''+esc(r.id)+'\')"><td>'+gradeBadge(r.grade)+'</td><td><b>'+esc(r.company)+'</b>'+(d.promoMissing.length?'<span class="chip warn">신규P 미인정</span>':'')+'</td><td class="hide-m muted">'+fmtD(r.firstCall)+'</td><td class="lc-cell'+(d.gapWarn?' gw-'+d.gapWarn:'')+'">'+(d.lastContact?'<div class="lc-date">'+fmtD(d.lastContact)+' <span class="lc-ago">('+d.since+'일 전)</span>'+(d.gapWarn?' <span class="gw-chip" title="평균 재콜 간격 '+d.avgGap+'일보다 '+(Math.round((d.since-d.avgGap)*10)/10)+'일 더 지남">'+(d.gapWarn==='high'?'⚠ 평소 간격 2배 초과':'평소보다 늦어짐')+'</span>':'')+'</div>'+(d.lastMemoObj?'<div class="lc-memo" title="'+esc(d.lastMemoObj.memo)+'">'+(d.lastMemoObj.date!==d.lastContact?'<span class="muted">'+(parseYmd(d.lastMemoObj.date).getMonth()+1)+'/'+parseYmd(d.lastMemoObj.date).getDate()+'</span> ':'')+esc(d.lastMemoObj.memo)+'</div>':(r.content?'<div class="lc-memo" title="'+esc(r.content)+'"><span class="chip" style="background:var(--purple-soft);color:var(--purple);margin:0 4px 0 0">첫콜</span>'+esc(r.content)+'</div>':'<div class="lc-memo muted">메모 없음</div>')):'-')+'</td><td>'+(d.missed?'<span class="chip danger">'+fmtD(d.next)+' 놓침</span>':(d.next?'<span class="chip '+(d.next===t?'danger':(d.next<t?'':'plan'))+'">'+fmtD(d.next)+'</span>':'<span class="muted">-</span>'))+'</td><td class="hide-m" title="'+esc(d.flow.map(x=>{const p=parseYmd(x);return (p.getMonth()+1)+'/'+p.getDate();}).join(' → '))+'">'+d.recallCnt+'회</td><td class="hide-m">'+(d.avgGap?d.avgGap+'일':'<span class="muted">-</span>')+'</td><td class="hide-m">'+(r.budget?esc(fmtBudget(r.budget)):'<span class="muted">-</span>')+'</td></tr>').join(''):'<tr><td colspan="8" class="empty">해당 건 없음</td></tr>')+
+    (list.length?list.map(({r,d})=>'<tr class="r" onclick="openCard(\''+esc(r.id)+'\')"><td>'+gradeBadge(r.grade)+'</td><td><b>'+esc(r.company)+'</b>'+(d.promoMissing.length?'<span class="chip warn">신규P 미인정</span>':'')+'</td><td class="hide-m">'+fmtD(r.firstCall)+'</td><td class="lc-cell'+(d.gapWarn?' gw-'+d.gapWarn:'')+'">'+(d.lastContact?'<div class="lc-date">'+fmtD(d.lastContact)+' <span class="lc-ago">('+d.since+'일 전)</span>'+(d.gapWarn?' <span class="gw-chip" title="평균 재콜 간격 '+d.avgGap+'일보다 '+(Math.round((d.since-d.avgGap)*10)/10)+'일 더 지남">'+(d.gapWarn==='high'?'⚠ 평소 간격 2배 초과':'평소보다 늦어짐')+'</span>':'')+'</div>'+(d.lastMemoObj?'<div class="lc-memo" title="'+esc(d.lastMemoObj.memo)+'">'+(d.lastMemoObj.date!==d.lastContact?'<span class="muted">'+(parseYmd(d.lastMemoObj.date).getMonth()+1)+'/'+parseYmd(d.lastMemoObj.date).getDate()+'</span> ':'')+esc(d.lastMemoObj.memo)+'</div>':(r.content?'<div class="lc-memo" title="'+esc(r.content)+'"><span class="chip" style="background:var(--purple-soft);color:var(--purple);margin:0 4px 0 0">첫콜</span>'+esc(r.content)+'</div>':'<div class="lc-memo muted">메모 없음</div>')):'-')+'</td><td>'+(d.missed?'<span class="chip danger">'+fmtD(d.next)+' 놓침</span>':(d.next?'<span class="chip '+(d.next===t?'danger':(d.next<t?'':'plan'))+'">'+fmtD(d.next)+'</span>':'<span class="muted">-</span>'))+'</td><td class="hide-m" title="'+esc(d.flow.map(x=>{const p=parseYmd(x);return (p.getMonth()+1)+'/'+p.getDate();}).join(' → '))+'">'+d.recallCnt+'회</td><td class="hide-m">'+(d.avgGap?d.avgGap+'일':'<span class="muted">-</span>')+'</td><td class="hide-m">'+(r.budget?esc(fmtBudget(r.budget)):'<span class="muted">-</span>')+'</td></tr>').join(''):'<tr><td colspan="8" class="empty">해당 건 없음</td></tr>')+
     '</tbody></table></div>';
 }
 // 정렬: 헤더 클릭 → 날짜·숫자는 내림차순부터, 다시 누르면 오름차순, 세 번째는 기본 정렬로 복귀
@@ -1080,7 +1085,7 @@ function bbLine(it){
 function bbRender(noAnim){
   const vp=document.getElementById('bbVp'),chip=document.getElementById('bbChip'),bb=document.getElementById('bb');
   const it=BB.items[BB.i];
-  const html=it?bbLine(it):'<span class="t" style="color:#aaa">오늘 올라온 소식이 없음 · 클릭하면 지난 글 보기</span>';
+  const html=it?bbLine(it):'<span class="t" style="color:var(--text-muted)">오늘 올라온 소식이 없음 · 클릭하면 지난 글 보기</span>';
   // 이전 줄은 전부 정리 (애니메이션 중에 다시 그려도 겹치지 않도록)
   const olds=[...vp.querySelectorAll('.bb-line')];const anim=!noAnim&&olds.length&&document.visibilityState==='visible';
   const n=document.createElement('div');n.className='bb-line'+(anim?' in':'');n.innerHTML=html;
@@ -1144,9 +1149,9 @@ function confetti(){const box=document.getElementById('bmBox'),cs=['#ffb300','#3
 // 시트에서 바뀐 이관완료 확인 창 (오늘 이관 맞음 → 게시 / 아니면 패스)
 function showConfirm(){
   const list=BB.confirmQ.splice(0);BB.view='confirm';BB.confirm=list;const c=list[0];
-  openBm('<div class="big">🎉</div><h2>이관완료가 감지됐어요</h2><p>시트에서 이관완료로 바뀐 업체예요. <b>오늘 이관한 건만</b> 체크해 주세요.<br><span style="font-size:12px;color:#aaa">예전 이관을 정리한 거면 체크 없이 넘기면 됨 (NOTICE에 안 올라감)</span></p>'+
+  openBm('<div class="big">🎉</div><h2>이관완료가 감지됐어요</h2><p>시트에서 이관완료로 바뀐 업체예요. <b>오늘 이관한 건만</b> 체크해 주세요.<br><span style="font-size:12px;color:var(--text-muted)">예전 이관을 정리한 거면 체크 없이 넘기면 됨 (NOTICE에 안 올라감)</span></p>'+
     '<div class="cf-list">'+list.map(x=>'<label class="cf-item"><input type="checkbox" class="cfChk" value="'+esc(x.id)+'" onchange="cfSync()"> <b>'+esc(x.company||'(업체명 없음)')+'</b><span>'+tsMD(x.detected)+' '+tsHM(x.detected)+' 감지</span></label>').join('')+'</div>'+
-    '<div id="cfMsgBox" style="opacity:.45"><div class="cf-ask">'+CELE_ASK+'</div><textarea class="inp" id="celeMsg" rows="2" maxlength="50" style="width:100%;resize:none" placeholder="예: 끝까지 재콜한 보람이 있네요! 다들 화이팅 💪" oninput="celePrev()" disabled></textarea><div style="text-align:right;font-size:11px;color:#aaa;margin-top:4px"><span id="celeCnt">0</span>/50</div>'+
+    '<div id="cfMsgBox" style="opacity:.45"><div class="cf-ask">'+CELE_ASK+'</div><textarea class="inp" id="celeMsg" rows="2" maxlength="50" style="width:100%;resize:none" placeholder="예: 끝까지 재콜한 보람이 있네요! 다들 화이팅 💪" oninput="celePrev()" disabled></textarea><div style="text-align:right;font-size:11px;color:var(--text-muted);margin-top:4px"><span id="celeCnt">0</span>/50</div>'+
     '<div class="cele-prev"><small>NOTICE 미리보기</small>🎉 <b>'+esc(celeName(c))+'</b>님 <span id="cfCnt">이관을</span> 축하드립니다! <span id="celePv" style="color:#555"></span></div></div>'+
     '<div style="display:flex;gap:8px;justify-content:center"><button class="btn" onclick="sendConfirm(true)">오늘 이관 아님 (넘기기)</button><button class="btn primary" id="cfBtn" onclick="sendConfirm(false)" disabled>체크한 건 NOTICE에 올리기</button></div>','cele-box');
 }
@@ -1164,7 +1169,7 @@ function showCele(){
   if(BB.confirmQ&&BB.confirmQ.length)return showConfirm();
   const c=BB.celeQ.shift();if(!c)return;BB.view='cele';BB.cele=c;
   openBm('<div class="big">🎉</div><h2>이관 완료를 축하합니다!</h2><p>남긴 한마디는 24시간 동안 NOTICE에 함께 노출됩니다</p>'+
-    '<div class="cf-ask">'+CELE_ASK+'</div><textarea class="inp" id="celeMsg" rows="2" maxlength="50" style="width:100%;resize:none" placeholder="예: 끝까지 재콜한 보람이 있네요! 다들 화이팅 💪" oninput="celePrev()"></textarea><div style="text-align:right;font-size:11px;color:#aaa;margin-top:4px"><span id="celeCnt">0</span>/50</div>'+
+    '<div class="cf-ask">'+CELE_ASK+'</div><textarea class="inp" id="celeMsg" rows="2" maxlength="50" style="width:100%;resize:none" placeholder="예: 끝까지 재콜한 보람이 있네요! 다들 화이팅 💪" oninput="celePrev()"></textarea><div style="text-align:right;font-size:11px;color:var(--text-muted);margin-top:4px"><span id="celeCnt">0</span>/50</div>'+
     '<div class="cele-prev"><small>NOTICE 미리보기</small>🎉 <b>'+esc(celeName(c))+'</b>님 이관을 축하드립니다! <span id="celePv" style="color:#555"></span></div>'+
     '<div style="display:flex;gap:8px;justify-content:center"><button class="btn" onclick="sendCele(true)">건너뛰기 (기본 문구만)</button><button class="btn primary" id="celeBtn" onclick="sendCele(false)">NOTICE에 올리기</button></div>','cele-box');
   confetti();
@@ -1183,7 +1188,7 @@ async function sendCele(skip){
 
 // ── 관리 (마스터) ──
 const PERIOD_L={day:'일간',week:'주간',month:'월간',custom:'직접'};
-async function openMgr(){BB.view='mgr';BB.edit=null;BB.per='day';openBm('<h3>📢 NOTICE 관리 <span style="font-size:12px;color:#aaa;font-weight:400">마스터 전용</span></h3><div id="bfForm"></div><div class="bm-list" id="bmMgr"><div class="loading">불러오는 중…</div></div>','');renderMgrForm();loadMgr();}
+async function openMgr(){BB.view='mgr';BB.edit=null;BB.per='day';openBm('<h3>📢 NOTICE 관리 <span style="font-size:12px;color:var(--text-muted);font-weight:400">마스터 전용</span></h3><div id="bfForm"></div><div class="bm-list" id="bmMgr"><div class="loading">불러오는 중…</div></div>','');renderMgrForm();loadMgr();}
 async function loadMgr(){const r=await api('board',{page:0,manage:true});if(!r||!r.success){document.getElementById('bmMgr').innerHTML='<div class="empty">'+esc((r&&r.error)||'불러오기 실패')+'</div>';return;}BB.mgr=r.manage||[];BB.mgrNow=r.now;renderMgrList();}
 function perHint(){const n=S.today||ymd(new Date()),d=parseYmd(n),add=k=>{const x=new Date(d);x.setDate(x.getDate()+k);return (x.getMonth()+1)+'/'+x.getDate();};
   return {day:'지금부터 24시간',week:'지금부터 7일 (~'+add(7)+')',month:'지금부터 30일 (~'+add(30)+')',custom:'시작일 0시 ~ 종료일 24시'}[BB.per];}
@@ -1193,8 +1198,8 @@ function renderMgrForm(reset){
   const keep=!reset&&document.getElementById('bfTitle')?{title:gv('bfTitle'),body:gv('bfBody'),pinned:gv('bfPin'),from:gv('bfFrom'),to:gv('bfTo')}:null;
   const e=keep?Object.assign({},BB.edit||{},keep,{start:keep.from?keep.from+' 00:00:00':(BB.edit||{}).start,end:keep.to?addTsDays(keep.to,1)+' 00:00:00':(BB.edit||{}).end}):(BB.edit||{});const per=BB.per;
   document.getElementById('bfForm').innerHTML='<div class="bf">'+(BB.edit?'<div style="font-size:12px;font-weight:700;color:var(--warn)">✏️ 공지 수정 중 · <button class="lk" onclick="BB.edit=null;BB.per=\'day\';renderMgrForm(true)">새 공지로</button></div>':'')+
-    '<div><label class="l">제목 <span style="font-weight:400;color:#aaa">· NOTICE에 흐르는 한 줄 (40자)</span></label><input class="inp" id="bfTitle" maxlength="40" value="'+esc(e.title||'')+'" placeholder="예: 10/17(금) 오후 3시 BM본부 전체 회의"></div>'+
-    '<div><label class="l">본문 <span style="font-weight:400;color:#aaa">· 게시판에서 보이는 내용 (선택)</span></label><textarea class="inp" id="bfBody" rows="3" maxlength="1000" placeholder="예: 장소: 대회의실&#10;주간 실적 각자 지참">'+esc(e.body||'')+'</textarea></div>'+
+    '<div><label class="l">제목 <span style="font-weight:400;color:var(--text-muted)">· NOTICE에 흐르는 한 줄 (40자)</span></label><input class="inp" id="bfTitle" maxlength="40" value="'+esc(e.title||'')+'" placeholder="예: 10/17(금) 오후 3시 BM본부 전체 회의"></div>'+
+    '<div><label class="l">본문 <span style="font-weight:400;color:var(--text-muted)">· 게시판에서 보이는 내용 (선택)</span></label><textarea class="inp" id="bfBody" rows="3" maxlength="1000" placeholder="예: 장소: 대회의실&#10;주간 실적 각자 지참">'+esc(e.body||'')+'</textarea></div>'+
     '<div class="frow"><div><label class="l">노출 기간</label><div class="seg">'+['day','week','month','custom'].map(k=>'<button class="'+(per===k?'on':'')+'" onclick="BB.per=\''+k+'\';renderMgrForm()">'+(k==='custom'?'직접 지정':PERIOD_L[k])+'</button>').join('')+'</div></div>'+
     (per==='custom'?'<div><label class="l">시작일</label><input class="inp" type="date" id="bfFrom" value="'+esc(e.start?e.start.slice(0,10):(S.today||''))+'"></div><div><label class="l">종료일</label><input class="inp" type="date" id="bfTo" value="'+esc(e.end?addTsDays(e.end,-1):(S.today||''))+'"></div>':'')+
     '<div><label class="l">옵션</label><label style="display:flex;gap:6px;align-items:center;height:34px;font-size:13px"><input type="checkbox" id="bfPin"'+(e.pinned?' checked':'')+'> 📌 상단 고정 (항상 먼저)</label></div>'+

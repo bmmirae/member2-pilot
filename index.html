@@ -34,12 +34,13 @@
   [v0.44] 광고주관리 즐겨찾기 그룹 5개 탭(최우선·중요·관리중·관심·기타, 이름 변경 가능), 줄마다 ★ 그룹 지정 (서버 p0.18 필요)
   [v0.45] 광고주관리: 업체명 누르면 광고주 메모(날짜별 기록·삭제) 펼침, 목록에 최근 메모·개수 표시 (서버 p0.19 필요)
   [v0.46] 광고주관리 탭을 파일럿 사원(윤소영·안소은·차민경·하강우)에게도 오픈 (업체 카드 광고주ID 칸은 계속 테스트 시트 전용)
+  [v0.47] 광고 계정 열기: 대행 계정은 대행사 계정번호(accessManagerAccountNo=31938)를 붙여 열기, '직접 계정' 체크 시 번호 없이 (서버 p0.20 필요)
 -->
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>미래아이엔씨 통합DB (파일럿) v0.46</title>
+<title>미래아이엔씨 통합DB (파일럿) v0.47</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#f0f2f5;--surface:#fff;--surface2:#f5f7ff;--border:#e8eaf6;--text:#333;--text-sub:#4b5260;--text-muted:#6b7280;--header-bg:linear-gradient(135deg,#0B13E7,#080ead);--primary:#3949ab;--primary-soft:#e8eaf6;--th-bg:#e8eaf6;--danger:#c62828;--danger-soft:#fdecec;--warn:#e65100;--warn-soft:#fff3e8;--ok:#2e7d32;--ok-soft:#e9f5ea;--purple:#6a1b9a;--purple-soft:#f3e5f5;}
@@ -303,7 +304,8 @@ table.nlist td.wide{max-width:320px;}
 .adm-ml{list-style:none;margin:10px 0 0;padding:0;max-height:260px;overflow:auto;}
 .adm-ml li{display:flex;gap:10px;align-items:flex-start;padding:7px 2px;border-top:1px dashed var(--border);font-size:13px;}
 .adm-ml .d{color:var(--text-sub);white-space:nowrap;font-size:12px;min-width:84px;}.adm-ml .t{flex:1;white-space:pre-wrap;word-break:break-all;}
-.adm-form{display:grid;grid-template-columns:130px 160px 1fr 1.4fr auto auto;gap:8px;padding:12px 14px;}
+.adm-own{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--text-sub);white-space:nowrap;}
+.adm-form{display:grid;grid-template-columns:130px 160px 1fr 1.4fr auto auto auto;gap:8px;padding:12px 14px;}
 .adm-tool{display:flex;align-items:center;gap:10px;padding:0 14px 10px;}.adm-tool .inp{max-width:280px;}
 .adm-t .adm-h{cursor:grab;color:var(--text-muted);font-size:16px;text-align:center;}.adm-t tr.dragging{opacity:.4;}.adm-t tr.editing{background:#fff8e1;}
 .adm-a{text-align:right;white-space:nowrap;}.adm-a .btn{margin-left:4px;}
@@ -399,7 +401,7 @@ table.nlist td.wide{max-width:320px;}
     <div id="testBanner" class="test-banner hidden">테스트 시트에 연결되어 있음 · 실제 업무 데이터 아님</div>
     <div class="hdr"><div class="top-in">
       <div class="logo"><img src="data:image/png;base64,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" alt="CI"></div>
-      <h1>미래아이엔씨 통합DB <span style="font-size:12px;opacity:.6;font-weight:400;">파일럿 v0.46</span></h1>
+      <h1>미래아이엔씨 통합DB <span style="font-size:12px;opacity:.6;font-weight:400;">파일럿 v0.47</span></h1>
       <div class="who"><select id="viewPick" class="hbtn hidden" style="padding:5px 10px;" title="볼 인원 선택" onchange="changeViewAs(this.value)"></select><span id="whoName" class="user-chip"></span><a id="sheetLink" class="hbtn hidden" target="_blank" rel="noopener" style="text-decoration:none;" title="내 구글시트 새 창으로 열기">📄 내 구글시트</a><button class="hbtn" onclick="loadRows()">새로고침</button><button class="hbtn" id="btnLogout" onclick="logout()">로그아웃</button></div>
     </div></div>
     <div class="tabs">
@@ -440,7 +442,7 @@ table.nlist td.wide{max-width:320px;}
 // 파일럿 Apps Script 웹앱 주소. 비워두면 로그인 화면의 '서버 주소 설정'으로 입력 (이 브라우저에 저장됨)
 // 테스트 기간 자동 로그인 (테스트 시트 하나만 연결된 동안만 사용). 파일럿 사원 확정되면 null로 바꾸면 로그인 화면이 다시 나옴
 const AUTO_LOGIN = null;
-const APP_VER = 'v0.46';   // 화면 버전. 바뀌면 이전 접속 기록(테스트 계정 등)을 버리고 다시 로그인
+const APP_VER = 'v0.47';   // 화면 버전. 바뀌면 이전 접속 기록(테스트 계정 등)을 버리고 다시 로그인
 const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycby040Dne4lMk2Ulgzf5gLG5CPFskadcI4jiBjhuBY7zuMaepufQBoHjoaxHcnVQ5Xvt/exec';
 const PROMO_GRADES = ['단기','장기','권한오픈','권한+브리핑'];
 const INACTIVE_GRADES = ['이관완료','선택없음','희망건'];
@@ -571,7 +573,9 @@ const AD_HOME_URL='https://ads.naver.com/manage';
 const AD_CUSTOMER_URL='https://ads.naver.com/manage/ad-accounts/{id}/dashboard';   // 2026.10 실사용 주소로 확인
 function isTestView(){return S.master?S.viewAs==='(테스트 시트)':!!S.testMode;}
 function openAdHome(){window.open(AD_HOME_URL,'_blank','noopener');}
-function openAdAccount(id){window.open(AD_CUSTOMER_URL.replace('{id}',encodeURIComponent(id)),'_blank','noopener');}
+// 대행 계정은 대행사 계정번호(accessManagerAccountNo)를 붙여야 열림. 직접 소유 계정은 붙이지 않음
+const AD_MANAGER_NO='31938';   // 미래아이엔씨 대행사 계정번호
+function openAdAccount(id,own){window.open(AD_CUSTOMER_URL.replace('{id}',encodeURIComponent(id))+(own||!AD_MANAGER_NO?'':'?accessManagerAccountNo='+AD_MANAGER_NO),'_blank','noopener');}
 // ── 광고주관리 탭: 가망DB와 별개로 고객ID·업체명·URL 바로가기 목록 (순서는 끌어서 또는 ▲▼로 변경, 서버 p0.17) ──
 const ADM={items:[],loaded:false,q:'',edit:-1,tab:0,groups:[],memos:{},open:'',memoList:null};
 const ADM_GDEF=['최우선','중요','관리중','관심','기타'];
@@ -584,7 +588,7 @@ async function openAdm(){
       '<button class="btn sm" style="margin-left:auto" onclick="openAdHome()">네이버 광고 열기 ↗</button></div>'+
       '<div class="adm-tabs" id="admTabs"></div>'+
       '<div class="adm-form"><select class="inp" id="admG" title="즐겨찾기 그룹"></select><input class="inp" id="admId" placeholder="고객ID (숫자)" inputmode="numeric" oninput="this.value=this.value.replace(/\\D/g,\'\')"><input class="inp" id="admName" placeholder="업체명"><input class="inp" id="admUrl" placeholder="URL (선택)" onkeydown="if(event.key===\'Enter\')admAdd()">'+
-      '<button class="btn primary" id="admAddBtn" onclick="admAdd()">추가</button><button class="btn hidden" id="admCancel" onclick="admCancel()">취소</button></div>'+
+      '<label class="adm-own" title="내 네이버 아이디로 직접 운영하는 계정이면 체크 (대행 계정은 체크 안 함)"><input type="checkbox" id="admOwn"> 직접 계정</label><button class="btn primary" id="admAddBtn" onclick="admAdd()">추가</button><button class="btn hidden" id="admCancel" onclick="admCancel()">취소</button></div>'+
       '<div class="adm-tool"><input class="inp" id="admQ" placeholder="고객ID·업체명 검색" oninput="ADM.q=this.value;renderAdm()"><span class="hint" id="admCnt"></span></div>'+
       '<div id="admList"></div></div>';
   }
@@ -608,8 +612,8 @@ function renderAdm(){
   const link=u=>{if(!u)return '<span class="muted">-</span>';const h=/^https?:\/\//i.test(u)?u:'https://'+u;return '<a href="'+esc(h)+'" target="_blank" rel="noopener">'+esc(u.replace(/^https?:\/\//i,''))+'</a>';};
   document.getElementById('admList').innerHTML='<table class="list adm-t"><thead><tr><th style="width:34px"></th><th style="width:120px">그룹</th><th>고객ID</th><th>업체명</th><th>URL</th><th style="width:300px"></th></tr></thead><tbody>'+
     (list.length?list.map(({x,i})=>'<tr draggable="'+(q?'false':'true')+'" data-i="'+i+'" ondragstart="admDrag(event,'+i+')" ondragover="admOver(event)" ondrop="admDrop(event,'+i+')" ondragend="admEnd()"'+(ADM.edit===i?' class="editing"':'')+'>'+
-      '<td class="adm-h" title="끌어서 순서 변경">≡</td><td><select class="adm-gs" style="color:'+(x.g?ADM_GCOL[x.g-1]:'var(--text-muted)')+'" onchange="admSetG('+i+',this.value)" title="즐겨찾기 그룹"><option value="0">☆</option>'+[1,2,3,4,5].map(g=>'<option value="'+g+'"'+(g===(x.g||0)?' selected':'')+'>★ '+esc(admG(g))+'</option>').join('')+'</select></td><td><b>'+esc(x.id)+'</b></td><td class="adm-nm" onclick="admToggleMemo(\''+esc(x.k||'')+'\')" title="눌러서 메모 보기·쓰기"><span class="adm-name">'+esc(x.name||'(업체명 없음)')+'</span>'+(ADM.memos[x.k]?' <span class="adm-mc">💬'+ADM.memos[x.k].n+'</span><div class="adm-last">'+tsMD(ADM.memos[x.k].last.d)+' '+esc(ADM.memos[x.k].last.t)+'</div>':' <span class="adm-mc add">+ 메모</span>')+'</td><td>'+link(x.url)+'</td>'+
-      '<td class="adm-a">'+(x.id?'<button class="btn sm primary" onclick="openAdAccount(\''+esc(x.id)+'\')">광고 계정 ↗</button>':'')+
+      '<td class="adm-h" title="끌어서 순서 변경">≡</td><td><select class="adm-gs" style="color:'+(x.g?ADM_GCOL[x.g-1]:'var(--text-muted)')+'" onchange="admSetG('+i+',this.value)" title="즐겨찾기 그룹"><option value="0">☆</option>'+[1,2,3,4,5].map(g=>'<option value="'+g+'"'+(g===(x.g||0)?' selected':'')+'>★ '+esc(admG(g))+'</option>').join('')+'</select></td><td><b>'+esc(x.id)+'</b>'+(x.own?' <span class="chip" title="직접 계정 (대행사 번호 없이 열림)">직접</span>':'')+'</td><td class="adm-nm" onclick="admToggleMemo(\''+esc(x.k||'')+'\')" title="눌러서 메모 보기·쓰기"><span class="adm-name">'+esc(x.name||'(업체명 없음)')+'</span>'+(ADM.memos[x.k]?' <span class="adm-mc">💬'+ADM.memos[x.k].n+'</span><div class="adm-last">'+tsMD(ADM.memos[x.k].last.d)+' '+esc(ADM.memos[x.k].last.t)+'</div>':' <span class="adm-mc add">+ 메모</span>')+'</td><td>'+link(x.url)+'</td>'+
+      '<td class="adm-a">'+(x.id?'<button class="btn sm primary" onclick="openAdAccount(\''+esc(x.id)+'\','+(x.own?1:0)+')">광고 계정 ↗</button>':'')+
       '<button class="btn sm" onclick="admMove('+i+',-1)" title="위로">▲</button><button class="btn sm" onclick="admMove('+i+',1)" title="아래로">▼</button>'+
       '<button class="btn sm" onclick="admEdit('+i+')">수정</button><button class="btn sm" onclick="admDel('+i+')">삭제</button></td></tr>'+
       (ADM.open&&ADM.open===x.k?'<tr class="adm-memo-row"><td></td><td colspan="5"><div class="adm-memo" id="admMemoBox">'+admMemoHtml(x)+'</div></td></tr>':'')).join('')
@@ -641,15 +645,15 @@ async function admMemoDel(id){if(!confirm('이 메모를 삭제할까요?'))retu
 function admSetG(i,g){ADM.items[i].g=+g||0;admPersist(g>0?'★ '+admG(+g)+'에 넣음':'그룹에서 뺌');}
 function admRename(g){const v=prompt('그룹 '+g+' 이름 (20자 이내)',admG(g));if(v===null)return;ADM.groups=[1,2,3,4,5].map(k=>k===g?v.trim().slice(0,20):admG(k));admPersist('이름 변경됨');}
 function admAdd(){
-  const g=k=>document.getElementById(k).value.trim(),it={id:g('admId'),name:g('admName'),url:g('admUrl'),g:+g('admG')||0};
+  const g=k=>document.getElementById(k).value.trim(),it={id:g('admId'),name:g('admName'),url:g('admUrl'),g:+g('admG')||0,own:document.getElementById('admOwn').checked};
   if(!it.id&&!it.name){toast('고객ID나 업체명을 입력하세요',1500);return;}
   if(ADM.edit>=0){ADM.items[ADM.edit]=it;ADM.edit=-1;}
   else{if(it.id&&ADM.items.some(x=>x.id===it.id)&&!confirm('같은 고객ID가 이미 있음. 그래도 추가할까요?'))return;ADM.items.unshift(it);}
   admCancel();admPersist('저장됨');
 }
-function admEdit(i){const x=ADM.items[i];ADM.edit=i;document.getElementById('admId').value=x.id;document.getElementById('admName').value=x.name;document.getElementById('admUrl').value=x.url;
+function admEdit(i){const x=ADM.items[i];ADM.edit=i;document.getElementById('admId').value=x.id;document.getElementById('admName').value=x.name;document.getElementById('admUrl').value=x.url;document.getElementById('admOwn').checked=!!x.own;
   document.getElementById('admAddBtn').textContent='수정 저장';document.getElementById('admCancel').classList.remove('hidden');renderAdm();document.getElementById('admName').focus();}
-function admCancel(){ADM.edit=-1;['admId','admName','admUrl'].forEach(k=>document.getElementById(k).value='');document.getElementById('admAddBtn').textContent='추가';document.getElementById('admCancel').classList.add('hidden');renderAdm();}
+function admCancel(){ADM.edit=-1;['admId','admName','admUrl'].forEach(k=>document.getElementById(k).value='');document.getElementById('admOwn').checked=false;document.getElementById('admAddBtn').textContent='추가';document.getElementById('admCancel').classList.add('hidden');renderAdm();}
 function admDel(i){if(!confirm('「'+(ADM.items[i].name||ADM.items[i].id)+'」 삭제할까요?'))return;ADM.items.splice(i,1);if(ADM.edit===i)admCancel();admPersist('삭제됨');}
 function admMove(i,d){const j=i+d;if(j<0||j>=ADM.items.length)return;const t=ADM.items[i];ADM.items[i]=ADM.items[j];ADM.items[j]=t;renderAdm();clearTimeout(admMove._t);admMove._t=setTimeout(()=>admPersist(),800);}
 let ADM_DRAG=-1;

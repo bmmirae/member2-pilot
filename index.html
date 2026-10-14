@@ -20,12 +20,16 @@
   [v0.32] 상단 탭 '내 가망DB' → '나의 영업DB'
   [v0.33] 파일 맨 위 업데이트 기록 추가
   [v0.34] 예산 표시를 만원 단위로 통일 (예전 원 단위 4000000 → 400만원, 1억 이상은 '1억 2,000만원'), 예산 정렬도 만원 기준
+  [v0.35] 이관 확인 창: 시트에서 바뀐 이관완료는 본인이 '오늘 이관'만 체크해서 게시(예전 건은 넘기기), 한마디 문구 '이관의 힘을 사원들에게 주세요!',
+          여러 건은 '이관 N건' 한 줄로, 관리 화면에 본인 확인 대기·대신 게시·패스 (서버 pilot.gs p0.13 필요)
+  [v0.36] 재콜예정일 선택 항목으로 (신규등록·통화완료에 '재콜 없음' 버튼), 메일전송(주황)·희망건(분홍) 색상 추가 — 가망도 배지와 상단 건수 타일 색 통일, 미분류·단순재콜은 회색 (서버 p0.14 필요)
+  [v0.37] 통화완료·부재·미루기·카드 재콜저장 후 10초간 '되돌리기' 버튼 (서버 p0.15 필요), 상단 건수 타일 숫자·선택 배경도 가망도 색으로
 -->
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>미래아이엔씨 통합DB (파일럿) v0.34</title>
+<title>미래아이엔씨 통합DB (파일럿) v0.37</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#f0f2f5;--surface:#fff;--surface2:#f5f7ff;--border:#e8eaf6;--text:#333;--text-sub:#777;--text-muted:#aaa;--header-bg:linear-gradient(135deg,#0B13E7,#080ead);--primary:#3949ab;--primary-soft:#e8eaf6;--th-bg:#e8eaf6;--danger:#c62828;--danger-soft:#fdecec;--warn:#e65100;--warn-soft:#fff3e8;--ok:#2e7d32;--ok-soft:#e9f5ea;--purple:#6a1b9a;--purple-soft:#f3e5f5;}
@@ -170,6 +174,8 @@ textarea.inp{resize:vertical;min-height:70px;line-height:1.5;}
 .g-권한오픈{background:#e8f5e9;color:#2e7d32;border-color:#a5d6a7;}
 .g-권한브리핑{background:#e0f2f1;color:#00695c;border-color:#80cbc4;}
 .g-이관완료{background:#263238;color:#fff;}
+.g-메일전송{background:#fff3e0;color:#e65100;border-color:#ffcc80;}
+.g-희망건{background:#fce4ec;color:#ad1457;border-color:#f48fb1;}
 .g-기타{background:var(--surface2);color:var(--text-sub);border-color:var(--border);}
 .chip{display:inline-block;font-size:11px;border-radius:5px;padding:1px 6px;margin-left:4px;}
 .chip.warn{background:var(--warn-soft);color:var(--warn);}
@@ -189,7 +195,9 @@ textarea.inp{resize:vertical;min-height:70px;line-height:1.5;}
 .gtile .gv{font-size:22px;font-weight:800;color:var(--text);}
 .gtile .gl{font-size:12px;color:var(--text-sub);font-weight:600;}
 .gtile.on{background:var(--primary-soft);box-shadow:0 0 0 2px var(--primary) inset;}
-.gt-all{border-left-color:var(--primary);}.gt-단기{border-left-color:#1565c0;}.gt-장기{border-left-color:#4527a0;}.gt-권한오픈{border-left-color:#2e7d32;}.gt-권한브리핑{border-left-color:#00695c;}.gt-이관완료{border-left-color:#263238;}.gt-기타{border-left-color:#b0b7c3;}
+.gt-all{border-left-color:var(--primary);}.gt-단기{border-left-color:#1565c0;}.gt-장기{border-left-color:#4527a0;}.gt-권한오픈{border-left-color:#2e7d32;}.gt-권한브리핑{border-left-color:#00695c;}.gt-이관완료{border-left-color:#263238;}.gt-메일전송{border-left-color:#e65100;}.gt-희망건{border-left-color:#ad1457;}
+.gt-단기 .gv{color:#1565c0;}.gt-장기 .gv{color:#4527a0;}.gt-권한오픈 .gv{color:#2e7d32;}.gt-권한브리핑 .gv{color:#00695c;}.gt-메일전송 .gv{color:#e65100;}.gt-희망건 .gv{color:#ad1457;}
+.gtile.on.gt-단기{background:#e3f2fd;box-shadow:0 0 0 2px #1565c0 inset;}.gtile.on.gt-장기{background:#ede7f6;box-shadow:0 0 0 2px #4527a0 inset;}.gtile.on.gt-권한오픈{background:#e8f5e9;box-shadow:0 0 0 2px #2e7d32 inset;}.gtile.on.gt-권한브리핑{background:#e0f2f1;box-shadow:0 0 0 2px #00695c inset;}.gtile.on.gt-이관완료{background:#eceff1;box-shadow:0 0 0 2px #263238 inset;}.gtile.on.gt-메일전송{background:#fff3e0;box-shadow:0 0 0 2px #e65100 inset;}.gtile.on.gt-희망건{background:#fce4ec;box-shadow:0 0 0 2px #ad1457 inset;}.gt-기타{border-left-color:#b0b7c3;}
 .rchart{position:relative;}
 .rtip{position:absolute;pointer-events:none;background:#1e2130;color:#fff;font-size:12px;line-height:1.6;padding:8px 11px;border-radius:8px;min-width:170px;z-index:5;box-shadow:0 4px 14px rgba(0,0,0,.2);}
 .rtip .muted{color:#aab;}
@@ -263,6 +271,9 @@ table.nlist td.wide{max-width:320px;}
 .tl-d{font-size:12px;font-weight:700;display:flex;gap:6px;align-items:center;}
 .tl-m{font-size:13px;margin-top:3px;white-space:pre-wrap;line-height:1.5;color:var(--text);}
 .tl-gap{font-size:11px;color:var(--text-muted);font-weight:400;}
+.undo-bar{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1e2130;color:#fff;padding:6px 8px 6px 18px;border-radius:24px;font-size:13px;z-index:61;display:flex;align-items:center;gap:10px;box-shadow:0 6px 20px rgba(0,0,0,.25);}
+.undo-bar button{border:none;background:#ffd54f;color:#3a2700;font-weight:700;border-radius:16px;padding:6px 12px;font-size:13px;}
+.undo-bar button.x{background:transparent;color:#aaa;padding:4px 6px;font-size:16px;}
 .saving{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1e2130;color:#fff;padding:9px 16px;border-radius:20px;font-size:13px;z-index:60;}
 .loading{padding:40px;text-align:center;color:var(--text-sub);}
 @media (max-width:640px){
@@ -313,6 +324,9 @@ table.nlist td.wide{max-width:320px;}
 .cele-box .big{font-size:46px;line-height:1;}
 .cele-box h2{margin:10px 0 4px;font-size:20px;}.cele-box p{margin:0 0 16px;color:#777;font-size:13px;}
 .cele-prev{background:#fff8e1;border:1px solid #ffe08a;border-radius:10px;padding:10px 12px;text-align:left;font-size:13px;margin:12px 0 16px;}
+.cf-list{text-align:left;max-height:180px;overflow:auto;border:1px solid #eef0f7;border-radius:10px;padding:6px 10px;margin-bottom:12px;}
+.cf-item{display:flex;align-items:center;gap:8px;padding:6px 2px;font-size:14px;cursor:pointer;}.cf-item span{margin-left:auto;font-size:11px;color:#aaa;}
+.cf-ask{font-weight:700;color:#a07800;font-size:14px;margin-bottom:6px;text-align:left;}
 .cele-prev small{display:block;color:#a07800;font-weight:700;margin-bottom:4px;font-size:11px;}
 .conf{position:absolute;top:-10px;width:8px;height:12px;border-radius:2px;animation:conf 2.2s linear infinite;opacity:.9;}
 @keyframes conf{to{transform:translateY(520px) rotate(540deg);}}
@@ -348,7 +362,7 @@ table.nlist td.wide{max-width:320px;}
     <div id="testBanner" class="test-banner hidden">테스트 시트에 연결되어 있음 · 실제 업무 데이터 아님</div>
     <div class="hdr"><div class="top-in">
       <div class="logo"><img src="data:image/png;base64,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" alt="CI"></div>
-      <h1>미래아이엔씨 통합DB <span style="font-size:12px;opacity:.6;font-weight:400;">파일럿 v0.34</span></h1>
+      <h1>미래아이엔씨 통합DB <span style="font-size:12px;opacity:.6;font-weight:400;">파일럿 v0.37</span></h1>
       <div class="who"><select id="viewPick" class="hbtn hidden" style="padding:5px 10px;" title="볼 인원 선택" onchange="changeViewAs(this.value)"></select><span id="whoName" class="user-chip"></span><a id="sheetLink" class="hbtn hidden" target="_blank" rel="noopener" style="text-decoration:none;" title="내 구글시트 새 창으로 열기">📄 내 구글시트</a><button class="hbtn" onclick="loadRows()">새로고침</button><button class="hbtn" id="btnLogout" onclick="logout()">로그아웃</button></div>
     </div></div>
     <div class="tabs">
@@ -379,6 +393,7 @@ table.nlist td.wide{max-width:320px;}
 
 <div id="drawerWrap" class="hidden"><div class="dim" onclick="closeCard()"></div><div class="drawer" id="drawer"></div></div>
 <div id="savingToast" class="saving hidden"></div>
+<div id="undoBar" class="undo-bar hidden"></div>
 <div id="bmWrap" class="bm-dim hidden" onmousedown="BB.downBg=event.target===this" onclick="if(event.target===this&&BB.downBg&&BB.view==='board')closeBm()"><div class="bm" id="bmBox"></div></div>
 
 <script>
@@ -386,7 +401,7 @@ table.nlist td.wide{max-width:320px;}
 // 파일럿 Apps Script 웹앱 주소. 비워두면 로그인 화면의 '서버 주소 설정'으로 입력 (이 브라우저에 저장됨)
 // 테스트 기간 자동 로그인 (테스트 시트 하나만 연결된 동안만 사용). 파일럿 사원 확정되면 null로 바꾸면 로그인 화면이 다시 나옴
 const AUTO_LOGIN = null;
-const APP_VER = 'v0.34';   // 화면 버전. 바뀌면 이전 접속 기록(테스트 계정 등)을 버리고 다시 로그인
+const APP_VER = 'v0.37';   // 화면 버전. 바뀌면 이전 접속 기록(테스트 계정 등)을 버리고 다시 로그인
 const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycby040Dne4lMk2Ulgzf5gLG5CPFskadcI4jiBjhuBY7zuMaepufQBoHjoaxHcnVQ5Xvt/exec';
 const PROMO_GRADES = ['단기','장기','권한오픈','권한+브리핑'];
 const INACTIVE_GRADES = ['이관완료','선택없음','희망건'];
@@ -499,12 +514,12 @@ function derive(r){
   const lastMemoObj=past.filter(x=>x.memo).slice(-1)[0]||null;
   return{done,plans,past,next,lastContact,missed,inactive,promoMissing,recallCnt:past.length,avgGap,flow,since,gapWarn,lastMemoObj};
 }
-function gradeKey(g){return g==='전체'?'all':(g==='권한+브리핑'?'권한브리핑':(['단기','장기','권한오픈','이관완료'].includes(g)?g:'기타'));}
+function gradeKey(g){return g==='전체'?'all':(g==='권한+브리핑'?'권한브리핑':(['단기','장기','권한오픈','이관완료','메일전송','희망건'].includes(g)?g:'기타'));}
 // 가망도 표시 순서 (선택없음·빈칸 = 미분류로 묶음)
 const GRADE_ORDER=['이관완료','권한+브리핑','권한오픈','단기','장기','메일전송','희망건','단순재콜','미분류'];
 function gradeGroup(g){return (!g||g==='선택없음')?'미분류':g;}
 function gradeRank(g){const i=GRADE_ORDER.indexOf(gradeGroup(g));return i<0?GRADE_ORDER.length-1:i;}
-function gradeBadge(g){const k=g==='권한+브리핑'?'권한브리핑':(['단기','장기','권한오픈','이관완료'].includes(g)?g:'기타');return '<span class="badge g-'+k+'">'+esc(gradeGroup(g))+'</span>';}
+function gradeBadge(g){const k=g==='권한+브리핑'?'권한브리핑':(['단기','장기','권한오픈','이관완료','메일전송','희망건'].includes(g)?g:'기타');return '<span class="badge g-'+k+'">'+esc(gradeGroup(g))+'</span>';}
 
 // ── 렌더 ──────────────────────────────────────────────────────────
 function renderAll(){renderToday();renderDb();renderReport();if(document.getElementById('newLists'))renderNewLists();else renderNew();}
@@ -548,28 +563,44 @@ function openDone(id){
   const r=S.rows.find(x=>x.id===id);if(!r)return;closeExp();const t=S.today;
   const box=document.getElementById('tx-'+id);
   box.innerHTML='<div class="dform"><input id="dMemo" class="inp" placeholder="통화 내용 (필수)" onkeydown="if(event.key===\'Enter\')saveDone(\''+esc(id)+'\')">'+
-    '<div class="dnext"><span class="hint">다음 재콜</span><input id="dNext" class="inp" type="date" min="'+addDays(t,1)+'" onchange="syncQuick(\'d\',this.value)">'+quickDates('d','dNext')+'</div>'+
+    '<div class="dnext"><span class="hint">다음 재콜</span><input id="dNext" class="inp" type="date" min="'+addDays(t,1)+'" onchange="syncQuick(\'d\',this.value)">'+quickDates('d','dNext',null,true)+'</div>'+
     '<div class="dgrade"><span class="hint">가망도</span><select id="dGrade" class="inp">'+gradeOptions(r.grade,!r.grade)+'</select></div>'+
     '<button class="btn primary" onclick="saveDone(\''+esc(id)+'\')">저장</button><button class="btn" onclick="closeExp()">취소</button></div>';
   box.classList.remove('hidden');document.getElementById('dMemo').focus();
+}
+// ── 되돌리기 바: 저장 직후 10초 동안 [되돌리기] (서버 pilot.gs p0.15 이상) ──
+let UNDO=null;
+function undoBar(msg,u,ppId){
+  hideToast();const el=document.getElementById('undoBar');clearTimeout(undoBar._t);
+  if(!u){toast(msg,1600);return;}
+  UNDO={u,ppId};el.innerHTML='<span>'+esc(msg)+'</span><button onclick="doUndo()">↩ 되돌리기</button><button class="x" onclick="hideUndo()">×</button>';
+  el.classList.remove('hidden');undoBar._t=setTimeout(hideUndo,10000);
+}
+function hideUndo(){document.getElementById('undoBar').classList.add('hidden');UNDO=null;}
+async function doUndo(){
+  if(!UNDO)return;const {u,ppId}=UNDO;hideUndo();rowBusy(u.id,true);toast('되돌리는 중…');
+  const res=await api('undo',{u},true);hideToast();rowBusy(u.id,false);
+  if(!res.success){alert(res.error||'되돌리기 실패');return;}
+  if(ppId){const pp=getPP();delete pp[ppId];setPP(pp);}
+  upsertRow(res.row);renderAll();if(S.openId===res.row.id)openCard(res.row.id);toast('되돌렸음',1500);
 }
 function rowBusy(id,on){const el=document.getElementById('tr-'+id);if(el)el.classList.toggle('busy',on);}
 async function saveDone(id){
   const r=S.rows.find(x=>x.id===id);if(!r)return;const t=S.today;
   const memo=document.getElementById('dMemo').value.trim(),nextDate=document.getElementById('dNext').value,grade=document.getElementById('dGrade').value;
   if(!memo){toast('통화 내용을 입력하세요',1500);document.getElementById('dMemo').focus();return;}
-  if(!nextDate&&grade!=='이관완료'&&!INACTIVE_GRADES.includes(grade)&&!confirm('다음 재콜일을 정하지 않았음. 그대로 저장할까요?'))return;
+  if(!nextDate&&document.getElementById('dNext').dataset.none!=='1'&&grade!=='이관완료'&&!INACTIVE_GRADES.includes(grade)&&!confirm('다음 재콜일을 정하지 않았음. 그대로 저장할까요?'))return;
   const params={id,memo,date:t,nextDate};if(grade&&grade!==r.grade)params.grade=grade;
   rowBusy(id,true);toast('저장 중…');
   const res=await api('recall',params,true);hideToast();rowBusy(id,false);
   if(!res.success){alert(res.error||'저장 실패');return;}
-  upsertRow(res.row);renderAll();toast('통화완료 저장'+(params.grade?' · 가망도 '+params.grade:''),1600);
+  upsertRow(res.row);renderAll();undoBar('통화완료 저장'+(params.grade?' · 가망도 '+params.grade:''),res.undo);
 }
 async function quickAbsent(id){
   const t=S.today,next=addBizDays(t,1);rowBusy(id,true);toast('부재 기록 중…');
   const res=await api('recall',{id,memo:'부재',date:t,nextDate:next},true);hideToast();rowBusy(id,false);
   if(!res.success){alert(res.error||'저장 실패');return;}
-  upsertRow(res.row);renderAll();toast('부재 기록 · 다음 재콜 '+fmtD(next),1600);
+  upsertRow(res.row);renderAll();undoBar('부재 기록 · 다음 재콜 '+fmtD(next),res.undo);
 }
 function openPost(id){
   closeExp();const t=S.today,box=document.getElementById('tx-'+id);
@@ -582,7 +613,7 @@ async function postpone(id,next){
   const res=await api('recall',{id,memo:'',nextDate:next},true);hideToast();rowBusy(id,false);
   if(!res.success){alert(res.error||'저장 실패');return;}
   const pp=getPP();pp[id]=next;setPP(pp);
-  upsertRow(res.row);renderAll();toast('재콜예정일 '+fmtD(next)+'로 미룸',1600);
+  upsertRow(res.row);renderAll();undoBar('재콜예정일 '+fmtD(next)+'로 미룸',res.undo,id);
 }
 function gradePick(id,el){
   const r=S.rows.find(x=>x.id===id);if(!r||el.querySelector('select'))return;
@@ -709,13 +740,13 @@ function toggleSort(key){const textFirstAsc=(key==='company'||key==='grade');con
 
 // ── 신규등록 ──────────────────────────────────────────────────────
 function gradeOptions(sel,withBlank){return (withBlank?'<option value="">선택</option>':'')+S.grades.map(g=>'<option'+(g===sel?' selected':'')+'>'+esc(g)+'</option>').join('');}
-function quickDates(prefix,inputId,base){
+function quickDates(prefix,inputId,base,withNone){
   const b=base||S.today;
-  const opts=[['내일',addBizDays(b,1),'다음 영업일'],['3일',addBizDays(b,3),'3영업일 후'],['1주',addDays(b,7),'7일 후'],['2주',addDays(b,14),'14일 후']];
+  const opts=[['내일',addBizDays(b,1),'다음 영업일'],['3일',addBizDays(b,3),'3영업일 후'],['1주',addDays(b,7),'7일 후'],['2주',addDays(b,14),'14일 후']].concat(withNone?[['재콜 없음','none','상담 종료·연결 불가 등 재콜 계획 없음 (재콜예정일 비움)']]:[]);
   return '<div class="quick" id="'+prefix+'Quick">'+opts.map(o=>'<button type="button" class="btn sm" title="'+o[2]+'" data-d="'+o[1]+'" onclick="pickDate(\''+prefix+'\',\''+inputId+'\',\''+o[1]+'\')">'+o[0]+'</button>').join('')+'</div>';
 }
-function pickDate(prefix,inputId,d){document.getElementById(inputId).value=d;syncQuick(prefix,d);}
-function syncQuick(prefix,d){document.querySelectorAll('#'+prefix+'Quick .btn').forEach(b=>b.classList.toggle('on',b.dataset.d===d));}
+function pickDate(prefix,inputId,d){const el=document.getElementById(inputId);el.value=d==='none'?'':d;el.dataset.none=d==='none'?'1':'';syncQuick(prefix,d);}
+function syncQuick(prefix,d){if(d&&d!=='none'){const q=document.getElementById(prefix+'Quick');const inp=q&&q.parentNode.querySelector('input[type=date]');if(inp)inp.dataset.none='';}document.querySelectorAll('#'+prefix+'Quick .btn').forEach(b=>b.classList.toggle('on',b.dataset.d===d));}
 function renderNew(){
   // 시트 열 순서 그대로 (A~M), 가로 한 줄 배치
   const L=(col,label,mark)=>'<label><span class="colL">'+col+'</span>'+label+(mark==='req'?' <span class="req">*</span>':mark==='rec'?' <span class="rec">권장</span>':'')+'</label>';
@@ -735,7 +766,7 @@ function renderNew(){
       cell('w-mgr',L('J','담당자명','rec')+inp('nManager'))+
       cell('w-phone',L('K','직통연락처','req')+inp('nPhone','tel'))+
       cell('w-email',L('L','이메일','rec')+inp('nEmail','email'))+
-      cell('w-next',L('M','재콜예정일','req')+'<input id="nNext" class="inp" type="date" min="'+S.today+'" onchange="syncQuick(\'n\',this.value)">'+quickDates('n','nNext'))+
+      cell('w-next',L('M','재콜예정일')+'<input id="nNext" class="inp" type="date" min="'+S.today+'" onchange="syncQuick(\'n\',this.value)">'+quickDates('n','nNext',null,true))+
     '</div>'+
     '<div class="nfoot"><button class="btn primary" id="nSave" onclick="saveNew()">등록</button><span class="hint">첫콜날짜는 오늘로 자동 기록됨 · 재콜칸(N열~)은 재콜 기록 시 채워짐</span><span id="nErr" class="err" style="margin:0;"></span></div><div id="snipBox"></div></div><div id="newLists"></div>';
   renderSnips();renderNewLists();
@@ -783,7 +814,7 @@ async function saveNew(force){
   const g=id=>document.getElementById(id).value.trim();
   const data={company:g('nCompany'),phone:g('nPhone'),content:g('nContent'),grade:g('nGrade'),nextDate:g('nNext'),budget:toManwon(g('nBudget')),advertiserManager:g('nManager'),email:g('nEmail'),keyword:g('nKeyword'),rank:g('nRank'),url:g('nUrl'),contactPoint:g('nContactPoint')};
   const err=document.getElementById('nErr');
-  const miss=[['grade','가망도'],['company','업체명'],['content','첫콜내용'],['phone','직통연락처'],['nextDate','재콜예정일']].filter(x=>!data[x[0]]).map(x=>x[1]);
+  const miss=[['grade','가망도'],['company','업체명'],['content','첫콜내용'],['phone','직통연락처']].filter(x=>!data[x[0]]).map(x=>x[1]);
   if(miss.length){err.textContent=miss.join(', ')+' 입력 필요';return;}
   const rec=[!data.budget&&'예산',!data.advertiserManager&&'담당자명',!data.email&&'이메일'].filter(Boolean);
   if(rec.length&&PROMO_GRADES.includes(data.grade)&&!force&&!confirm(rec.join(', ')+'이(가) 비어 있어 신규P로 인정되지 않음.\n그대로 등록할까요?'))return;
@@ -950,7 +981,7 @@ async function saveRecall(){
   const res=await api('recall',{id:r.id,memo,date,nextDate},true);
   hideToast();
   if(!res.success){document.getElementById('cSave').disabled=false;err.textContent=res.error||'저장 실패';return;}
-  upsertRow(res.row);renderAll();openCard(res.row.id);toast('저장 완료',1500);
+  upsertRow(res.row);renderAll();openCard(res.row.id);undoBar('저장 완료',res.undo);
 }
 async function saveGrade(sel){
   const r=S.rows.find(x=>x.id===S.openId);if(!r)return;
@@ -1043,7 +1074,7 @@ function bbShow(){
 }
 function bbLine(it){
   if(it.kind==='명언')return '<span class="t">'+esc(it.title)+(it.src?' <span class="bb-meta">— '+esc(it.src)+'</span>':'')+'</span>';
-  if(it.kind==='이관')return '<span class="t"><b>'+esc(celeName(it))+'</b>님 이관을 축하드립니다! '+(it.body?'<span class="bb-msg">“'+esc(it.body)+'”</span> ':'')+'<span class="bb-meta">· '+tsHM(it.start)+(it.cheers?' · 👏 '+it.cheers:'')+'</span></span>';
+  if(it.kind==='이관')return '<span class="t"><b>'+esc(celeName(it))+'</b>님 '+(it.count>1?'이관 '+it.count+'건을':'이관을')+' 축하드립니다! '+(it.body?'<span class="bb-msg">“'+esc(it.body)+'”</span> ':'')+'<span class="bb-meta">· '+tsHM(it.start)+(it.cheers?' · 👏 '+it.cheers:'')+'</span></span>';
   return '<span class="t"><b>'+esc(it.title)+'</b>'+(it.body?' <span class="bb-meta">· 클릭해서 자세히</span>':'')+'</span>';
 }
 function bbRender(noAnim){
@@ -1062,7 +1093,7 @@ function bbRender(noAnim){
   document.getElementById('bbDots').innerHTML=BB.items.length<=10?BB.items.map((x,j)=>'<i class="'+(j===BB.i?'on':'')+'"></i>').join(''):'<span>'+(BB.i+1)+'/'+BB.items.length+'</span>';
 }
 function bbStep(d){if(!BB.items.length)return;BB.i=(BB.i+d+BB.items.length)%BB.items.length;bbRender();}
-function closeBm(){document.getElementById('bmWrap').classList.add('hidden');BB.view='';if(BB.celeQ.length)setTimeout(showCele,300);}
+function closeBm(){document.getElementById('bmWrap').classList.add('hidden');BB.view='';if(BB.celeQ.length||(BB.confirmQ&&BB.confirmQ.length))setTimeout(showCele,300);}
 function openBm(html,cls){const b=document.getElementById('bmBox');b.className='bm'+(cls?' '+cls:'');b.innerHTML='<button class="bm-x" onclick="closeBm()">×</button>'+html;document.getElementById('bmWrap').classList.remove('hidden');}
 
 // ── 게시판 ──
@@ -1071,7 +1102,7 @@ function bpHtml(it,old){
   if(it.kind==='명언')return '<div class="bp quote"><span class="tg kc-quote">💬 한마디</span><div class="bx"><div class="bh">'+esc(it.title)+'</div>'+(it.src?'<div class="bmeta">— '+esc(it.src)+'</div>':'')+'</div></div>';
   const c=bbChip(it),cls=it.kind==='이관'?'cele':it.pinned?'pin':'';
   const meta=it.kind==='이관'?(old?tsD(it.start)+' ':'')+tsHM(it.start):esc(it.author)+' · '+tsMD(it.start)+' 등록 · '+(old?tsMD(it.end)+' 종료':'~'+tsMD(it.end)+' 노출');
-  const head=it.kind==='이관'?'<b>'+esc(celeName(it))+'</b>님 이관을 축하드립니다!':'<b>'+esc(it.title)+'</b>';
+  const head=it.kind==='이관'?'<b>'+esc(celeName(it))+'</b>님 '+(it.count>1?'이관 '+it.count+'건을':'이관을')+' 축하드립니다!':'<b>'+esc(it.title)+'</b>';
   const body=it.kind==='이관'?(it.body?'“'+esc(it.body)+'”':''):esc(it.body);
   return '<div class="bp '+cls+(old?' old':'')+'"><span class="tg '+c[1]+'">'+c[0]+'</span><div class="bx"><div class="bh">'+head+'</div>'+(body?'<div class="bt">'+body+'</div>':'')+'<div class="bmeta">'+meta+'</div></div>'+
     '<button class="cheer'+(it.mine?' on':'')+'" data-cid="'+esc(it.id)+'" onclick="cheer(\''+esc(it.id)+'\')" title="응원하기">👏 '+(it.cheers||0)+'</button></div>';
@@ -1106,15 +1137,37 @@ async function cheer(id){
 }
 
 // ── 이관 축하 한마디 ──
-function queueCele(list){list.forEach(c=>{if(!BB.celeSeen[c.id]){BB.celeSeen[c.id]=1;BB.celeQ.push(c);}});if(document.getElementById('bmWrap').classList.contains('hidden'))showCele();}
+const CELE_ASK='이관의 힘을 사원들에게 주세요! ✨';
+function queueCele(list){BB.confirmQ=BB.confirmQ||[];list.forEach(c=>{const k=(c.type||'msg')+c.id;if(BB.celeSeen[k])return;BB.celeSeen[k]=1;if(c.type==='confirm')BB.confirmQ.push(c);else BB.celeQ.push(c);});if(document.getElementById('bmWrap').classList.contains('hidden'))showCele();}
+function confetti(){const box=document.getElementById('bmBox'),cs=['#ffb300','#3949ab','#e53935','#1baf7a','#8e24aa'];
+  for(let k=0;k<26;k++){const e=document.createElement('i');e.className='conf';e.style.left=Math.random()*100+'%';e.style.background=cs[k%5];e.style.animationDelay=(Math.random()*2)+'s';box.appendChild(e);}}
+// 시트에서 바뀐 이관완료 확인 창 (오늘 이관 맞음 → 게시 / 아니면 패스)
+function showConfirm(){
+  const list=BB.confirmQ.splice(0);BB.view='confirm';BB.confirm=list;const c=list[0];
+  openBm('<div class="big">🎉</div><h2>이관완료가 감지됐어요</h2><p>시트에서 이관완료로 바뀐 업체예요. <b>오늘 이관한 건만</b> 체크해 주세요.<br><span style="font-size:12px;color:#aaa">예전 이관을 정리한 거면 체크 없이 넘기면 됨 (NOTICE에 안 올라감)</span></p>'+
+    '<div class="cf-list">'+list.map(x=>'<label class="cf-item"><input type="checkbox" class="cfChk" value="'+esc(x.id)+'" onchange="cfSync()"> <b>'+esc(x.company||'(업체명 없음)')+'</b><span>'+tsMD(x.detected)+' '+tsHM(x.detected)+' 감지</span></label>').join('')+'</div>'+
+    '<div id="cfMsgBox" style="opacity:.45"><div class="cf-ask">'+CELE_ASK+'</div><textarea class="inp" id="celeMsg" rows="2" maxlength="50" style="width:100%;resize:none" placeholder="예: 끝까지 재콜한 보람이 있네요! 다들 화이팅 💪" oninput="celePrev()" disabled></textarea><div style="text-align:right;font-size:11px;color:#aaa;margin-top:4px"><span id="celeCnt">0</span>/50</div>'+
+    '<div class="cele-prev"><small>NOTICE 미리보기</small>🎉 <b>'+esc(celeName(c))+'</b>님 <span id="cfCnt">이관을</span> 축하드립니다! <span id="celePv" style="color:#555"></span></div></div>'+
+    '<div style="display:flex;gap:8px;justify-content:center"><button class="btn" onclick="sendConfirm(true)">오늘 이관 아님 (넘기기)</button><button class="btn primary" id="cfBtn" onclick="sendConfirm(false)" disabled>체크한 건 NOTICE에 올리기</button></div>','cele-box');
+}
+function cfSync(){const n=document.querySelectorAll('.cfChk:checked').length;document.getElementById('cfBtn').disabled=!n;const mb=document.getElementById('cfMsgBox');mb.style.opacity=n?1:.45;document.getElementById('celeMsg').disabled=!n;document.getElementById('cfCnt').textContent=n>1?'이관 '+n+'건을':'이관을';}
+async function sendConfirm(skipAll){
+  const all=(BB.confirm||[]).map(x=>x.id),ok=skipAll?[]:[...document.querySelectorAll('.cfChk:checked')].map(e=>e.value);
+  const pass=all.filter(id=>ok.indexOf(id)<0),msg=skipAll?'':((document.getElementById('celeMsg')||{}).value||'').trim();
+  document.querySelectorAll('.cele-box .btn').forEach(b=>b.disabled=true);
+  const r=await api('boardConfirm',{ok,pass,msg},true);
+  if(!r||!r.success){toast((r&&r.error)||'저장 실패',2500);document.querySelectorAll('.cele-box .btn').forEach(b=>b.disabled=false);return;}
+  toast(ok.length?'🎉 NOTICE에 올라갔음':'넘겼음 (NOTICE에 안 올라감)',2000);
+  closeBm();loadBoard();
+}
 function showCele(){
+  if(BB.confirmQ&&BB.confirmQ.length)return showConfirm();
   const c=BB.celeQ.shift();if(!c)return;BB.view='cele';BB.cele=c;
-  openBm('<div class="big">🎉</div><h2>이관 완료를 축하합니다!</h2><p>한마디 남기면 24시간 동안 NOTICE에 함께 노출됩니다</p>'+
-    '<textarea class="inp" id="celeMsg" rows="2" maxlength="50" style="width:100%;resize:none" placeholder="예: 다들 도와주셔서 감사합니다! 🙌" oninput="celePrev()"></textarea><div style="text-align:right;font-size:11px;color:#aaa;margin-top:4px"><span id="celeCnt">0</span>/50</div>'+
+  openBm('<div class="big">🎉</div><h2>이관 완료를 축하합니다!</h2><p>남긴 한마디는 24시간 동안 NOTICE에 함께 노출됩니다</p>'+
+    '<div class="cf-ask">'+CELE_ASK+'</div><textarea class="inp" id="celeMsg" rows="2" maxlength="50" style="width:100%;resize:none" placeholder="예: 끝까지 재콜한 보람이 있네요! 다들 화이팅 💪" oninput="celePrev()"></textarea><div style="text-align:right;font-size:11px;color:#aaa;margin-top:4px"><span id="celeCnt">0</span>/50</div>'+
     '<div class="cele-prev"><small>NOTICE 미리보기</small>🎉 <b>'+esc(celeName(c))+'</b>님 이관을 축하드립니다! <span id="celePv" style="color:#555"></span></div>'+
     '<div style="display:flex;gap:8px;justify-content:center"><button class="btn" onclick="sendCele(true)">건너뛰기 (기본 문구만)</button><button class="btn primary" id="celeBtn" onclick="sendCele(false)">NOTICE에 올리기</button></div>','cele-box');
-  const box=document.getElementById('bmBox'),cs=['#ffb300','#3949ab','#e53935','#1baf7a','#8e24aa'];
-  for(let k=0;k<26;k++){const e=document.createElement('i');e.className='conf';e.style.left=Math.random()*100+'%';e.style.background=cs[k%5];e.style.animationDelay=(Math.random()*2)+'s';box.appendChild(e);}
+  confetti();
   setTimeout(()=>{const t=document.getElementById('celeMsg');if(t)t.focus();},100);
 }
 function celePrev(){const v=document.getElementById('celeMsg').value;document.getElementById('celeCnt').textContent=v.length;document.getElementById('celePv').textContent=v?'“'+v+'”':'';}
@@ -1162,6 +1215,8 @@ async function saveNotice(){
 function mgrState(it){const n=BB.mgrNow||'';
   if(it.status==='숨김')return['<span class="st-off">숨김</span>','show'];
   if(it.status==='취소')return['<span class="st-off">이관 취소됨</span>',''];
+  if(it.status==='패스')return['<span class="st-off">예전 건 (게시 안 함)</span>',''];
+  if(it.status==='확인대기')return it.end<=n?['<span class="st-off">확인 만료</span>','']:['<span class="st-on" style="color:var(--warn)">본인 확인 대기</span>','confirm'];
   if(it.start>n)return['<span class="st-on" style="color:var(--primary)">예약</span>','hide'];
   if(it.end<=n)return['<span class="st-off">종료</span>',it.kind==='공지'?'show':''];
   return['<span class="st-on">노출 중</span>','hide'];}
@@ -1170,13 +1225,14 @@ function renderMgrList(){
   document.getElementById('bmMgr').innerHTML='<table class="bmt"><thead><tr><th>종류</th><th>내용</th><th>기간</th><th>응원</th><th>상태</th><th></th></tr></thead><tbody>'+
     (l.length?l.map(it=>{const c=bbChip(it),st=mgrState(it);
       const txt=it.kind==='이관'?esc(celeName(it))+(it.company?' <span class="muted">('+esc(it.company)+')</span>':'')+' · '+(it.body?'“'+esc(it.body)+'”':'<span class="muted">(기본 문구)</span>'):'<b>'+esc(it.title)+'</b>'+(it.body?'<div class="muted" style="font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:320px">'+esc(it.body)+'</div>':'');
-      const per=it.kind==='이관'?'24시간 · '+tsMD(it.start)+' '+tsHM(it.start):(PERIOD_L[it.period]||'')+' · '+tsMD(it.start)+'~'+tsMD(addTsDays(it.end,it.end.slice(11)==='00:00:00'?-1:0));
+      const per=it.kind==='이관'?(it.status==='확인대기'?'감지 '+tsMD(it.created||it.start)+' '+tsHM(it.created||it.start):'24시간 · '+tsMD(it.start)+' '+tsHM(it.start)):(PERIOD_L[it.period]||'')+' · '+tsMD(it.start)+'~'+tsMD(addTsDays(it.end,it.end.slice(11)==='00:00:00'?-1:0));
       return '<tr><td><span class="tg bb-chip '+c[1]+'" style="font-size:11px;padding:2px 8px">'+c[0]+'</span></td><td>'+txt+'</td><td style="white-space:nowrap;font-size:12px">'+per+'</td><td style="white-space:nowrap">👏 '+(it.cheers||0)+'</td><td style="white-space:nowrap">'+st[0]+'</td><td style="white-space:nowrap">'+
         (it.kind==='공지'?'<button class="lk" onclick="editNotice(\''+esc(it.id)+'\')">수정</button>':'')+
+        (st[1]==='confirm'?'<button class="lk" onclick="setBStatus(\''+esc(it.id)+'\',\'노출\')">대신 게시</button><button class="lk" onclick="setBStatus(\''+esc(it.id)+'\',\'패스\')">패스</button>':'')+
         (st[1]==='hide'?'<button class="lk" onclick="setBStatus(\''+esc(it.id)+'\',\'숨김\')">'+(it.kind==='이관'?'숨기기':'내리기')+'</button>':st[1]==='show'?'<button class="lk" onclick="setBStatus(\''+esc(it.id)+'\',\'노출\')">다시 노출</button>':'')+'</td></tr>';}).join(''):'<tr><td colspan="6" class="empty">등록된 글 없음</td></tr>')+'</tbody></table>';
 }
 function editNotice(id){const it=(BB.mgr||[]).find(x=>x.id===id);if(!it)return;BB.edit=it;BB.per=it.period||'day';renderMgrForm(true);document.getElementById('bfTitle').focus();}
-async function setBStatus(id,status){const r=await api('boardStatus',{id,status},true);if(!r||!r.success){toast((r&&r.error)||'변경 실패',2500);return;}toast(status==='숨김'?'NOTICE에서 내렸음':'다시 노출함',1800);loadMgr();loadBoard();}
+async function setBStatus(id,status){const r=await api('boardStatus',{id,status},true);if(!r||!r.success){toast((r&&r.error)||'변경 실패',2500);return;}toast(status==='숨김'?'NOTICE에서 내렸음':status==='패스'?'패스 처리함':'NOTICE에 올렸음',1800);loadMgr();loadBoard();}
 </script>
 </body>
 </html>

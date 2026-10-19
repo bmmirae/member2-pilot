@@ -48,12 +48,15 @@
           NOTICE 이관 축하 글에 댓글(누구나 작성, 본인·마스터 삭제, 3개 넘으면 접힘), 전광판 줄에 💬 개수 (서버 p0.24 필요)
   [v0.57] 신규등록 K 직통연락처 칸을 번호 길이에 맞게 줄이고 L 이메일 칸을 넓힘 (이메일 잘림 해소)
   [v0.58] 오늘 할 일: 업체명뿐 아니라 줄(DB 정보) 아무 곳이나 눌러도 업체 카드 열림 (가망도·연락처 복사·통화완료/부재/미루기 버튼, 글자 드래그 선택은 제외)
+  [v0.59] 불러오기 속도 개선(서버 p0.26 필요): 불러오는 동안 명언 카드(7초마다 바뀜·경과 초 표시), 새로고침 중에도 기존 화면 유지,
+          나의 영업DB는 걸러진 결과 중 200줄 먼저 그리고 아래로 내리면 이어서 그림(검색·가망도 칩·건수는 전체 기준)
+  [v0.60] 불러오기 카드 문구를 오늘의 한마디(NOTICE와 동일)로 고정, 바뀌지 않음
 -->
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>미래아이엔씨 통합DB (파일럿) v0.58</title>
+<title>미래아이엔씨 통합DB (파일럿) v0.60</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#f0f2f5;--surface:#fff;--surface2:#f5f7ff;--border:#e8eaf6;--text:#333;--text-sub:#4b5260;--text-muted:#6b7280;--header-bg:linear-gradient(135deg,#0B13E7,#080ead);--primary:#3949ab;--primary-soft:#e8eaf6;--th-bg:#e8eaf6;--danger:#c62828;--danger-soft:#fdecec;--warn:#e65100;--warn-soft:#fff3e8;--ok:#2e7d32;--ok-soft:#e9f5ea;--purple:#6a1b9a;--purple-soft:#f3e5f5;}
@@ -363,6 +366,14 @@ table.nlist td.wide{max-width:320px;}
 .undo-bar button.x{background:transparent;color:var(--text-muted);padding:4px 6px;font-size:16px;}
 .saving{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1e2130;color:#fff;padding:9px 16px;border-radius:20px;font-size:13px;z-index:60;}
 .loading{padding:40px;text-align:center;color:var(--text-sub);}
+.ld{position:fixed;left:0;right:0;top:0;bottom:0;z-index:50;display:flex;align-items:flex-start;justify-content:center;padding:150px 16px 0;background:rgba(244,246,252,.72);backdrop-filter:blur(1.5px);}
+.ld-card{background:#fff;border:1px solid #e3e6f3;border-radius:18px;box-shadow:0 18px 50px rgba(30,40,110,.16);padding:26px 30px 22px;width:520px;max-width:100%;text-align:center;}
+.ld-bar{height:4px;border-radius:4px;background:#eceffa;overflow:hidden;margin-bottom:18px;}.ld-bar i{display:block;height:100%;width:35%;border-radius:4px;background:linear-gradient(90deg,#5c6bc0,#3949ab);animation:ldb 1.3s ease-in-out infinite;}
+@keyframes ldb{0%{transform:translateX(-110%)}100%{transform:translateX(300%)}}
+.ld-q{font-size:17px;font-weight:700;color:#1f2547;line-height:1.55;word-break:keep-all;min-height:52px;transition:opacity .35s;}
+.ld-src{font-size:12px;color:var(--text-muted);margin-top:6px;transition:opacity .35s;}
+.ld-t{font-size:12px;color:#6b7280;margin-top:16px;}
+.db-more{text-align:center;padding:14px 0 6px;}
 @media (max-width:640px){
   .stats{grid-template-columns:repeat(2,1fr);}
   .grid2{grid-template-columns:1fr;}
@@ -488,8 +499,8 @@ table.nlist td.wide{max-width:320px;}
     <div id="testBanner" class="test-banner hidden">테스트 시트에 연결되어 있음 · 실제 업무 데이터 아님</div>
     <div class="hdr"><div class="top-in">
       <div class="logo"><img src="data:image/png;base64,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" alt="CI"></div>
-      <h1>미래아이엔씨 통합DB <span style="font-size:12px;opacity:.6;font-weight:400;">파일럿 v0.58</span></h1>
-      <div class="who"><select id="viewPick" class="hbtn hidden" style="padding:5px 10px;" title="볼 인원 선택" onchange="changeViewAs(this.value)"></select><span id="whoName" class="user-chip"></span><button id="sgBtn" class="hbtn" onclick="openSg()" title="대시보드 수정·개선 건의">💡 수정건의<i id="sgDot" class="sgdot hidden"></i></button><a id="sheetLink" class="hbtn hidden" target="_blank" rel="noopener" style="text-decoration:none;" title="내 구글시트 새 창으로 열기">📄 내 구글시트</a><button class="hbtn" onclick="loadRows()">새로고침</button><button class="hbtn" id="btnLogout" onclick="logout()">로그아웃</button></div>
+      <h1>미래아이엔씨 통합DB <span style="font-size:12px;opacity:.6;font-weight:400;">파일럿 v0.60</span></h1>
+      <div class="who"><select id="viewPick" class="hbtn hidden" style="padding:5px 10px;" title="볼 인원 선택" onchange="changeViewAs(this.value)"></select><span id="whoName" class="user-chip"></span><button id="sgBtn" class="hbtn" onclick="openSg()" title="대시보드 수정·개선 건의">💡 수정건의<i id="sgDot" class="sgdot hidden"></i></button><a id="sheetLink" class="hbtn hidden" target="_blank" rel="noopener" style="text-decoration:none;" title="내 구글시트 새 창으로 열기">📄 내 구글시트</a><button class="hbtn" onclick="loadRows();loadBoard();sgCount()">새로고침</button><button class="hbtn" id="btnLogout" onclick="logout()">로그아웃</button></div>
     </div></div>
     <div class="tabs">
       <button class="tab tab-new" data-tab="new" onclick="switchTab('new')"><span class="plus">+</span>신규등록</button>
@@ -521,6 +532,7 @@ table.nlist td.wide{max-width:320px;}
 
 <div id="drawerWrap" class="hidden"><div class="dim" onclick="closeCard()"></div><div class="drawer" id="drawer"></div></div>
 <div id="savingToast" class="saving hidden"></div>
+<div id="ldOv" class="ld hidden"><div class="ld-card"><div class="ld-bar"><i></i></div><div class="ld-q" id="ldQ"></div><div class="ld-src" id="ldSrc"></div><div class="ld-t" id="ldT">내 영업DB 불러오는 중…</div></div></div>
 <div id="undoBar" class="undo-bar hidden"></div>
 <div id="cpCard" class="cpn hidden"></div>
 <div id="bmWrap" class="bm-dim hidden" onmousedown="BB.downBg=event.target===this" onclick="if(event.target===this&&BB.downBg&&BB.view==='board')closeBm()"><div class="bm" id="bmBox"></div></div>
@@ -530,7 +542,7 @@ table.nlist td.wide{max-width:320px;}
 // 파일럿 Apps Script 웹앱 주소. 비워두면 로그인 화면의 '서버 주소 설정'으로 입력 (이 브라우저에 저장됨)
 // 테스트 기간 자동 로그인 (테스트 시트 하나만 연결된 동안만 사용). 파일럿 사원 확정되면 null로 바꾸면 로그인 화면이 다시 나옴
 const AUTO_LOGIN = null;
-const APP_VER='v0.58';   // 화면 버전. 바뀌면 이전 접속 기록(테스트 계정 등)을 버리고 다시 로그인
+const APP_VER='v0.60';   // 화면 버전. 바뀌면 이전 접속 기록(테스트 계정 등)을 버리고 다시 로그인
 const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycby040Dne4lMk2Ulgzf5gLG5CPFskadcI4jiBjhuBY7zuMaepufQBoHjoaxHcnVQ5Xvt/exec';
 const PROMO_GRADES = ['단기','장기','권한오픈','권한+브리핑'];
 const INACTIVE_GRADES = ['이관완료','선택없음','희망건'];
@@ -591,8 +603,11 @@ document.getElementById('lgPw').addEventListener('keydown',e=>{if(e.key==='Enter
 
 // ── 데이터 ────────────────────────────────────────────────────────
 async function loadRows(){
-  document.getElementById('tabToday').innerHTML='<div class="loading">불러오는 중…</div>';
+  if(!S.rows.length)document.getElementById('tabToday').innerHTML='';
+  ldShow();const T0=Date.now();
   const r=await api('rows',{});
+  ldHide();
+  if(r&&r.t){S.loadT=Object.assign({client:Date.now()-T0},r.t);console.log('[불러오기 ms]',S.loadT);}
   if(!r.success){document.getElementById('tabToday').innerHTML='<div class="empty">'+esc(r.error||'불러오기 실패')+'</div>';return;}
   {const sl=document.getElementById('sheetLink');if(r.sheetUrl){sl.href=r.sheetUrl;sl.textContent='📄 '+(r.masterView?(r.viewAs||'')+' 구글시트':'내 구글시트');sl.classList.remove('hidden');}else sl.classList.add('hidden');}S.rows=r.rows;S.today=r.today;S.grades=r.grades;S.readOnly=!!r.readOnly;S.history=r.history||[];
   const tb=document.getElementById('testBanner');
@@ -920,6 +935,17 @@ function dbQuickSync(){
   else if(f===ymd(new Date(d.getFullYear(),d.getMonth()-1,1))&&e===ymd(new Date(d.getFullYear(),d.getMonth(),0)))k='prev';else if(f===addDays(t,-29)&&e===t)k='30';
   document.querySelectorAll('#dbQuick .fchip').forEach(b=>b.classList.toggle('on',b.dataset.q===k));
 }
+// ── 불러오는 동안 오늘의 한마디 (NOTICE와 같은 문구, 경과 초 표시) ──
+const LD={timer:null,t0:0};
+function ldPick(){const q=todayQuote();return [q.title,q.src];}
+function ldSet(){const q=ldPick(),a=document.getElementById('ldQ'),b=document.getElementById('ldSrc');a.style.opacity=b.style.opacity=0;setTimeout(()=>{a.textContent=q[0];b.textContent=q[1]?'— '+q[1]:'';a.style.opacity=b.style.opacity=1;},a.textContent?350:0);}
+function ldShow(){clearInterval(LD.timer);LD.t0=Date.now();document.getElementById('ldQ').textContent='';ldSet();document.getElementById('ldT').textContent=(S.rows.length?'최신 데이터':'내 영업DB')+' 불러오는 중…';document.getElementById('ldOv').classList.remove('hidden');
+  let k=0;LD.timer=setInterval(()=>{k++;const sec=Math.round((Date.now()-LD.t0)/1000);document.getElementById('ldT').textContent=(S.rows.length?'최신 데이터':'내 영업DB')+' 불러오는 중… '+sec+'초'+(sec>=8?' · 구글시트가 커서 조금 걸려요':'');},1000);}
+function ldHide(){clearInterval(LD.timer);LD.timer=null;document.getElementById('ldOv').classList.add('hidden');}
+// 나의 영업DB: 걸러진 결과 중 위에서 DB_PAGE줄만 그리고, 아래로 내리면 이어서 그림 (검색·필터·건수는 전체 기준)
+const DB_PAGE=200;
+function dbMore(){S.dbLimit=(S.dbLimit||DB_PAGE)+300;renderDb();}
+function dbWatchMore(){const el=document.getElementById('dbMore');if(!el||!('IntersectionObserver' in window))return;if(S.dbIO)S.dbIO.disconnect();S.dbIO=new IntersectionObserver(es=>{if(es.some(e=>e.isIntersecting)){S.dbIO.disconnect();dbMore();}},{rootMargin:'400px'});S.dbIO.observe(el);}
 function renderDb(){
   const present=new Set(S.rows.map(r=>gradeGroup(r.grade)));
   // 가망도 타일은 0건이어도 항상 표시 (순서 고정)
@@ -943,6 +969,8 @@ function renderDb(){
       return (typeof va==='number'?va-vb:String(va).localeCompare(String(vb),'ko'))*dir;});
   }
   const t=S.today;
+  {const sig=[q,S.dbFilter,df.field,df.from,df.to,sk,S.dbSort.dir].join('|');if(sig!==S.dbSig){S.dbSig=sig;S.dbLimit=DB_PAGE;}}
+  const lim=S.dbLimit||DB_PAGE,shown=list.slice(0,lim);
   // 검색창은 한 번만 만들고 다시 그리지 않음 (한글 입력 조합이 끊기지 않도록), 나머지만 갱신
   const root=document.getElementById('tabDb');
   if(!document.getElementById('dbSearch')){
@@ -960,8 +988,9 @@ function renderDb(){
   document.getElementById('dbFilterChip').innerHTML=(S.dbFilter!=='전체'?'<span class="chip plan" style="font-size:12px;padding:4px 10px;">'+esc(S.dbFilter)+' 필터 중 · <a href="#" onclick="S.dbFilter=\'전체\';renderDb();return false;">해제</a></span>':'');
   document.getElementById('dbCount').textContent=list.length+'건';
   document.getElementById('dbTable').innerHTML='<div class="sec"><table class="list"><thead><tr>'+sortTh('grade','가망도')+sortTh('company','업체명')+sortTh('firstCall','첫콜','hide-m')+sortTh('lastContact','마지막 컨택')+sortTh('next','다음 재콜')+sortTh('recall','재콜','hide-m')+sortTh('avg','평균 간격','hide-m')+sortTh('budget','예산','hide-m')+'</tr></thead><tbody>'+
-    (list.length?list.map(({r,d})=>'<tr class="r" onclick="openCard(\''+esc(r.id)+'\')"><td>'+gradeBadge(r.grade)+'</td><td><b>'+esc(r.company)+'</b>'+(d.promoMissing.length?'<span class="chip warn">신규P 미인정</span>':'')+'</td><td class="hide-m">'+fmtD(r.firstCall)+'</td><td class="lc-cell'+(d.gapWarn?' gw-'+d.gapWarn:'')+'">'+(d.lastContact?'<div class="lc-date">'+fmtD(d.lastContact)+' <span class="lc-ago">('+d.since+'일 전)</span>'+(d.gapWarn?' <span class="gw-chip" title="평균 재콜 간격 '+d.avgGap+'일보다 '+(Math.round((d.since-d.avgGap)*10)/10)+'일 더 지남">'+(d.gapWarn==='high'?'⚠ 평소 간격 2배 초과':'평소보다 늦어짐')+'</span>':'')+'</div>'+(d.lastMemoObj?'<div class="lc-memo" title="'+esc(d.lastMemoObj.memo)+'">'+(d.lastMemoObj.date!==d.lastContact?'<span class="muted">'+(parseYmd(d.lastMemoObj.date).getMonth()+1)+'/'+parseYmd(d.lastMemoObj.date).getDate()+'</span> ':'')+esc(d.lastMemoObj.memo)+'</div>':(r.content?'<div class="lc-memo" title="'+esc(r.content)+'"><span class="chip" style="background:var(--purple-soft);color:var(--purple);margin:0 4px 0 0">첫콜</span>'+esc(r.content)+'</div>':'<div class="lc-memo muted">메모 없음</div>')):'-')+'</td><td>'+(d.missed?'<span class="chip danger">'+fmtD(d.next)+' 놓침</span>':(d.next?'<span class="chip '+(d.next===t?'danger':(d.next<t?'':'plan'))+'">'+fmtD(d.next)+'</span>':'<span class="muted">-</span>'))+'</td><td class="hide-m" title="'+esc(d.flow.map(x=>{const p=parseYmd(x);return (p.getMonth()+1)+'/'+p.getDate();}).join(' → '))+'">'+d.recallCnt+'회</td><td class="hide-m">'+(d.avgGap?d.avgGap+'일':'<span class="muted">-</span>')+'</td><td class="hide-m">'+(r.budget?esc(fmtBudget(r.budget)):'<span class="muted">-</span>')+'</td></tr>').join(''):'<tr><td colspan="8" class="empty">해당 건 없음</td></tr>')+
-    '</tbody></table></div>';
+    (list.length?shown.map(({r,d})=>'<tr class="r" onclick="openCard(\''+esc(r.id)+'\')"><td>'+gradeBadge(r.grade)+'</td><td><b>'+esc(r.company)+'</b>'+(d.promoMissing.length?'<span class="chip warn">신규P 미인정</span>':'')+'</td><td class="hide-m">'+fmtD(r.firstCall)+'</td><td class="lc-cell'+(d.gapWarn?' gw-'+d.gapWarn:'')+'">'+(d.lastContact?'<div class="lc-date">'+fmtD(d.lastContact)+' <span class="lc-ago">('+d.since+'일 전)</span>'+(d.gapWarn?' <span class="gw-chip" title="평균 재콜 간격 '+d.avgGap+'일보다 '+(Math.round((d.since-d.avgGap)*10)/10)+'일 더 지남">'+(d.gapWarn==='high'?'⚠ 평소 간격 2배 초과':'평소보다 늦어짐')+'</span>':'')+'</div>'+(d.lastMemoObj?'<div class="lc-memo" title="'+esc(d.lastMemoObj.memo)+'">'+(d.lastMemoObj.date!==d.lastContact?'<span class="muted">'+(parseYmd(d.lastMemoObj.date).getMonth()+1)+'/'+parseYmd(d.lastMemoObj.date).getDate()+'</span> ':'')+esc(d.lastMemoObj.memo)+'</div>':(r.content?'<div class="lc-memo" title="'+esc(r.content)+'"><span class="chip" style="background:var(--purple-soft);color:var(--purple);margin:0 4px 0 0">첫콜</span>'+esc(r.content)+'</div>':'<div class="lc-memo muted">메모 없음</div>')):'-')+'</td><td>'+(d.missed?'<span class="chip danger">'+fmtD(d.next)+' 놓침</span>':(d.next?'<span class="chip '+(d.next===t?'danger':(d.next<t?'':'plan'))+'">'+fmtD(d.next)+'</span>':'<span class="muted">-</span>'))+'</td><td class="hide-m" title="'+esc(d.flow.map(x=>{const p=parseYmd(x);return (p.getMonth()+1)+'/'+p.getDate();}).join(' → '))+'">'+d.recallCnt+'회</td><td class="hide-m">'+(d.avgGap?d.avgGap+'일':'<span class="muted">-</span>')+'</td><td class="hide-m">'+(r.budget?esc(fmtBudget(r.budget)):'<span class="muted">-</span>')+'</td></tr>').join(''):'<tr><td colspan="8" class="empty">해당 건 없음</td></tr>')+
+    '</tbody></table>'+(list.length>lim?'<div class="db-more" id="dbMore"><button class="btn" onclick="dbMore()">나머지 '+(list.length-lim)+'건 더 보기 ▾</button></div>':'')+'</div>';
+  dbWatchMore();
   renderPerf();
 }
 // ── 이달의 성과 현황 (가망도 변경 기록 기반, 서버 p0.22 이상 · 2026.10 적용 시점부터 적립) ──

@@ -52,12 +52,15 @@
           나의 영업DB는 걸러진 결과 중 200줄 먼저 그리고 아래로 내리면 이어서 그림(검색·가망도 칩·건수는 전체 기준)
   [v0.60] 불러오기 카드 문구를 오늘의 한마디(NOTICE와 동일)로 고정, 바뀌지 않음
   [v0.61] 긴급 수정: 로그인된 상태로 새로고침(F5)하면 화면이 빈 채로 멈추던 오류 (시작 코드가 명언 목록보다 먼저 실행됨) → 시작을 맨 끝으로 이동
+  [v0.62] (서버 p0.28 필요) 오늘 할 일 '🎯 오늘 목표 DB 작성수'(신규등록+통화완료+부재, 본인 설정·진행바) / 업체 카드 코멘트(부서장·관리자 ↔ 사원, 💬 코멘트 알림·모아보기) /
+          부서장 로그인(인원DB 직급: 팀장=자기 팀, 본부장 이상=전체 · 보기 전용) + 주소 ?view=이름 / 로그인 만료 시 비밀번호만 다시 받아 하던 저장 이어서 /
+          통화 메모·카드 메모·신규등록 입력 임시저장(새로고침·만료돼도 복원) / 마스터 NOTICE 관리 > 📊 사용현황 / 마스터·부서장 보기는 사원 화면 보기 전용
 -->
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>미래아이엔씨 통합DB (파일럿) v0.61</title>
+<title>미래아이엔씨 통합DB (파일럿) v0.62</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#f0f2f5;--surface:#fff;--surface2:#f5f7ff;--border:#e8eaf6;--text:#333;--text-sub:#4b5260;--text-muted:#6b7280;--header-bg:linear-gradient(135deg,#0B13E7,#080ead);--primary:#3949ab;--primary-soft:#e8eaf6;--th-bg:#e8eaf6;--danger:#c62828;--danger-soft:#fdecec;--warn:#e65100;--warn-soft:#fff3e8;--ok:#2e7d32;--ok-soft:#e9f5ea;--purple:#6a1b9a;--purple-soft:#f3e5f5;}
@@ -375,6 +378,26 @@ table.nlist td.wide{max-width:320px;}
 .ld-src{font-size:12px;color:var(--text-muted);margin-top:6px;transition:opacity .35s;}
 .ld-t{font-size:12px;color:#6b7280;margin-top:16px;}
 .db-more{text-align:center;padding:14px 0 6px;}
+.goal{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--border);border-radius:12px;padding:10px 16px;margin:-4px 0 14px;font-size:13px;}
+.goal .gl{font-weight:700;white-space:nowrap;}.goal .gn{white-space:nowrap;color:#4b5260;}.goal .gn b{font-size:16px;color:var(--text);}
+.goal .gbar{flex:1;height:10px;border-radius:6px;background:#eceffa;overflow:hidden;min-width:80px;}.goal .gbar i{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,#5c6bc0,#3949ab);transition:width .4s;}
+.goal.done .gbar i{background:linear-gradient(90deg,#26a69a,#1baf7a);}.goal .gset{border:none;background:none;color:var(--primary);font-size:12px;font-weight:600;white-space:nowrap;}
+.goal.empty{justify-content:space-between;color:#6b7280;}
+.cmt{border:1px solid #d6dbf5;background:#f7f8ff;border-radius:12px;padding:12px 14px;margin-bottom:12px;}
+.cmt h4{margin:0 0 8px;font-size:13px;display:flex;align-items:center;gap:6px;}
+.cmi2{display:flex;gap:8px;padding:6px 0;border-top:1px dashed #dfe3f5;font-size:13px;line-height:1.5;}.cmi2:first-of-type{border-top:none;}
+.cmi2 .who{flex-shrink:0;font-weight:700;}.cmi2 .who.r-부서장{color:#3949ab;}.cmi2 .who.r-관리자{color:#6a1b9a;}.cmi2 .who.r-사원{color:#2e7d32;}
+.cmi2 .tx{flex:1;min-width:0;white-space:pre-wrap;word-break:break-all;}.cmi2 .tm{flex-shrink:0;font-size:11px;color:var(--text-muted);}
+.cmi2.new .tx{font-weight:600;}.cmi2 .x{border:none;background:none;color:#b0b4c2;padding:0 2px;}
+.cmf2{display:flex;gap:6px;margin-top:8px;}.cmf2 textarea{flex:1;min-height:38px;resize:vertical;}
+.ib-i{display:flex;gap:10px;align-items:baseline;border:1px solid #eef0f7;border-radius:10px;padding:10px 12px;margin-bottom:6px;cursor:pointer;font-size:13px;}.ib-i:hover{background:#fafbff;border-color:#c5cae9;}
+.ib-i .o{flex-shrink:0;font-weight:700;color:#3949ab;}.ib-i .c{flex-shrink:0;font-weight:600;}.ib-i .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#4b5260;}
+.rl{position:fixed;inset:0;z-index:80;background:rgba(20,24,60,.5);display:flex;align-items:center;justify-content:center;padding:16px;}
+.rl-box{background:#fff;border-radius:16px;padding:24px;width:380px;max-width:100%;box-shadow:0 20px 50px rgba(0,0,0,.3);}
+.rl-box h3{margin:0 0 6px;font-size:17px;}.rl-box p{margin:0 0 14px;font-size:13px;color:#6b7280;line-height:1.5;}
+.us-t{width:100%;border-collapse:collapse;font-size:12.5px;}.us-t th,.us-t td{padding:7px 8px;border-bottom:1px solid #eef0f7;text-align:center;white-space:nowrap;}
+.us-t th{background:#f5f6fb;font-weight:700;color:#4b5260;position:sticky;top:0;}.us-t td:first-child,.us-t th:first-child{text-align:left;}
+.us-t .z{color:#c0c4d0;}.us-t .sh{color:#e65100;font-weight:700;}
 @media (max-width:640px){
   .stats{grid-template-columns:repeat(2,1fr);}
   .grid2{grid-template-columns:1fr;}
@@ -500,8 +523,8 @@ table.nlist td.wide{max-width:320px;}
     <div id="testBanner" class="test-banner hidden">테스트 시트에 연결되어 있음 · 실제 업무 데이터 아님</div>
     <div class="hdr"><div class="top-in">
       <div class="logo"><img src="data:image/png;base64,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" alt="CI"></div>
-      <h1>미래아이엔씨 통합DB <span style="font-size:12px;opacity:.6;font-weight:400;">파일럿 v0.61</span></h1>
-      <div class="who"><select id="viewPick" class="hbtn hidden" style="padding:5px 10px;" title="볼 인원 선택" onchange="changeViewAs(this.value)"></select><span id="whoName" class="user-chip"></span><button id="sgBtn" class="hbtn" onclick="openSg()" title="대시보드 수정·개선 건의">💡 수정건의<i id="sgDot" class="sgdot hidden"></i></button><a id="sheetLink" class="hbtn hidden" target="_blank" rel="noopener" style="text-decoration:none;" title="내 구글시트 새 창으로 열기">📄 내 구글시트</a><button class="hbtn" onclick="loadRows();loadBoard();sgCount()">새로고침</button><button class="hbtn" id="btnLogout" onclick="logout()">로그아웃</button></div>
+      <h1>미래아이엔씨 통합DB <span style="font-size:12px;opacity:.6;font-weight:400;">파일럿 v0.62</span></h1>
+      <div class="who"><select id="viewPick" class="hbtn hidden" style="padding:5px 10px;" title="볼 인원 선택" onchange="changeViewAs(this.value)"></select><span id="whoName" class="user-chip"></span><button id="cmtBtn" class="hbtn hidden" onclick="openInbox()">💬 코멘트<i id="cmtDot" class="sgdot hidden"></i></button><button id="sgBtn" class="hbtn" onclick="openSg()" title="대시보드 수정·개선 건의">💡 수정건의<i id="sgDot" class="sgdot hidden"></i></button><a id="sheetLink" class="hbtn hidden" target="_blank" rel="noopener" style="text-decoration:none;" title="내 구글시트 새 창으로 열기">📄 내 구글시트</a><button class="hbtn" onclick="loadRows();loadBoard();sgCount()">새로고침</button><button class="hbtn" id="btnLogout" onclick="logout()">로그아웃</button></div>
     </div></div>
     <div class="tabs">
       <button class="tab tab-new" data-tab="new" onclick="switchTab('new')"><span class="plus">+</span>신규등록</button>
@@ -533,6 +556,7 @@ table.nlist td.wide{max-width:320px;}
 
 <div id="drawerWrap" class="hidden"><div class="dim" onclick="closeCard()"></div><div class="drawer" id="drawer"></div></div>
 <div id="savingToast" class="saving hidden"></div>
+<div id="rlOv" class="rl hidden"><div class="rl-box"><h3>🔒 로그인이 만료됐어요</h3><p>비밀번호를 다시 입력하면 <b>하던 작업이 그대로 이어서 저장</b>됩니다.<br><span id="rlWho"></span></p><input id="rlPw" class="inp" type="password" placeholder="비밀번호" onkeydown="if(event.key==='Enter')rlOk()"><div id="rlErr" class="err" style="margin-top:6px"></div><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px"><button class="btn" onclick="rlDone(false)">로그아웃</button><button class="btn primary" id="rlBtn" onclick="rlOk()">다시 로그인</button></div></div></div>
 <div id="ldOv" class="ld hidden"><div class="ld-card"><div class="ld-bar"><i></i></div><div class="ld-q" id="ldQ"></div><div class="ld-src" id="ldSrc"></div><div class="ld-t" id="ldT">내 영업DB 불러오는 중…</div></div></div>
 <div id="undoBar" class="undo-bar hidden"></div>
 <div id="cpCard" class="cpn hidden"></div>
@@ -543,7 +567,7 @@ table.nlist td.wide{max-width:320px;}
 // 파일럿 Apps Script 웹앱 주소. 비워두면 로그인 화면의 '서버 주소 설정'으로 입력 (이 브라우저에 저장됨)
 // 테스트 기간 자동 로그인 (테스트 시트 하나만 연결된 동안만 사용). 파일럿 사원 확정되면 null로 바꾸면 로그인 화면이 다시 나옴
 const AUTO_LOGIN = null;
-const APP_VER='v0.61';   // 화면 버전. 바뀌면 이전 접속 기록(테스트 계정 등)을 버리고 다시 로그인
+const APP_VER='v0.62';   // 화면 버전. 바뀌면 이전 접속 기록(테스트 계정 등)을 버리고 다시 로그인
 const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycby040Dne4lMk2Ulgzf5gLG5CPFskadcI4jiBjhuBY7zuMaepufQBoHjoaxHcnVQ5Xvt/exec';
 const PROMO_GRADES = ['단기','장기','권한오픈','권한+브리핑'];
 const INACTIVE_GRADES = ['이관완료','선택없음','희망건'];
@@ -558,16 +582,16 @@ function setApiUrl(){const v=prompt('파일럿 Apps Script 웹앱 주소 (…/ex
 async function api(action,params,post){
   const url=apiUrl();
   if(!url)return{success:false,error:'서버 주소가 설정되지 않았습니다 (로그인 화면 하단 \'서버 주소 설정\')'};
-  const p=Object.assign({token:S.token,role:S.role},S.master?{viewAs:S.viewAs}:{},params||{});
+  const p=Object.assign({token:S.token,role:S.role},(S.master||S.mgr)?{viewAs:S.viewAs}:{},params||{});
   try{
     const res=post
       ?await fetch(url,{method:'POST',body:JSON.stringify({action,params:p})})
       :await fetch(url+'?action='+encodeURIComponent(action)+'&params='+encodeURIComponent(JSON.stringify(p)));
     const j=await res.json();
-    if(j&&j.expired){logout(true);}
+    if(j&&j.expired&&!params?.__retry){const ok=await relogin();if(ok)return api(action,Object.assign({},params,{__retry:1}),post);logout(true);return j;}
     if(j&&j.celePending&&j.celePending.length)queueCele(j.celePending);
     return j;
-  }catch(e){return{success:false,error:'서버 연결 실패: '+e.message};}
+  }catch(e){return{success:false,net:true,error:'서버 연결 실패'+(post?' · 입력한 내용은 보관돼 있으니 잠시 후 다시 저장하세요':'')+' ('+e.message+')'};}
 }
 function toast(msg,ms){const t=document.getElementById('savingToast');t.textContent=msg;t.classList.remove('hidden');clearTimeout(toast._t);if(ms)toast._t=setTimeout(()=>t.classList.add('hidden'),ms);}
 function hideToast(){document.getElementById('savingToast').classList.add('hidden');}
@@ -580,8 +604,8 @@ async function doLogin(){
   err.textContent='확인 중…';
   const r=await api('auth',{role,password:pw});
   if(!r.success){err.textContent=r.error||'로그인 실패';return;}
-  err.textContent='';S.token=r.token;S.role=r.role;S.name=r.name;S.master=!!r.master;S.members=r.members||[];S.viewAs=S.members[0]||'';
-  sstore('m2_sess',JSON.stringify({token:r.token,role:r.role,name:r.name,testMode:r.testMode,master:S.master,members:S.members,viewAs:S.viewAs,ver:APP_VER}));
+  err.textContent='';S.token=r.token;S.role=r.role;S.name=r.name;S.master=!!r.master;S.mgr=!!r.manager;S.members=r.members||[];S.viewAs=urlView()||S.members[0]||'';
+  sstore('m2_sess',JSON.stringify({token:r.token,role:r.role,name:r.name,testMode:r.testMode,master:S.master,mgr:S.mgr,members:S.members,viewAs:S.viewAs,ver:APP_VER}));
   enterApp(r.testMode);
 }
 function logout(expired){sstore('m2_sess',null);try{document.getElementById('bmWrap').classList.add('hidden');BB.view='';document.getElementById('cpCard').classList.add('hidden');clearTimeout(CP.timer);CP.timer=null;CP.active=[];CP.items=[];CP.winQ=[];CP.seenQ={};BB.celeQ=[];BB.confirmQ=[];BB.celeSeen={};SG.items=[];SG.imgs={};SG.unread=SG.open=0;sgDot();}catch(e){}if(AUTO_LOGIN&&expired){S.token='';doLogin();return;}S.token='';S.rows=[];closeCard();document.getElementById('appView').classList.add('hidden');document.getElementById('loginView').classList.remove('hidden');if(expired)document.getElementById('lgErr').textContent='세션이 만료되어 다시 로그인이 필요합니다';}
@@ -594,11 +618,13 @@ function enterApp(testMode){
   document.getElementById('btnLogout').classList.toggle('hidden',!!AUTO_LOGIN);
   // 마스터: 파일럿 인원 선택 (화면은 사원과 동일, 저장은 테스트 시트만 가능)
   const pick=document.getElementById('viewPick');
-  if(S.master){pick.innerHTML=S.members.map(n=>'<option'+(n===S.viewAs?' selected':'')+'>'+esc(n)+'</option>').join('');pick.classList.remove('hidden');}
+  if(S.master||S.mgr){pick.innerHTML=S.members.map(n=>'<option'+(n===S.viewAs?' selected':'')+'>'+esc(n)+'</option>').join('');pick.classList.remove('hidden');}
   else pick.classList.add('hidden');
   loadRows();
 }
-function changeViewAs(v){S.viewAs=v;S.openId='';closeCard();S.rptSel='';S.dbSearch='';const sb=document.getElementById('dbSearch');if(sb)sb.value='';
+// 주소 ?view=이름 (부서장 대시보드에서 바로가기) — 볼 수 있는 인원일 때만
+function urlView(){try{const v=new URLSearchParams(location.search).get('view');return v&&(S.members||[]).includes(v)?v:'';}catch(e){return '';}}
+function changeViewAs(v){S.viewAs=v;CMT.items=[];S.openId='';closeCard();S.rptSel='';S.dbSearch='';const sb=document.getElementById('dbSearch');if(sb)sb.value='';
   try{const ss=JSON.parse(sstore('m2_sess')||'{}');ss.viewAs=v;sstore('m2_sess',JSON.stringify(ss));}catch(e){}loadRows();}
 document.getElementById('lgPw').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
 
@@ -610,14 +636,16 @@ async function loadRows(){
   ldHide();
   if(r&&r.t){S.loadT=Object.assign({client:Date.now()-T0},r.t);console.log('[불러오기 ms]',S.loadT);}
   if(!r.success){document.getElementById('tabToday').innerHTML='<div class="empty">'+esc(r.error||'불러오기 실패')+'</div>';return;}
-  {const sl=document.getElementById('sheetLink');if(r.sheetUrl){sl.href=r.sheetUrl;sl.textContent='📄 '+(r.masterView?(r.viewAs||'')+' 구글시트':'내 구글시트');sl.classList.remove('hidden');}else sl.classList.add('hidden');}S.rows=r.rows;S.today=r.today;S.grades=r.grades;S.readOnly=!!r.readOnly;S.history=r.history||[];
+  {const sl=document.getElementById('sheetLink');if(r.sheetUrl){sl.href=r.sheetUrl;sl.textContent='📄 '+(r.masterView?(r.viewAs||'')+' 구글시트':'내 구글시트');sl.classList.remove('hidden');}else sl.classList.add('hidden');}S.rows=r.rows;S.today=r.today;S.grades=r.grades;S.readOnly=!!r.readOnly||S.mgr||(S.master&&S.viewAs!=='(테스트 시트)');S.history=r.history||[];
   const tb=document.getElementById('testBanner');
-  if(S.master){const v=r.viewAs||S.viewAs;tb.textContent=v==='(테스트 시트)'?'관리자 · 테스트 시트 · 저장하면 테스트 시트에 실제로 기록됨':'관리자 보기 · '+v+' 데이터 · 저장하면 오류 (테스트 시트에서만 저장 가능)';tb.classList.remove('hidden');}
+  if(S.mgr){tb.textContent='부서장 보기 · '+(r.viewAs||S.viewAs)+' 데이터 · 보기 전용 (업체 카드에서 코멘트 남기기 가능)';tb.classList.remove('hidden');}
+  else if(S.master){const v=r.viewAs||S.viewAs;tb.textContent=v==='(테스트 시트)'?'관리자 · 테스트 시트 · 저장하면 테스트 시트에 실제로 기록됨':'관리자 보기 · '+v+' 데이터 · 저장하면 오류 (테스트 시트에서만 저장 가능)';tb.classList.remove('hidden');}
   else if(S.readOnly){tb.textContent='불러오기 확인 단계(읽기 전용) · 저장은 아직 안 됨';tb.classList.remove('hidden');}
   else if(S.testMode){tb.textContent='테스트 시트에 연결되어 있음 · 실제 업무 데이터 아님';tb.classList.remove('hidden');}
   else tb.classList.add('hidden');
   if(r.assignedIds)toast('새 행 '+r.assignedIds+'건에 ID를 부여했음',2500);
-  PERF.cache={};renderAll();syncAdTab();
+  PERF.cache={};renderAll();syncAdTab();loadCmt();
+  if(S.pendingOpen){S.openId=S.pendingOpen;S.pendingOpen='';}
   if(S.openId)openCard(S.openId);
   loadBoard();loadCoupon();sgCount();
 }
@@ -677,7 +705,7 @@ function switchTab(t){S.tab=t;document.querySelectorAll('.tab').forEach(b=>b.cla
 // 브라우저에 네이버 로그인돼 있으면 그대로 열림. 고객ID별 주소는 실제 동작 확인 후 확정
 const AD_HOME_URL='https://ads.naver.com/manage';
 const AD_CUSTOMER_URL='https://ads.naver.com/manage/ad-accounts/{id}/dashboard';   // 2026.10 실사용 주소로 확인
-function isTestView(){return S.master?S.viewAs==='(테스트 시트)':!!S.testMode;}
+function isTestView(){return S.mgr?false:S.master?S.viewAs==='(테스트 시트)':!!S.testMode;}
 function openAdHome(){window.open(AD_HOME_URL,'_blank','noopener');}
 // 대행 계정은 대행사 계정번호(accessManagerAccountNo)를 붙여야 열림. 직접 소유 계정은 붙이지 않음
 const AD_MANAGER_NO='31938';   // 미래아이엔씨 대행사 계정번호
@@ -791,14 +819,14 @@ function taskRow(r,opt){
   const memo=lm?(lm.first?'<span class="chip" style="background:var(--purple-soft);color:var(--purple);margin:0 4px 0 0">첫콜</span>':'<span class="muted">'+(parseYmd(lm.date)?(parseYmd(lm.date).getMonth()+1)+'/'+parseYmd(lm.date).getDate():'')+'</span> ')+esc(lm.text):'<span class="muted">메모 없음</span>';
   return '<div class="trow" id="tr-'+id+'">'+
     '<div class="tmain" onclick="rowOpen(event,\''+id+'\')">'+
-      '<span class="tgrade" title="눌러서 가망도 변경" onclick="gradePick(\''+id+'\',this)">'+gradeBadge(r.grade)+'<span class="caret">▾</span></span>'+
+      (S.readOnly?'<span class="tgrade" style="cursor:default">'+gradeBadge(r.grade)+'</span>':'<span class="tgrade" title="눌러서 가망도 변경" onclick="gradePick(\''+id+'\',this)">'+gradeBadge(r.grade)+'<span class="caret">▾</span></span>')+
       '<span class="tco" title="업체 카드 열기">'+esc(r.company)+(opt&&opt.missed?' <span class="chip danger">'+fmtD(d.missed)+' 예정</span>':'')+(opt&&opt.gap?' <span class="chip '+(d.gapWarn==='high'?'warn':'')+'" style="'+(d.gapWarn==='high'?'':'background:#fff3c4;color:#8a6d00')+'" title="평균 '+d.avgGap+'일 간격">'+d.since+'일째 · 평균 '+d.avgGap+'일</span>':'')+'</span>'+
       '<span class="tph">'+(r.phone?esc(r.phone)+' <button class="btn sm cp" title="연락처 복사" data-v="'+esc(r.phone)+'" onclick="copyText(this.dataset.v)">📋</button>':'<span class="muted">-</span>')+'</span>'+
       '<span class="tmgr" title="담당자명">'+(r.advertiserManager?esc(r.advertiserManager):'<span class="muted">-</span>')+'</span>'+
       '<span class="tmemo" title="'+esc(lm?lm.text:'')+'">'+memo+'</span>'+
       '<span class="tcnt">재콜 '+d.recallCnt+'회'+(isYmd(r.firstCall)?' · 첫콜 '+diffDays(r.firstCall,t)+'일':'')+'</span>'+
       '<span class="tbud" title="예산">'+(r.budget?esc(fmtBudget(r.budget)):'<span class="muted">-</span>')+'</span>'+
-      '<span class="tact"><button class="btn sm act-done" onclick="openDone(\''+id+'\')">통화완료</button><button class="btn sm act-abs" onclick="quickAbsent(\''+id+'\')">부재</button><button class="btn sm" onclick="openPost(\''+id+'\')">미루기 ▾</button></span>'+
+      (S.readOnly?'<span class="tact"><span class="muted" style="font-size:12px">보기 전용</span></span>':'<span class="tact"><button class="btn sm act-done" onclick="openDone(\''+id+'\')">통화완료</button><button class="btn sm act-abs" onclick="quickAbsent(\''+id+'\')">부재</button><button class="btn sm" onclick="openPost(\''+id+'\')">미루기 ▾</button></span>')+
     '</div><div class="texp hidden" id="tx-'+id+'"></div></div>';
 }
 // 줄 아무 곳 눌러도 카드 열기 (가망도·복사·통화완료/부재/미루기 버튼, 글자 드래그 선택은 제외)
@@ -807,11 +835,11 @@ function closeExp(){document.querySelectorAll('.texp').forEach(x=>{x.classList.a
 function openDone(id){
   const r=S.rows.find(x=>x.id===id);if(!r)return;closeExp();const t=S.today;
   const box=document.getElementById('tx-'+id);
-  box.innerHTML='<div class="dform"><input id="dMemo" class="inp" placeholder="통화 내용 (필수)" onkeydown="if(event.key===\'Enter\')saveDone(\''+esc(id)+'\')">'+
+  box.innerHTML='<div class="dform"><input id="dMemo" class="inp" data-draft="done_'+esc(id)+'" placeholder="통화 내용 (필수)" onkeydown="if(event.key===\'Enter\')saveDone(\''+esc(id)+'\')">'+
     '<div class="dnext"><span class="hint">다음 재콜</span><input id="dNext" class="inp" type="date" min="'+addDays(t,1)+'" onchange="syncQuick(\'d\',this.value)">'+quickDates('d','dNext',null,true)+'</div>'+
     '<div class="dgrade"><span class="hint">가망도</span><select id="dGrade" class="inp">'+gradeOptions(r.grade,!r.grade)+'</select></div>'+
     '<button class="btn primary" onclick="saveDone(\''+esc(id)+'\')">저장</button><button class="btn" onclick="closeExp()">취소</button></div>';
-  box.classList.remove('hidden');document.getElementById('dMemo').focus();
+  box.classList.remove('hidden');restoreDrafts(box);document.getElementById('dMemo').focus();
 }
 // ── 되돌리기 바: 저장 직후 10초 동안 [되돌리기] (서버 pilot.gs p0.15 이상) ──
 let UNDO=null;
@@ -839,7 +867,7 @@ async function saveDone(id){
   rowBusy(id,true);toast('저장 중…');
   const res=await api('recall',params,true);hideToast();rowBusy(id,false);
   if(!res.success){alert(res.error||'저장 실패');return;}
-  upsertRow(res.row);renderAll();undoBar('통화완료 저장'+(params.grade?' · 가망도 '+params.grade:''),res.undo);
+  clearDraft('done_'+id);upsertRow(res.row);renderAll();undoBar('통화완료 저장'+(params.grade?' · 가망도 '+params.grade:''),res.undo);
 }
 async function quickAbsent(id){
   const t=S.today,next=addBizDays(t,1);rowBusy(id,true);toast('부재 기록 중…');
@@ -909,7 +937,7 @@ function renderToday(){
       '<div class="stat"><div class="v" style="color:var(--ok)">'+done.length+'</div><div class="l">오늘 처리 (완료·부재·미룸)</div></div>'+
       '<div class="stat"><div class="v">'+newToday+'</div><div class="l">오늘 신규등록</div></div>'+
       '<div class="stat"><div class="v">'+weekPlans+'</div><div class="l">이번 7일 예정</div></div>'+
-    '</div>'+
+    '</div>'+goalHtml()+
     '<div class="sec"><div class="sec-h"><h3>오늘 재콜 예정</h3><span class="n">'+pending.length+'건 남음</span><div class="tprog"><div class="bar"><div style="width:'+pct+'%"></div></div><span>'+total+'건 중 '+done.length+'건 처리 ('+pct+'%)</span></div></div>'+list(pending)+'</div>'+
     '<div class="sec"><div class="sec-h"><h3>놓친 재콜</h3><span class="n">'+missed.length+'건</span><span class="desc">재콜예정일이 지났는데 기록 없음 (최근 30일)</span></div>'+list(missed,{missed:true})+'</div>'+
     '<div class="sec"><div class="sec-h"><h3>평소 간격 초과</h3><span class="n">'+overdue.length+'건</span><span class="desc">가망건 중 평균 재콜 간격보다 오래 연락 안 한 업체 · 재콜예정일 없음</span></div>'+list(overdue,{gap:true})+'</div>'+
@@ -1001,7 +1029,7 @@ const PERF={cache:{},month:'',open:'',more:{},loading:false};
 function ymAdd(ym,n){const [y,m]=ym.split('-').map(Number);const d=new Date(y,m-1+n,1);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');}
 function ymLabel(ym){const [y,m]=ym.split('-');return y+'년 '+(+m)+'월';}
 async function loadPerf(force){
-  const m=PERF.month||(PERF.month=(S.today||ymd(new Date())).slice(0,7));const k=(S.master?S.viewAs:'')+'|'+m;
+  const m=PERF.month||(PERF.month=(S.today||ymd(new Date())).slice(0,7));const k=((S.master||S.mgr)?S.viewAs:'')+'|'+m;
   if(PERF.cache[k]&&!force&&Date.now()-PERF.cache[k].t<60000){renderPerf();return;}
   PERF.loading=true;renderPerf();const r=await api('perf',{month:m});PERF.loading=false;
   if(r&&r.success)PERF.cache[k]=r;else PERF.cache[k]={error:(r&&r.error)||'불러오기 실패',log:[],passed:[],months:[]};PERF.cache[k].t=Date.now();
@@ -1033,7 +1061,7 @@ function perfBuild(r){
 function renderPerf(){
   const el=document.getElementById('perfBox');if(!el)return;
   if(!PERF.month)PERF.month=(S.today||ymd(new Date())).slice(0,7);
-  const k=(S.master?S.viewAs:'')+'|'+PERF.month,r=PERF.cache[k];
+  const k=((S.master||S.mgr)?S.viewAs:'')+'|'+PERF.month,r=PERF.cache[k];
   if((!r||Date.now()-r.t>60000)&&!PERF.loading){loadPerf();if(!r)return;}
   const thisM=(S.today||ymd(new Date())).slice(0,7),opts=[];for(let i=0;i<12;i++)opts.push(ymAdd(thisM,-i));if(!opts.includes(PERF.month))opts.push(PERF.month);
   const fold=store('m2_perf_fold')==='1';
@@ -1097,6 +1125,7 @@ function renderNew(){
     '<div id="nDup"></div>'+
     '<div class="nfoot"><button class="btn primary" id="nSave" onclick="saveNew()">등록</button><span class="hint">첫콜날짜는 오늘로 자동 기록됨 · 재콜칸(N열~)은 재콜 기록 시 채워짐</span><span id="nErr" class="err" style="margin:0;"></span></div><div id="snipBox"></div></div><div id="newLists"></div>';
   renderSnips();renderNewLists();
+  restoreDrafts(document.getElementById('tabNew'));
 }
 // ── 자주 쓰는 문구 (이 PC 브라우저에만 저장, 5칸, 신규등록 카드 안) ── 컨택포인트 등 반복 입력값을 눌러서 복사
 const SNIP_N=5;
@@ -1195,7 +1224,7 @@ async function saveNew(force){
     if(r.duplicate&&confirm(r.error+'\n같은 이름으로 그래도 등록할까요?'))return saveNew(true);
     err.textContent=r.error||'저장 실패';return;
   }
-  upsertRow(r.row);renderNew();renderToday();renderDb();toast('등록 완료 · 아래 오늘 신규DB에 추가됨',2200);
+  clearDraft('new_',true);upsertRow(r.row);renderNew();renderToday();renderDb();toast('등록 완료 · 아래 오늘 신규DB에 추가됨',2200);
 }
 
 // ── 리포트: 신규 · 재콜 · 이관 전환을 일별(영업일)/주별/월별로 집계 ─────────
@@ -1317,8 +1346,9 @@ function openCard(id){
     (S.readOnly?gradeBadge(r.grade):'<select class="inp" style="width:auto;" onchange="saveGrade(this)">'+gradeOptions(r.grade,!r.grade)+'</select>')+
     '<button class="btn sm" onclick="closeCard()">닫기</button></div>'+
     '<div class="dr-b">'+
+      '<div id="cmtBox"></div>'+
       (S.readOnly?'':'<div class="box"><h4>재콜 기록</h4>'+
-        '<div class="field"><label>메모</label><textarea id="cMemo" class="inp" placeholder="통화 내용 (비워두고 다음 재콜일만 바꿀 수도 있음)"></textarea></div>'+
+        '<div class="field"><label>메모</label><textarea id="cMemo" class="inp" data-draft="card_'+esc(r.id)+'" placeholder="통화 내용 (비워두고 다음 재콜일만 바꿀 수도 있음)"></textarea></div>'+
         '<div class="grid2"><div class="field"><label>통화일</label><input id="cDate" class="inp" type="date" value="'+t+'" max="'+t+'"></div>'+
         '<div class="field"><label>다음 재콜일'+(d.next?' <span class="hint">(현재 '+fmtD(d.next)+' → 변경)</span>':'')+'</label><input id="cNext" class="inp" type="date" min="'+addDays(t,1)+'" onchange="syncQuick(\'c\',this.value)">'+quickDates('c','cNext')+'</div></div>'+
         '<button class="btn primary" id="cSave" onclick="saveRecall()">저장</button><div id="cErr" class="err"></div>'+
@@ -1337,6 +1367,7 @@ function openCard(id){
       '</div></div>'+
     '</div>';
   document.getElementById('drawerWrap').classList.remove('hidden');
+  cmtRender();cmtMarkRead(id);restoreDrafts(document.getElementById('drawer'));
 }
 function closeCard(){S.openId='';document.getElementById('drawerWrap').classList.add('hidden');}
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&S.openId)closeCard();});
@@ -1352,6 +1383,7 @@ async function saveRecall(){
   const res=await api('recall',{id:r.id,memo,date,nextDate},true);
   hideToast();
   if(!res.success){document.getElementById('cSave').disabled=false;err.textContent=res.error||'저장 실패';return;}
+  clearDraft('card_'+r.id);
   upsertRow(res.row);renderAll();openCard(res.row.id);undoBar('저장 완료',res.undo);
 }
 async function saveGrade(sel){
@@ -1405,7 +1437,7 @@ async function saveInfo(){
 function init(){
   let sess=null;try{sess=JSON.parse(sstore('m2_sess')||'null');}catch(e){}
   if(sess&&sess.ver!==APP_VER){sess=null;sstore('m2_sess',null);}
-  if(sess&&sess.token){S.token=sess.token;S.role=sess.role;S.name=sess.name;S.master=!!sess.master;S.members=sess.members||[];S.viewAs=sess.viewAs||S.members[0]||'';enterApp(sess.testMode);}
+  if(sess&&sess.token){S.token=sess.token;S.role=sess.role;S.name=sess.name;S.master=!!sess.master;S.mgr=!!sess.mgr;S.members=sess.members||[];S.viewAs=urlView()||sess.viewAs||S.members[0]||'';enterApp(sess.testMode);}
   else if(AUTO_LOGIN){document.getElementById('lgRole').value=AUTO_LOGIN.role;document.getElementById('lgPw').value=AUTO_LOGIN.password;document.getElementById('loginView').classList.remove('hidden');doLogin();}
   else document.getElementById('loginView').classList.remove('hidden');
 }
@@ -1433,11 +1465,12 @@ async function loadBoard(){
   if(!S.token)return;
   const r=await api('board',{page:0});
   if(!r||!r.success){BB.base=[todayQuote()];BB.items=(CP.items||[]).concat(BB.base);BB.pages=BB.pages||[];bbShow();cpStart();return;}
+  if(r.myGoal!==undefined){S.goal=r.myGoal;const gb=document.getElementById('goalBar');if(gb)gb.outerHTML=goalHtml();}
   BB.base=(r.active||[]).concat([todayQuote()]);BB.items=(CP.items||[]).concat(BB.base);BB.pages=[{label:'지난 7일',items:r.list||[]}];BB.hasMore=!!r.hasMore;BB.page=0;BB.now=r.now;
   bbShow();
   if(!document.getElementById('bmWrap').classList.contains('hidden')&&BB.view==='board')renderBoard();
   if(!BB.timer)BB.timer=setInterval(()=>{if(!BB.paused&&BB.items.length>1&&document.visibilityState==='visible')bbStep(1);},6000);
-  if(!BB.poll)BB.poll=setInterval(()=>{loadBoard();sgCount();},5*60*1000);
+  if(!BB.poll)BB.poll=setInterval(()=>{loadBoard();sgCount();loadCmt();},5*60*1000);
   cpStart();
 }
 function bbShow(){
@@ -1707,7 +1740,7 @@ async function sendCele(skip){
 const CP={items:[],active:[],winQ:[],seenQ:{},off:0,timer:null,tick:null,min:{},busy:false};
 const CP_ICONS=['☕','🧋','🍰','🍩','🍔','🍕','🍗','🍦','🎁','🎫','💰'];
 function tsMs(ts){return new Date(String(ts).replace(' ','T')+'+09:00').getTime();}
-function cpStart(){if(!CP.timer)loadCoupon();if(!CP.tick)CP.tick=setInterval(cpTick,1000);}
+function cpStart(){if(S.mgr)return;if(!CP.timer)loadCoupon();if(!CP.tick)CP.tick=setInterval(cpTick,1000);}
 async function loadCoupon(){
   clearTimeout(CP.timer);if(!S.token){CP.timer=null;return;}
   const r=await api('coupon',{});
@@ -1828,8 +1861,9 @@ async function cpSent(id,row,on){const r=await api('couponAct',{act:'sent',id,ro
 const PERIOD_L={day:'일간',week:'주간',month:'월간',custom:'직접'};
 async function openMgr(tab){BB.view='mgr';BB.edit=null;BB.per='day';BB.mgrTab=tab||BB.mgrTab||'notice';
   openBm('<h3>📢 NOTICE 관리 <span style="font-size:12px;color:var(--text-muted);font-weight:400">마스터 전용</span></h3><div class="bm-tabs" id="mgrTabs"></div><div id="mgrBody" style="display:flex;flex-direction:column;min-height:0;flex:1"></div>','wide');mgrTab(BB.mgrTab);}
-function mgrTab(t){BB.mgrTab=t;document.getElementById('mgrTabs').innerHTML=[['notice','📢 공지'],['coupon','☕ 쿠폰']].map(([k,l])=>'<button class="'+(t===k?'on':'')+'" onclick="mgrTab(\''+k+'\')">'+l+'</button>').join('');
+function mgrTab(t){BB.mgrTab=t;document.getElementById('mgrTabs').innerHTML=[['notice','📢 공지'],['coupon','☕ 쿠폰'],['usage','📊 사용현황']].map(([k,l])=>'<button class="'+(t===k?'on':'')+'" onclick="mgrTab(\''+k+'\')">'+l+'</button>').join('');
   const b=document.getElementById('mgrBody');
+  if(t==='usage'){b.innerHTML='<div id="usBar"></div><div class="bm-list" id="usBody"><div class="loading">불러오는 중…</div></div>';usRange(US.range||'week');return;}
   if(t==='notice'){b.innerHTML='<div id="bfForm"></div><div class="bm-list" id="bmMgr"><div class="loading">불러오는 중…</div></div>';renderMgrForm(true);loadMgr();}
   else{b.innerHTML='<div id="cpForm"></div><div class="bm-list" id="cpList"><div class="loading">불러오는 중…</div></div>';CPM.type=CPM.type||'drop';renderCpForm(true);loadCpList();}}
 async function loadMgr(){const r=await api('board',{page:0,manage:true});if(!r||!r.success){document.getElementById('bmMgr').innerHTML='<div class="empty">'+esc((r&&r.error)||'불러오기 실패')+'</div>';return;}BB.mgr=r.manage||[];BB.mgrNow=r.now;renderMgrList();}
@@ -1881,6 +1915,130 @@ function renderMgrList(){
 }
 function editNotice(id){const it=(BB.mgr||[]).find(x=>x.id===id);if(!it)return;BB.edit=it;BB.per=it.period||'day';renderMgrForm(true);document.getElementById('bfTitle').focus();}
 async function setBStatus(id,status){const r=await api('boardStatus',{id,status},true);if(!r||!r.success){toast((r&&r.error)||'변경 실패',2500);return;}toast(status==='숨김'?'NOTICE에서 내렸음':status==='패스'?'패스 처리함':'NOTICE에 올렸음',1800);loadMgr();loadBoard();}
+
+// ════ p0.28 / v0.62 추가 ════════════════════════════════════════
+// ── 세션 만료: 비밀번호만 다시 받아 같은 요청 재시도 (여러 요청이 동시에 만료돼도 창은 1번) ──
+const RL={p:null,res:null};
+function relogin(){
+  if(AUTO_LOGIN)return Promise.resolve(false);
+  if(RL.p)return RL.p;
+  RL.p=new Promise(res=>{RL.res=res;});
+  document.getElementById('rlWho').textContent='계정: '+S.role+' ('+S.name+')';
+  document.getElementById('rlErr').textContent='';document.getElementById('rlPw').value='';
+  document.getElementById('rlOv').classList.remove('hidden');setTimeout(()=>document.getElementById('rlPw').focus(),50);
+  return RL.p;
+}
+function rlDone(ok){document.getElementById('rlOv').classList.add('hidden');const r=RL.res;RL.p=null;RL.res=null;if(r)r(ok);}
+async function rlOk(){
+  const pw=document.getElementById('rlPw').value;if(!pw){document.getElementById('rlPw').focus();return;}
+  const b=document.getElementById('rlBtn');b.disabled=true;
+  let r;try{const res=await fetch(apiUrl(),{method:'POST',body:JSON.stringify({action:'auth',params:{role:S.role,password:pw}})});r=await res.json();}catch(e){r={success:false,error:'서버 연결 실패'};}
+  b.disabled=false;
+  if(!r.success){document.getElementById('rlErr').textContent=r.error||'로그인 실패';return;}
+  S.token=r.token;
+  try{const ss=JSON.parse(sstore('m2_sess')||'{}');ss.token=r.token;sstore('m2_sess',JSON.stringify(ss));}catch(e){}
+  rlDone(true);toast('다시 로그인됨 · 이어서 저장 중',1800);
+}
+
+// ── 입력 임시저장: 통화 메모·카드 메모·신규등록 폼 (저장 성공하면 지움, 다른 PC로는 안 넘어감) ──
+function draftKey(el){if(el.dataset&&el.dataset.draft)return el.dataset.draft;if(el.id&&el.closest&&el.closest('#tabNew'))return 'new_'+el.id;return '';}
+function draftStoreKey(k){return 'm2d_'+(S.name||'')+'_'+k;}
+function saveDraftEl(el){const k=draftKey(el);if(!k)return;try{const v=el.value;if(v&&String(v).trim())localStorage.setItem(draftStoreKey(k),v);else localStorage.removeItem(draftStoreKey(k));}catch(e){}}
+['input','change'].forEach(ev=>document.addEventListener(ev,e=>{const t=e.target;if(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.tagName==='SELECT'))saveDraftEl(t);},true));
+function restoreDrafts(root){
+  if(!root)return;let n=0;
+  root.querySelectorAll('input,textarea,select').forEach(el=>{const k=draftKey(el);if(!k||el.type==='file'||el.type==='checkbox')return;
+    let v=null;try{v=localStorage.getItem(draftStoreKey(k));}catch(e){}
+    if(v!==null&&!el.value){el.value=v;n++;if(el.id==='nCompany'&&typeof dupCheck==='function')dupCheck();}});
+  if(n)toast('작성 중이던 내용을 불러왔음',1800);
+}
+function clearDraft(k,prefix){try{const base=draftStoreKey(k);if(!prefix){localStorage.removeItem(base);return;}Object.keys(localStorage).filter(x=>x.startsWith(base)).forEach(x=>localStorage.removeItem(x));}catch(e){}}
+
+// ── 오늘 목표 (DB 작성수 = 오늘 신규등록 + 통화완료 + 부재 기록) ──
+function writtenToday(){const t=S.today;let n=0;S.rows.forEach(r=>{if(r.firstCall===t)n++;r.recalls.forEach(x=>{if(x.date===t&&x.memo)n++;});});return n;}
+function goalHtml(){
+  if(S.master||S.mgr||!S.today)return '<div id="goalBar"></div>';
+  const g=S.goal||0,n=writtenToday();
+  if(!g)return '<div id="goalBar" class="goal empty"><span>🎯 오늘 목표 DB 작성수를 정해두면 진행률을 보여줌 <span class="muted">(신규등록 + 통화완료 + 부재)</span></span><button class="gset" onclick="goalEdit()">목표 설정</button></div>';
+  const pct=Math.min(100,Math.round(n/g*100)),done=n>=g;
+  return '<div id="goalBar" class="goal'+(done?' done':'')+'"><span class="gl">🎯 오늘 목표</span><span class="gn"><b>'+n+'</b> / '+g+'건</span><div class="gbar"><i style="width:'+pct+'%"></i></div><span class="gn">'+(done?'달성! 👏':pct+'% · '+(g-n)+'건 남음')+'</span><button class="gset" onclick="goalEdit()">변경</button></div>';
+}
+async function goalEdit(){
+  const v=prompt('오늘 목표 DB 작성수 (신규등록 + 통화완료 + 부재 기록)\n한 번 정하면 매일 같은 목표로 유지됨. 0 = 끄기',S.goal||30);if(v===null)return;
+  const n=parseInt(v,10);if(isNaN(n)||n<0){toast('숫자로 입력하세요',1500);return;}
+  const r=await api('goalSet',{goal:n},true);if(!r||!r.success){toast((r&&r.error)||'저장 실패',2500);return;}
+  S.goal=r.goal;const gb=document.getElementById('goalBar');if(gb)gb.outerHTML=goalHtml();toast('목표 저장',1200);
+}
+
+// ── 업체 코멘트 (부서장·관리자 ↔ 사원) ──
+const CMT={items:[],inbox:[],busy:false};
+async function loadCmt(){
+  const r=await api('cmtList',{});if(!r||!r.success)return;
+  CMT.items=r.items||[];CMT.inbox=r.inbox||[];cmtDot();if(S.openId)cmtRender();
+}
+function cmtDot(){const n=CMT.inbox.length,b=document.getElementById('cmtBtn'),d=document.getElementById('cmtDot');if(!b)return;
+  b.classList.toggle('hidden',!(n||S.master||S.mgr||CMT.items.length));d.textContent=n;d.classList.toggle('hidden',!n);
+  b.title=S.master||S.mgr?(n?'사원 답글 '+n+'건':'코멘트 모아보기'):(n?'새 코멘트 '+n+'건':'코멘트 모아보기');}
+function cmtRender(){
+  const box=document.getElementById('cmtBox');if(!box)return;const r=S.rows.find(x=>x.id===S.openId);if(!r){box.innerHTML='';return;}
+  const L=CMT.items.filter(c=>c.cid===r.id).sort((a,b)=>a.ts<b.ts?-1:1),viewer=S.master||S.mgr;
+  if(!L.length&&!viewer){box.innerHTML='';return;}
+  box.innerHTML='<div class="cmt"><h4>💬 '+(viewer?'코멘트 <span class="muted" style="font-weight:400;font-size:12px">'+esc(S.viewAs)+'님에게 보임</span>':'부서장 코멘트')+'</h4>'+
+    (L.length?L.map(c=>'<div class="cmi2'+(c.unread?' new':'')+'"><span class="who r-'+esc(c.role)+'">'+esc(c.author)+(c.role!=='사원'?' <span class="muted" style="font-weight:400">'+esc(c.role)+'</span>':'')+'</span><span class="tx">'+esc(c.text)+'</span><span class="tm">'+tsMD(c.ts)+' '+tsHM(c.ts)+'</span>'+(c.mine||S.master?'<button class="x" title="삭제" onclick="cmtDel(\''+esc(c.id)+'\')">×</button>':'')+'</div>').join(''):'<div class="hint">아직 코멘트 없음</div>')+
+    '<div class="cmf2"><textarea id="cmtIn" class="inp" data-draft="cmt_'+esc(r.id)+'" rows="1" maxlength="500" placeholder="'+(viewer?'이 업체에 대한 코멘트 (사원 화면에 알림)':'답글 남기기')+'"></textarea><button class="btn primary sm" onclick="cmtAdd()">등록</button></div></div>';
+  restoreDrafts(box);
+}
+async function cmtAdd(){
+  const r=S.rows.find(x=>x.id===S.openId),inp=document.getElementById('cmtIn');if(!r||!inp)return;const t=inp.value.trim();if(!t){inp.focus();return;}
+  inp.disabled=true;const res=await api('cmtAdd',{cid:r.id,company:r.company,text:t},true);inp.disabled=false;
+  if(!res||!res.success){toast((res&&res.error)||'코멘트 저장 실패',2500);return;}
+  clearDraft('cmt_'+r.id);CMT.items=res.items||[];CMT.inbox=res.inbox||[];cmtDot();cmtRender();
+}
+async function cmtDel(id){if(!confirm('코멘트를 지울까요?'))return;const res=await api('cmtDel',{id},true);if(!res||!res.success){toast((res&&res.error)||'삭제 실패',2500);return;}CMT.items=res.items||[];CMT.inbox=res.inbox||[];cmtDot();cmtRender();}
+async function cmtMarkRead(cid){
+  if(!CMT.items.some(c=>c.cid===cid&&c.unread))return;
+  CMT.items.forEach(c=>{if(c.cid===cid)c.unread=false;});CMT.inbox=CMT.inbox.filter(c=>c.cid!==cid);cmtDot();
+  const r=await api('cmtRead',{cid},true);if(r&&r.success){CMT.items=r.items||[];CMT.inbox=r.inbox||[];cmtDot();}
+}
+// 모아보기: 안 읽은 것 먼저, 이어서 최근 코멘트 (부서장·관리자는 다른 사원 것도 → 누르면 그 사원 화면으로)
+function openInbox(){
+  BB.view='inbox';const viewer=S.master||S.mgr,seen={};
+  const un=CMT.inbox.slice().sort((a,b)=>a.ts<b.ts?1:-1);un.forEach(c=>seen[c.id]=1);
+  const recent=CMT.items.filter(c=>!seen[c.id]).sort((a,b)=>a.ts<b.ts?1:-1).slice(0,30);
+  const row=c=>'<div class="ib-i" onclick="inboxGo(\''+esc(c.owner)+'\',\''+esc(c.cid)+'\')">'+(viewer?'<span class="o">'+esc(c.owner)+'</span>':'')+'<span class="c">'+esc(c.company)+'</span><span class="t">'+esc(c.author)+': '+esc(c.text)+'</span><span class="muted" style="font-size:11px">'+tsMD(c.ts)+' '+tsHM(c.ts)+'</span></div>';
+  openBm('<h3>💬 코멘트'+(viewer?' <span class="sg-sub">사원 답글 · 업체를 누르면 그 사원 카드가 열림</span>':' <span class="sg-sub">부서장 코멘트 · 업체를 누르면 카드가 열림</span>')+'</h3><div class="bm-list">'+
+    '<div class="bm-day">새로 온 '+(viewer?'답글':'코멘트')+' '+un.length+'</div>'+(un.length?un.map(row).join(''):'<div class="bm-day" style="font-weight:400">없음</div>')+
+    (recent.length?'<div class="bm-day">'+(viewer?esc(S.viewAs)+' · ':'')+'최근 코멘트</div>'+recent.map(row).join(''):'')+'</div>');
+}
+function inboxGo(owner,cid){
+  closeBm();
+  const viewer=S.master||S.mgr;
+  if(viewer&&owner&&owner!==S.viewAs&&!(owner==='파일럿테스트'&&S.viewAs==='(테스트 시트)')){
+    const v=owner==='파일럿테스트'?'(테스트 시트)':owner;S.pendingOpen=cid;
+    const pick=document.getElementById('viewPick');if(pick)pick.value=v;changeViewAs(v);S.pendingOpen=cid;return;}
+  if(S.rows.some(x=>x.id===cid))openCard(cid);else toast('업체를 찾을 수 없음 (시트에서 삭제됐을 수 있음)',2500);
+}
+
+// ── 관리자: 사용현황 ──
+const US={range:'week',data:null};
+function usRangeDates(k){const t=S.today||ymd(new Date()),d=parseYmd(t),f=x=>ymd(x);
+  if(k==='today')return [t,t];
+  if(k==='week'){const m=new Date(d);m.setDate(d.getDate()-((d.getDay()+6)%7));return [f(m),t];}
+  if(k==='lastweek'){const m=new Date(d);m.setDate(d.getDate()-((d.getDay()+6)%7)-7);const e=new Date(m);e.setDate(m.getDate()+6);return [f(m),f(e)];}
+  if(k==='month')return [t.slice(0,8)+'01',t];
+  if(k==='lastmonth'){const a=new Date(d.getFullYear(),d.getMonth()-1,1),b=new Date(d.getFullYear(),d.getMonth(),0);return [f(a),f(b)];}
+  return [t,t];}
+async function usRange(k){
+  US.range=k;const [from,to]=usRangeDates(k);
+  document.getElementById('usBar').innerHTML='<div class="bm-tabs">'+[['today','오늘'],['week','이번 주'],['lastweek','지난주'],['month','이번 달'],['lastmonth','지난달']].map(([a,l])=>'<button class="'+(a===k?'on':'')+'" onclick="usRange(\''+a+'\')">'+l+'</button>').join('')+'<span class="muted" style="font-size:12px;align-self:center;margin-left:6px">'+from+' ~ '+to+'</span></div>';
+  document.getElementById('usBody').innerHTML='<div class="loading">사원 시트를 하나씩 읽는 중… (인원 수만큼 몇 초 걸림)</div>';
+  const r=await api('usage',{from,to});const el=document.getElementById('usBody');if(!el||US.range!==k)return;
+  if(!r||!r.success){el.innerHTML='<div class="empty">'+esc((r&&r.error)||'불러오기 실패')+' <span class="muted">(서버 p0.28 필요)</span></div>';return;}
+  const z=n=>n?n:'<span class="z">0</span>';
+  el.innerHTML='<table class="us-t"><thead><tr><th>이름</th><th>접속일</th><th>조회</th><th>신규등록</th><th>통화완료</th><th>부재</th><th>미루기</th><th>가망도변경</th><th>정보수정</th><th>되돌리기</th><th title="가망도변경로그 기준, 화면 기록을 뺀 나머지">시트 직접<br>신규 · 가망도</th><th>마지막 사용</th></tr></thead><tbody>'+
+    r.rows.map(o=>'<tr><td><b>'+esc(o.name)+'</b>'+(o.error?' <span class="chip danger" title="'+esc(o.error)+'">읽기 실패</span>':'')+'</td><td>'+z(o.days)+'</td>'+r.acts.map(a=>'<td>'+z(o.c[a])+'</td>').join('')+'<td>'+(o.sheetNew||o.sheetGrade?'<span class="sh">'+o.sheetNew+' · '+o.sheetGrade+'</span>':'<span class="z">0 · 0</span>')+'</td><td class="muted">'+(o.last?tsMD(o.last)+' '+tsHM(o.last):'-')+'</td></tr>').join('')+
+    '</tbody></table><div class="hint" style="margin-top:10px;line-height:1.6">· 기록은 p0.28 배포 시점부터 쌓임 · 마스터 보기·부서장 보기는 집계 안 함<br>· <b>시트 직접</b> = 그 기간 가망도변경로그(10분 감지)에 잡힌 신규·가망도 변경 중 화면에서 한 것을 뺀 수 → 높으면 아직 시트에서 직접 작업하는 비중이 큼</div>';
+}
 init();
 </script>
 </body>

@@ -63,13 +63,14 @@
   [v0.68] 인원 선택 표기: 본부 → 팀(1팀·2팀) → 이름 순, 'BM3-2팀'과 'BM3-2'처럼 표기가 달라도 같은 팀으로 묶음
   [v0.69] 접속 주소를 Cloudflare Pages(member-dashboard-dn6.pages.dev)로 이전, 옛 GitHub 주소로 열면 자동 이동
   [v0.70] 나의 영업DB에 '키워드 · 순위' 열(정렬 가능), 오늘 할 일 업체명 아래 키워드·순위 작게 표시
+  [v0.71] (서버 p0.32) 로그인 화면 '아이디 저장' · '로그인 유지(30일)' + 브라우저 비밀번호 저장 지원, 세션 만료 시 로그인 유지면 자동 재로그인
 -->
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script>/* 옛 GitHub Pages 주소로 열면 새 주소(Cloudflare)로 이동 (?view= 등 그대로) */if(/github\.io$/i.test(location.hostname))location.replace('https://member-dashboard-dn6.pages.dev/'+location.search+location.hash);</script>
-<title>미래아이엔씨 통합DB (파일럿) v0.70</title>
+<title>미래아이엔씨 통합DB (파일럿) v0.71</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#f0f2f5;--surface:#fff;--surface2:#f5f7ff;--border:#e8eaf6;--text:#333;--text-sub:#4b5260;--text-muted:#6b7280;--header-bg:linear-gradient(135deg,#0B13E7,#080ead);--primary:#3949ab;--primary-soft:#e8eaf6;--th-bg:#e8eaf6;--danger:#c62828;--danger-soft:#fdecec;--warn:#e65100;--warn-soft:#fff3e8;--ok:#2e7d32;--ok-soft:#e9f5ea;--purple:#6a1b9a;--purple-soft:#f3e5f5;}
@@ -382,6 +383,7 @@ table.nlist td.wide{max-width:320px;}
 .undo-bar button.x{background:transparent;color:var(--text-muted);padding:4px 6px;font-size:16px;}
 .saving{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1e2130;color:#fff;padding:9px 16px;border-radius:20px;font-size:13px;z-index:60;}
 .loading{padding:40px;text-align:center;color:var(--text-sub);}
+.lg-opt{display:flex;justify-content:space-between;margin:-2px 0 12px;font-size:12.5px;color:#4b5260;}.lg-opt label{display:flex;align-items:center;gap:5px;cursor:pointer;}
 .ld{position:fixed;left:0;right:0;top:0;bottom:0;z-index:50;display:flex;align-items:flex-start;justify-content:center;padding:150px 16px 0;background:rgba(244,246,252,.72);backdrop-filter:blur(1.5px);}
 .ld-card{background:#fff;border:1px solid #e3e6f3;border-radius:18px;box-shadow:0 18px 50px rgba(30,40,110,.16);padding:26px 30px 22px;width:520px;max-width:100%;text-align:center;}
 .ld-bar{height:4px;border-radius:4px;background:#eceffa;overflow:hidden;margin-bottom:18px;}.ld-bar i{display:block;height:100%;width:35%;border-radius:4px;background:linear-gradient(90deg,#5c6bc0,#3949ab);animation:ldb 1.3s ease-in-out infinite;}
@@ -522,9 +524,12 @@ table.nlist td.wide{max-width:320px;}
 <div id="loginView" class="login-wrap hidden"><div class="login">
   <h2>미래아이엔씨 통합DB</h2>
   <p>파일럿 버전 · 기존 대시보드와 같은 사번/비밀번호</p>
-  <div class="field"><label>사번 (아이디)</label><input id="lgRole" class="inp" autocomplete="username"></div>
-  <div class="field"><label>비밀번호</label><input id="lgPw" class="inp" type="password" autocomplete="current-password"></div>
-  <button class="btn primary" style="width:100%;padding:10px;" onclick="doLogin()">로그인</button>
+  <form id="lgForm" onsubmit="event.preventDefault();doLogin()" autocomplete="on">
+  <div class="field"><label>사번 (아이디)</label><input id="lgRole" name="username" class="inp" autocomplete="username"></div>
+  <div class="field"><label>비밀번호</label><input id="lgPw" name="password" class="inp" type="password" autocomplete="current-password"></div>
+  <div class="lg-opt"><label><input type="checkbox" id="lgSaveId"> 아이디 저장</label><label title="이 PC에서 30일 동안 비밀번호 없이 바로 접속 (공용 PC에서는 끄세요)"><input type="checkbox" id="lgKeep"> 로그인 유지 (30일)</label></div>
+  <button type="submit" class="btn primary" style="width:100%;padding:10px;">로그인</button>
+  </form>
   <div id="lgErr" class="err"></div>
   <div style="margin-top:14px;text-align:right;"><button class="fold" onclick="setApiUrl()">서버 주소 설정</button></div>
 </div></div>
@@ -535,7 +540,7 @@ table.nlist td.wide{max-width:320px;}
     <div id="testBanner" class="test-banner hidden">테스트 시트에 연결되어 있음 · 실제 업무 데이터 아님</div>
     <div class="hdr"><div class="top-in">
       <div class="logo"><img src="data:image/png;base64,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" alt="CI"></div>
-      <h1>미래아이엔씨 통합DB <span style="font-size:12px;opacity:.6;font-weight:400;">파일럿 v0.70</span></h1>
+      <h1>미래아이엔씨 통합DB <span style="font-size:12px;opacity:.6;font-weight:400;">파일럿 v0.71</span></h1>
       <div class="who"><select id="hqPick" class="hbtn hidden" style="padding:5px 8px;" title="본부" onchange="pickFilter('hq',this.value)"></select><select id="teamPick" class="hbtn hidden" style="padding:5px 8px;" title="팀" onchange="pickFilter('team',this.value)"></select><select id="viewPick" class="hbtn hidden" style="padding:5px 10px;" title="볼 인원 선택" onchange="if(this.value)changeViewAs(this.value)"></select><span id="whoName" class="user-chip"></span><button id="cmtBtn" class="hbtn hidden" onclick="openInbox()">💬 코멘트<i id="cmtDot" class="sgdot hidden"></i></button><button id="sgBtn" class="hbtn" onclick="openSg()" title="대시보드 수정·개선 건의">💡 수정건의<i id="sgDot" class="sgdot hidden"></i></button><a id="sheetLink" class="hbtn hidden" target="_blank" rel="noopener" style="text-decoration:none;" title="내 구글시트 새 창으로 열기">📄 내 구글시트</a><button class="hbtn" onclick="loadRows();loadBoard();sgCount()">새로고침</button><button class="hbtn" id="btnLogout" onclick="logout()">로그아웃</button></div>
     </div></div>
     <div class="tabs">
@@ -579,7 +584,7 @@ table.nlist td.wide{max-width:320px;}
 // 파일럿 Apps Script 웹앱 주소. 비워두면 로그인 화면의 '서버 주소 설정'으로 입력 (이 브라우저에 저장됨)
 // 테스트 기간 자동 로그인 (테스트 시트 하나만 연결된 동안만 사용). 파일럿 사원 확정되면 null로 바꾸면 로그인 화면이 다시 나옴
 const AUTO_LOGIN = null;
-const APP_VER='v0.70';   // 화면 버전. 바뀌면 이전 접속 기록(테스트 계정 등)을 버리고 다시 로그인
+const APP_VER='v0.71';   // 화면 버전. 바뀌면 이전 접속 기록(테스트 계정 등)을 버리고 다시 로그인
 const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycby040Dne4lMk2Ulgzf5gLG5CPFskadcI4jiBjhuBY7zuMaepufQBoHjoaxHcnVQ5Xvt/exec';
 const PROMO_GRADES = ['단기','장기','권한오픈','권한+브리핑'];
 const INACTIVE_GRADES = ['이관완료','선택없음','희망건'];
@@ -614,13 +619,19 @@ async function doLogin(){
   const err=document.getElementById('lgErr');err.textContent='';
   if(!role||!pw){err.textContent='사번과 비밀번호를 입력하세요';return;}
   err.textContent='확인 중…';
-  const r=await api('auth',{role,password:pw});
+  const keep=document.getElementById('lgKeep').checked,saveId=document.getElementById('lgSaveId').checked||keep;
+  const r=await api('auth',{role,password:pw,remember:keep});
   if(!r.success){err.textContent=r.error||'로그인 실패';return;}
-  err.textContent='';S.token=r.token;S.role=r.role;S.name=r.name;S.master=!!r.master;S.mgr=!!r.manager;S.members=r.members||[];S.minfo=r.minfo||{};S.viewAs=urlView()||S.members[0]||'';
+  try{if(saveId)localStorage.setItem('m2_id',role);else localStorage.removeItem('m2_id');if(r.rtk)localStorage.setItem('m2_rtk',r.rtk);else localStorage.removeItem('m2_rtk');}catch(e){}
+  loginOk(r);
+}
+// 로그인 성공 처리 (비밀번호 로그인 · 로그인 유지 공통)
+function loginOk(r){
+  const err=document.getElementById('lgErr');err.textContent='';S.token=r.token;S.role=r.role;S.name=r.name;S.master=!!r.master;S.mgr=!!r.manager;S.members=r.members||[];S.minfo=r.minfo||{};S.viewAs=urlView()||S.members[0]||'';
   sstore('m2_sess',JSON.stringify({token:r.token,role:r.role,name:r.name,testMode:r.testMode,master:S.master,mgr:S.mgr,members:S.members,minfo:S.minfo,viewAs:S.viewAs,ver:APP_VER}));
   enterApp(r.testMode);
 }
-function logout(expired){sstore('m2_sess',null);try{document.getElementById('bmWrap').classList.add('hidden');BB.view='';document.getElementById('cpCard').classList.add('hidden');clearTimeout(CP.timer);CP.timer=null;CP.active=[];CP.items=[];CP.winQ=[];CP.seenQ={};BB.celeQ=[];BB.confirmQ=[];BB.celeSeen={};SG.items=[];SG.imgs={};SG.unread=SG.open=0;sgDot();}catch(e){}if(AUTO_LOGIN&&expired){S.token='';doLogin();return;}S.token='';S.rows=[];closeCard();document.getElementById('appView').classList.add('hidden');document.getElementById('loginView').classList.remove('hidden');if(expired)document.getElementById('lgErr').textContent='세션이 만료되어 다시 로그인이 필요합니다';}
+function logout(expired){sstore('m2_sess',null);if(!expired){try{const k=localStorage.getItem('m2_rtk');if(k){localStorage.removeItem('m2_rtk');api('forget',{rtk:k},true);}}catch(e){}}try{document.getElementById('bmWrap').classList.add('hidden');BB.view='';document.getElementById('cpCard').classList.add('hidden');clearTimeout(CP.timer);CP.timer=null;CP.active=[];CP.items=[];CP.winQ=[];CP.seenQ={};BB.celeQ=[];BB.confirmQ=[];BB.celeSeen={};SG.items=[];SG.imgs={};SG.unread=SG.open=0;sgDot();}catch(e){}if(AUTO_LOGIN&&expired){S.token='';doLogin();return;}S.token='';S.rows=[];closeCard();document.getElementById('appView').classList.add('hidden');showLogin();document.getElementById('lgPw').value='';if(expired)document.getElementById('lgErr').textContent='세션이 만료되어 다시 로그인이 필요합니다';}
 function enterApp(testMode){
   S.testMode=!!testMode;
   document.getElementById('loginView').classList.add('hidden');
@@ -656,7 +667,7 @@ function teamLabel(t){const m=/(\d+)\s*팀?\s*$/.exec(String(t||''));return m?m[
 function urlView(){try{const v=new URLSearchParams(location.search).get('view');return v&&(S.members||[]).includes(v)?v:'';}catch(e){return '';}}
 function changeViewAs(v){S.viewAs=v;CMT.items=[];if(S.master||S.mgr)buildPick();S.openId='';closeCard();S.rptSel='';S.dbSearch='';const sb=document.getElementById('dbSearch');if(sb)sb.value='';
   try{const ss=JSON.parse(sstore('m2_sess')||'{}');ss.viewAs=v;sstore('m2_sess',JSON.stringify(ss));}catch(e){}loadRows();}
-document.getElementById('lgPw').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+// 엔터는 form 제출로 처리 (중복 로그인 방지)
 
 // ── 데이터 ────────────────────────────────────────────────────────
 async function loadRows(){
@@ -1472,8 +1483,20 @@ function init(){
   let sess=null;try{sess=JSON.parse(sstore('m2_sess')||'null');}catch(e){}
   if(sess&&sess.ver!==APP_VER){sess=null;sstore('m2_sess',null);}
   if(sess&&sess.token){S.token=sess.token;S.role=sess.role;S.name=sess.name;S.master=!!sess.master;S.mgr=!!sess.mgr;S.members=sess.members||[];S.minfo=sess.minfo||{};S.viewAs=urlView()||sess.viewAs||S.members[0]||'';enterApp(sess.testMode);}
+  else if((()=>{try{return localStorage.getItem('m2_rtk');}catch(e){return null;}})())resumeLogin();
   else if(AUTO_LOGIN){document.getElementById('lgRole').value=AUTO_LOGIN.role;document.getElementById('lgPw').value=AUTO_LOGIN.password;document.getElementById('loginView').classList.remove('hidden');doLogin();}
-  else document.getElementById('loginView').classList.remove('hidden');
+  else showLogin();
+}
+function showLogin(){document.getElementById('loginView').classList.remove('hidden');try{const id=localStorage.getItem('m2_id');if(id){document.getElementById('lgRole').value=id;document.getElementById('lgSaveId').checked=true;document.getElementById('lgPw').focus();}else document.getElementById('lgRole').focus();}catch(e){}}
+// 로그인 유지키로 바로 접속 (실패하면 로그인 화면)
+async function resumeLogin(){
+  let k=null;try{k=localStorage.getItem('m2_rtk');}catch(e){}
+  if(!k){showLogin();return false;}
+  const ov=document.getElementById('ldOv');document.getElementById('ldQ').textContent='';document.getElementById('ldSrc').textContent='';document.getElementById('ldT').textContent='자동 로그인 중…';ov.classList.remove('hidden');
+  let r;try{const res=await fetch(apiUrl(),{method:'POST',body:JSON.stringify({action:'resume',params:{rtk:k}})});r=await res.json();}catch(e){r={success:false,error:'서버 연결 실패'};}
+  ov.classList.add('hidden');
+  if(!r||!r.success){if(r&&r.gone){try{localStorage.removeItem('m2_rtk');}catch(e){}}showLogin();if(r&&r.error)document.getElementById('lgErr').textContent=r.error;return false;}
+  loginOk(r);return true;
 }
 
 // ════ 전광판 (공지 · 이관 축하 · 응원) ════════════════════════════
@@ -1956,13 +1979,21 @@ const RL={p:null,res:null};
 function relogin(){
   if(AUTO_LOGIN)return Promise.resolve(false);
   if(RL.p)return RL.p;
-  RL.p=new Promise(res=>{RL.res=res;});
-  document.getElementById('rlWho').textContent='계정: '+S.role+' ('+S.name+')';
-  document.getElementById('rlErr').textContent='';document.getElementById('rlPw').value='';
-  document.getElementById('rlOv').classList.remove('hidden');setTimeout(()=>document.getElementById('rlPw').focus(),50);
-  return RL.p;
+  RL.p=(async()=>{
+    // 로그인 유지 중이면 창 없이 바로 새 세션
+    let k=null;try{k=localStorage.getItem('m2_rtk');}catch(e){}
+    if(k){try{const res=await fetch(apiUrl(),{method:'POST',body:JSON.stringify({action:'resume',params:{rtk:k}})});const r=await res.json();
+      if(r&&r.success){S.token=r.token;try{const ss=JSON.parse(sstore('m2_sess')||'{}');ss.token=r.token;sstore('m2_sess',JSON.stringify(ss));}catch(e){}return true;}
+      if(r&&r.gone)localStorage.removeItem('m2_rtk');}catch(e){}}
+    return await new Promise(res=>{RL.res=res;
+      document.getElementById('rlWho').textContent='계정: '+S.role+' ('+S.name+')';
+      document.getElementById('rlErr').textContent='';document.getElementById('rlPw').value='';
+      document.getElementById('rlOv').classList.remove('hidden');setTimeout(()=>document.getElementById('rlPw').focus(),50);});
+  })();
+  const p=RL.p;p.then(()=>{if(RL.p===p)RL.p=null;});
+  return p;
 }
-function rlDone(ok){document.getElementById('rlOv').classList.add('hidden');const r=RL.res;RL.p=null;RL.res=null;if(r)r(ok);}
+function rlDone(ok){document.getElementById('rlOv').classList.add('hidden');const r=RL.res;RL.res=null;if(r)r(ok);}
 async function rlOk(){
   const pw=document.getElementById('rlPw').value;if(!pw){document.getElementById('rlPw').focus();return;}
   const b=document.getElementById('rlBtn');b.disabled=true;

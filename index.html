@@ -74,18 +74,21 @@
           이달의 성과 현황 이관완료 카드에 확정 건수·금액 합계, 펼치면 업체별 실제 월예산·수정
   [v0.80] (서버 p0.36) 업체 카드 개편: 맨 위 요약(직통·담당자·키워드/순위·예산·URL) → 통화완료·부재·미루기 버튼 → 코멘트(접힘) →
           히스토리(최신이 위, 메모 크게, +간격·N번째 통화·며칠 전, 부재·예정·놓침 구분, 가망도 변경 ▲▼ 포함, 통화만 보기, 10건 넘으면 더보기) → 상세 기록(접힘) → 업체 정보
+  [v0.81] 상단 정리: 🔔 알림 하나(코멘트·수정건의) + 이름 메뉴(내 구글시트·수정건의·오늘 목표·관리계정 번호·로그아웃) /
+          오늘 할 일: 목표 진행바를 '오늘 처리' 카드 안으로, 0건인 놓친 재콜·간격 초과는 한 줄로 / 나의 영업DB 표 제목줄 고정 /
+          알림 토스트 오른쪽 아래, 숫자 고정폭, 첫 로딩 때 회색 뼈대 화면
 -->
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script>/* 옛 GitHub Pages 주소로 열면 새 주소(Cloudflare)로 이동 (?view= 등 그대로) */if(/github\.io$/i.test(location.hostname))location.replace('https://member-dashboard-dn6.pages.dev/'+location.search+location.hash);</script>
-<title>미래아이엔씨 통합DB (파일럿) v0.80</title>
+<title>미래아이엔씨 통합DB (파일럿) v0.81</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#f0f2f5;--surface:#fff;--surface2:#f5f7ff;--border:#e8eaf6;--text:#333;--text-sub:#4b5260;--text-muted:#6b7280;--header-bg:linear-gradient(135deg,#0B13E7,#080ead);--primary:#3949ab;--primary-soft:#e8eaf6;--th-bg:#e8eaf6;--danger:#c62828;--danger-soft:#fdecec;--warn:#e65100;--warn-soft:#fff3e8;--ok:#2e7d32;--ok-soft:#e9f5ea;--purple:#6a1b9a;--purple-soft:#f3e5f5;}
 *{box-sizing:border-box;}
-body{margin:0;background:var(--bg);color:var(--text);font-family:'Nanum Gothic','NanumGothic','Malgun Gothic','Segoe UI',sans-serif;font-size:14px;min-height:100vh;}
+body{margin:0;font-variant-numeric:tabular-nums;background:var(--bg);color:var(--text);font-family:'Nanum Gothic','NanumGothic','Malgun Gothic','Segoe UI',sans-serif;font-size:14px;min-height:100vh;}
 button{font-family:inherit;cursor:pointer;}
 input,select,textarea{font-family:inherit;font-size:14px;}
 .hidden{display:none!important;}
@@ -198,6 +201,16 @@ details.simple-sec[open]>summary h3::before{content:'▾ ';}
 .tab .cnt{display:inline-block;min-width:18px;padding:0 5px;margin-left:4px;border-radius:9px;background:var(--danger);color:#fff;font-size:11px;line-height:18px;font-weight:700;}
 main{max-width:1700px;margin:0 auto;padding:20px 32px;}
 /* NOTICE 줄 고정 (상단 헤더 바로 아래) · 신규등록 탭은 등록 카드도 그 아래 고정 — --topH는 헤더 높이(스크립트가 맞춤) */
+.who{position:relative;}
+#cmtBtn,#sgBtn,#sheetLink,#btnLogout{display:none!important;}   /* v0.81: 알림(🔔)·이름 메뉴로 옮김 */
+.bell{position:relative;font-size:14px;padding:4px 12px;}.bell .sgdot{position:absolute;top:-5px;right:-6px;margin:0;}
+.user-chip{cursor:pointer;color:#fff;}.user-chip:after{content:' ▾';opacity:.7;font-size:10px;}
+.um-wrap{position:relative;display:inline-block;}
+.hmenu{position:absolute;right:0;top:calc(100% + 8px);background:#fff;color:#333;border-radius:12px;box-shadow:0 12px 32px rgba(20,24,60,.22);min-width:220px;padding:6px;z-index:60;text-align:left;}
+.hmenu a,.hmenu button{display:flex;align-items:center;gap:8px;width:100%;border:none;background:none;padding:9px 12px;font-size:13px;color:#333;border-radius:8px;text-decoration:none;cursor:pointer;text-align:left;box-sizing:border-box;}
+.hmenu a:hover,.hmenu button:hover{background:#f3f5ff;}.hmenu hr{border:none;border-top:1px solid #eef0f7;margin:4px 0;}
+.hmenu .mh{font-size:11px;color:#6b7280;font-weight:700;padding:8px 12px 4px;}.hmenu .n{margin-left:auto;background:#ff5252;color:#fff;border-radius:9px;padding:0 6px;font-size:11px;font-weight:700;}
+.bellm{min-width:320px;max-height:420px;overflow:auto;}.bellm .bi{flex-direction:column;align-items:flex-start;gap:2px;}.bellm .bi small{color:#6b7280;font-size:11.5px;}.bellm .empty{padding:18px;text-align:center;color:#6b7280;font-size:13px;}
 #bb{position:sticky;top:calc(var(--topH,110px) + 8px);z-index:15;box-shadow:0 0 0 8px var(--bg,#f4f6fb),0 2px 8px rgba(0,0,0,.06);}
 @media (min-width:900px){#tabNew .sec.new-box{position:sticky;top:calc(var(--topH,110px) + 68px);z-index:14;box-shadow:0 0 0 8px var(--bg,#f4f6fb),0 6px 16px rgba(30,40,110,.10);}}
 /* 로그인 */
@@ -250,6 +263,12 @@ textarea.inp{resize:vertical;min-height:70px;line-height:1.5;}
 .chip.ok{background:var(--ok-soft);color:var(--ok);}
 .chip.plan{background:var(--primary-soft);color:var(--primary);}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;}
+.goal-mini{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:12px;color:#4b5260;}.goal-mini .gbar{flex:1;height:6px;border-radius:4px;background:#eceffa;overflow:hidden;min-width:40px;}.goal-mini .gbar i{display:block;height:100%;background:linear-gradient(90deg,#5c6bc0,#3949ab);}
+.goal-mini.done .gbar i{background:linear-gradient(90deg,#26a69a,#1baf7a);}.goal-mini .gset{border:none;background:none;color:var(--primary);font-size:12px;font-weight:600;padding:0;white-space:nowrap;cursor:pointer;}
+.skel{background:linear-gradient(90deg,#eceef5 25%,#f6f7fb 50%,#eceef5 75%);background-size:200% 100%;animation:sk 1.2s linear infinite;border-radius:12px;}
+@keyframes sk{to{background-position:-200% 0}}
+#dbTable .sec{overflow:visible;}#dbTable table.list thead th{position:sticky;top:calc(var(--topH,110px) + 60px);z-index:5;}
+.zero-line{background:var(--surface);border:1px dashed var(--border);border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:13px;color:#2e7d32;font-weight:600;}
 .stat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px;}
 .stat .v{font-size:22px;font-weight:800;}
 .stat .l{font-size:12px;color:var(--text-sub);}
@@ -428,10 +447,10 @@ table.nlist td.wide{max-width:320px;}
 .perf-first{background:#e3f2fd;color:#1565c0;font-weight:700;}.perf-chg{background:#f3e5f5;color:#6a1b9a;font-weight:700;}.perf-chg.up{background:#e8f5e9;color:#2e7d32;}.perf-chg.down{background:#fdecec;color:#c62828;}
 .perf-up{color:var(--ok);font-weight:700;font-size:11px;}.perf-down{color:var(--danger);font-weight:700;font-size:11px;}
 @media (max-width:800px){.perf-cards{grid-template-columns:1fr 1fr;}}
-.undo-bar{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1e2130;color:#fff;padding:6px 8px 6px 18px;border-radius:24px;font-size:13px;z-index:61;display:flex;align-items:center;gap:10px;box-shadow:0 6px 20px rgba(0,0,0,.25);}
+.undo-bar{position:fixed;right:24px;bottom:24px;background:#1e2130;color:#fff;padding:6px 8px 6px 18px;border-radius:24px;font-size:13px;z-index:61;display:flex;align-items:center;gap:10px;box-shadow:0 6px 20px rgba(0,0,0,.25);}
 .undo-bar button{border:none;background:#ffd54f;color:#3a2700;font-weight:700;border-radius:16px;padding:6px 12px;font-size:13px;}
 .undo-bar button.x{background:transparent;color:var(--text-muted);padding:4px 6px;font-size:16px;}
-.saving{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1e2130;color:#fff;padding:9px 16px;border-radius:20px;font-size:13px;z-index:60;}
+.saving{position:fixed;right:24px;bottom:24px;background:#1e2130;color:#fff;padding:9px 16px;border-radius:20px;font-size:13px;z-index:60;}
 .loading{padding:40px;text-align:center;color:var(--text-sub);}
 .lg-opt{display:flex;justify-content:space-between;margin:-2px 0 12px;font-size:12.5px;color:#4b5260;}.lg-opt label{display:flex;align-items:center;gap:5px;cursor:pointer;}
 .ld{position:fixed;left:0;right:0;top:0;bottom:0;z-index:50;display:flex;align-items:flex-start;justify-content:center;padding:150px 16px 0;background:rgba(244,246,252,.72);backdrop-filter:blur(1.5px);}
@@ -596,8 +615,8 @@ table.nlist td.wide{max-width:320px;}
     <div id="testBanner" class="test-banner hidden">테스트 시트에 연결되어 있음 · 실제 업무 데이터 아님</div>
     <div class="hdr"><div class="top-in">
       <div class="logo"><img src="data:image/png;base64,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" alt="CI"></div>
-      <h1>미래아이엔씨 통합DB <span style="font-size:12px;opacity:.6;font-weight:400;">파일럿 v0.80</span></h1>
-      <div class="who"><select id="hqPick" class="hbtn hidden" style="padding:5px 8px;" title="본부" onchange="pickFilter('hq',this.value)"></select><select id="teamPick" class="hbtn hidden" style="padding:5px 8px;" title="팀" onchange="pickFilter('team',this.value)"></select><select id="viewPick" class="hbtn hidden" style="padding:5px 10px;" title="볼 인원 선택" onchange="if(this.value)changeViewAs(this.value)"></select><span id="whoName" class="user-chip"></span><button id="cmtBtn" class="hbtn hidden" onclick="openInbox()">💬 코멘트<i id="cmtDot" class="sgdot hidden"></i></button><button id="sgBtn" class="hbtn" onclick="openSg()" title="대시보드 수정·개선 건의">💡 수정건의<i id="sgDot" class="sgdot hidden"></i></button><a id="sheetLink" class="hbtn hidden" target="_blank" rel="noopener" style="text-decoration:none;" title="내 구글시트 새 창으로 열기">📄 내 구글시트</a><button class="hbtn" onclick="loadRows();loadBoard();sgCount()">새로고침</button><button class="hbtn" id="btnLogout" onclick="logout()">로그아웃</button></div>
+      <h1>미래아이엔씨 통합DB <span style="font-size:12px;opacity:.6;font-weight:400;">파일럿 v0.81</span></h1>
+      <div class="who"><select id="hqPick" class="hbtn hidden" style="padding:5px 8px;" title="본부" onchange="pickFilter('hq',this.value)"></select><select id="teamPick" class="hbtn hidden" style="padding:5px 8px;" title="팀" onchange="pickFilter('team',this.value)"></select><select id="viewPick" class="hbtn hidden" style="padding:5px 10px;" title="볼 인원 선택" onchange="if(this.value)changeViewAs(this.value)"></select><button id="bellBtn" class="hbtn bell" onclick="toggleMenu('bell',event)" title="알림">🔔<i id="bellDot" class="sgdot hidden"></i></button><span class="um-wrap"><button id="whoName" class="user-chip" onclick="toggleMenu('user',event)"></button><div id="userMenu" class="hmenu hidden"></div></span><div id="bellMenu" class="hmenu bellm hidden"></div><button id="cmtBtn" class="hbtn hidden" onclick="openInbox()">💬 코멘트<i id="cmtDot" class="sgdot hidden"></i></button><button id="sgBtn" class="hbtn" onclick="openSg()" title="대시보드 수정·개선 건의">💡 수정건의<i id="sgDot" class="sgdot hidden"></i></button><a id="sheetLink" class="hbtn hidden" target="_blank" rel="noopener" style="text-decoration:none;" title="내 구글시트 새 창으로 열기">📄 내 구글시트</a><button class="hbtn" onclick="loadRows();loadBoard();sgCount()">새로고침</button><button class="hbtn" id="btnLogout" onclick="logout()">로그아웃</button></div>
     </div></div>
     <div class="tabs">
       <button class="tab tab-new" data-tab="new" onclick="switchTab('new')"><span class="plus">+</span>신규등록</button>
@@ -640,7 +659,7 @@ table.nlist td.wide{max-width:320px;}
 // 파일럿 Apps Script 웹앱 주소. 비워두면 로그인 화면의 '서버 주소 설정'으로 입력 (이 브라우저에 저장됨)
 // 테스트 기간 자동 로그인 (테스트 시트 하나만 연결된 동안만 사용). 파일럿 사원 확정되면 null로 바꾸면 로그인 화면이 다시 나옴
 const AUTO_LOGIN = null;
-const APP_VER='v0.80';   // 화면 버전. 바뀌면 이전 접속 기록(테스트 계정 등)을 버리고 다시 로그인
+const APP_VER='v0.81';   // 화면 버전. 바뀌면 이전 접속 기록(테스트 계정 등)을 버리고 다시 로그인
 const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycby040Dne4lMk2Ulgzf5gLG5CPFskadcI4jiBjhuBY7zuMaepufQBoHjoaxHcnVQ5Xvt/exec';
 const PROMO_GRADES = ['단기','장기','권한오픈','권한+브리핑'];
 const INACTIVE_GRADES = ['이관완료','선택없음'];   // 희망건은 진행 중으로 봄 (v0.77)
@@ -727,7 +746,7 @@ function changeViewAs(v){S.viewAs=v;CMT.items=[];if(S.master||S.mgr)buildPick();
 
 // ── 데이터 ────────────────────────────────────────────────────────
 async function loadRows(){
-  if(!S.rows.length)document.getElementById('tabToday').innerHTML='';
+  if(!S.rows.length)document.getElementById('tabToday').innerHTML='<div class="stats">'+'<div class="skel" style="height:68px"></div>'.repeat(4)+'</div><div class="skel" style="height:260px;margin-bottom:14px"></div><div class="skel" style="height:160px"></div>';
   ldShow();const T0=Date.now();
   const r=await api('rows',{});
   ldHide();
@@ -1044,13 +1063,14 @@ function renderToday(){
   document.getElementById('tabToday').innerHTML=
     '<div class="stats">'+
       '<div class="stat"><div class="v">'+pending.length+'</div><div class="l">오늘 남은 재콜</div></div>'+
-      '<div class="stat"><div class="v" style="color:var(--ok)">'+done.length+'</div><div class="l">오늘 처리 (완료·부재·미룸)</div></div>'+
+      '<div class="stat"><div class="v" style="color:var(--ok)">'+done.length+'</div><div class="l">오늘 처리 (완료·부재·미룸)</div>'+goalHtml()+'</div>'+
       '<div class="stat"><div class="v">'+newToday+'</div><div class="l">오늘 신규등록</div></div>'+
       '<div class="stat"><div class="v">'+weekPlans+'</div><div class="l">이번 7일 예정</div></div>'+
-    '</div>'+goalHtml()+
+    '</div>'+
     '<div class="sec"><div class="sec-h"><h3>오늘 재콜 예정</h3><span class="n">'+pending.length+'건 남음</span><div class="tprog"><div class="bar"><div style="width:'+pct+'%"></div></div><span>'+total+'건 중 '+done.length+'건 처리 ('+pct+'%)</span></div></div>'+list(pending)+'</div>'+
-    '<div class="sec"><div class="sec-h"><h3>놓친 재콜</h3><span class="n">'+missed.length+'건</span><span class="desc">재콜예정일이 지났는데 기록 없음 (최근 30일)</span></div>'+list(missed,{missed:true})+'</div>'+
-    '<div class="sec"><div class="sec-h"><h3>평소 간격 초과</h3><span class="n">'+overdue.length+'건</span><span class="desc">가망건 중 평균 재콜 간격보다 오래 연락 안 한 업체 · 재콜예정일 없음</span></div>'+list(overdue,{gap:true})+'</div>'+
+    (missed.length?'<div class="sec"><div class="sec-h"><h3>놓친 재콜</h3><span class="n">'+missed.length+'건</span><span class="desc">재콜예정일이 지났는데 기록 없음 (최근 30일)</span></div>'+list(missed,{missed:true})+'</div>':'')+
+    (overdue.length?'<div class="sec"><div class="sec-h"><h3>평소 간격 초과</h3><span class="n">'+overdue.length+'건</span><span class="desc">가망건 중 평균 재콜 간격보다 오래 연락 안 한 업체 · 재콜예정일 없음</span></div>'+list(overdue,{gap:true})+'</div>':'')+
+    (!missed.length||!overdue.length?'<div class="zero-line">✓ '+[!missed.length?'놓친 재콜 0':'',!overdue.length?'평소 간격 초과 0':''].filter(Boolean).join(' · ')+' <span class="muted">— 깔끔해요</span></div>':'')+
     '<div class="tri">'+
       tri('오늘 완료','재콜 기록·부재·미룸 처리',done.length,doneRows||'<div class="empty">아직 없음</div>')+
       tri('신규 3일 팔로업','가망건 · 첫콜 3일 이내 · 재콜 없음',new3.length,items(new3,r=>'첫콜 '+fmtD(r.firstCall)))+
@@ -1758,7 +1778,7 @@ async function cmDel(id,cid){
 const SG={items:[],filter:'',view:'list',sel:null,form:null,imgs:{},loading:{},unread:0,open:0,cats:['오류','개선','새기능','기타'],statuses:['접수','검토중','반영완료','보류']};
 const SG_ST={'접수':'sg-s0','검토중':'sg-s1','반영완료':'sg-s2','보류':'sg-s3'},SG_IC={'오류':'🐞','개선':'🔧','새기능':'✨','기타':'💬'};
 async function sgCount(){const r=await api('sgList',{countOnly:1});if(r&&r.success){SG.unread=r.unread;SG.open=r.open;sgDot();}}
-function sgDot(){const n=S.master?SG.open:SG.unread,d=document.getElementById('sgDot');if(!d)return;d.textContent=n;d.classList.toggle('hidden',!n);
+function sgDot(){bellDot();const n=S.master?SG.open:SG.unread,d=document.getElementById('sgDot');if(!d)return;d.textContent=n;d.classList.toggle('hidden',!n);
   document.getElementById('sgBtn').title=S.master?(n?'새 건의 '+n+'건':'수정건의 관리'):(n?'답변 도착 '+n+'건':'대시보드 수정·개선 건의');}
 async function openSg(){BB.view='sg';SG.view='list';
   openBm('<h3>💡 수정건의<span class="sg-sub">오류·불편한 점·바라는 기능을 남겨주세요. 모두 함께 보고, 처리 결과는 답변으로 알려드림</span></h3><div class="bm-list" id="sgBody"><div class="sg-empty">불러오는 중…</div></div>','wide');
@@ -2164,12 +2184,13 @@ function clearDraft(k,prefix){try{const base=draftStoreKey(k);if(!prefix){localS
 
 // ── 오늘 목표 (DB 작성수 = 오늘 신규등록 + 통화완료 + 부재 기록) ──
 function writtenToday(){const t=S.today;let n=0;S.rows.forEach(r=>{if(r.firstCall===t)n++;r.recalls.forEach(x=>{if(x.date===t&&x.memo)n++;});});return n;}
+// 오늘 목표: '오늘 처리' 카드 안의 작은 진행바 (v0.81)
 function goalHtml(){
   if(S.master||S.mgr||!S.today)return '<div id="goalBar"></div>';
   const g=S.goal||0,n=writtenToday();
-  if(!g)return '<div id="goalBar" class="goal empty"><span>🎯 오늘 목표 DB 작성수를 정해두면 진행률을 보여줌 <span class="muted">(신규등록 + 통화완료 + 부재)</span></span><button class="gset" onclick="goalEdit()">목표 설정</button></div>';
+  if(!g)return '<div id="goalBar" class="goal-mini"><button class="gset" onclick="goalEdit()">🎯 오늘 목표 정하기</button></div>';
   const pct=Math.min(100,Math.round(n/g*100)),done=n>=g;
-  return '<div id="goalBar" class="goal'+(done?' done':'')+'"><span class="gl">🎯 오늘 목표</span><span class="gn"><b>'+n+'</b> / '+g+'건</span><div class="gbar"><i style="width:'+pct+'%"></i></div><span class="gn">'+(done?'달성! 👏':pct+'% · '+(g-n)+'건 남음')+'</span><button class="gset" onclick="goalEdit()">변경</button></div>';
+  return '<div id="goalBar" class="goal-mini'+(done?' done':'')+'" title="DB 작성수 = 신규등록 + 통화완료 + 부재"><span>🎯 DB 작성 <b>'+n+'</b>/'+g+(done?' 달성! 👏':'')+'</span><div class="gbar"><i style="width:'+pct+'%"></i></div><button class="gset" onclick="goalEdit()">변경</button></div>';
 }
 async function goalEdit(){
   const v=prompt('오늘 목표 DB 작성수 (신규등록 + 통화완료 + 부재 기록)\n한 번 정하면 매일 같은 목표로 유지됨. 0 = 끄기',S.goal||30);if(v===null)return;
@@ -2184,7 +2205,7 @@ async function loadCmt(){
   const r=await api('cmtList',{});if(!r||!r.success)return;
   CMT.items=r.items||[];CMT.inbox=r.inbox||[];cmtDot();if(S.openId)cmtRender();
 }
-function cmtDot(){const n=CMT.inbox.length,b=document.getElementById('cmtBtn'),d=document.getElementById('cmtDot');if(!b)return;
+function cmtDot(){bellDot();const n=CMT.inbox.length,b=document.getElementById('cmtBtn'),d=document.getElementById('cmtDot');if(!b)return;
   b.classList.toggle('hidden',!(n||S.master||S.mgr||CMT.items.length));d.textContent=n;d.classList.toggle('hidden',!n);
   b.title=S.master||S.mgr?(n?'사원 답글 '+n+'건':'코멘트 모아보기'):(n?'새 코멘트 '+n+'건':'코멘트 모아보기');}
 function cmtRender(){
@@ -2252,6 +2273,31 @@ async function usRange(k){
     r.rows.map(o=>'<tr><td><b>'+esc(o.name)+'</b>'+(o.error?' <span class="chip danger" title="'+esc(o.error)+'">읽기 실패</span>':'')+'</td><td>'+z(o.days)+'</td>'+r.acts.map(a=>'<td>'+z(o.c[a])+'</td>').join('')+'<td>'+(o.sheetNew||o.sheetGrade?'<span class="sh">'+o.sheetNew+' · '+o.sheetGrade+'</span>':'<span class="z">0 · 0</span>')+'</td><td class="muted">'+(o.last?tsMD(o.last)+' '+tsHM(o.last):'-')+'</td></tr>').join('')+
     '</tbody></table><div class="hint" style="margin-top:10px;line-height:1.6">· 기록은 p0.28 배포 시점부터 쌓임 · 마스터 보기·부서장 보기는 집계 안 함<br>· <b>시트 직접</b> = 그 기간 가망도변경로그(10분 감지)에 잡힌 신규·가망도 변경 중 화면에서 한 것을 뺀 수 → 높으면 아직 시트에서 직접 작업하는 비중이 큼</div>';
 }
+
+// ── v0.81 상단: 🔔 알림 하나로 (코멘트 · 수정건의), 이름 누르면 메뉴 (구글시트 · 수정건의 · 목표 · 관리계정 · 로그아웃) ──
+function bellCount(){return (CMT.inbox||[]).length+(S.master?(SG.open||0):(SG.unread||0));}
+function bellDot(){const d=document.getElementById('bellDot');if(!d)return;const n=bellCount();d.textContent=n;d.classList.toggle('hidden',!n);document.getElementById('bellBtn').title=n?'새 알림 '+n+'건':'알림';}
+function closeMenus(){document.querySelectorAll('.hmenu').forEach(m=>m.classList.add('hidden'));}
+document.addEventListener('click',e=>{if(!e.target.closest('.hmenu')&&!e.target.closest('#bellBtn')&&!e.target.closest('#whoName'))closeMenus();});
+function toggleMenu(k,e){
+  e.stopPropagation();const m=document.getElementById(k==='bell'?'bellMenu':'userMenu'),open=m.classList.contains('hidden');closeMenus();if(!open)return;
+  if(k==='user'){
+    const sl=document.getElementById('sheetLink'),viewer=S.master||S.mgr;
+    m.innerHTML=(sl&&sl.href&&!sl.classList.contains('hidden')?'<a href="'+esc(sl.href)+'" target="_blank" rel="noopener" onclick="closeMenus()">📄 '+esc(sl.textContent.replace('📄 ',''))+'</a>':'')+
+      '<button onclick="closeMenus();openSg()">💡 수정건의'+((S.master?SG.open:SG.unread)?'<span class="n">'+(S.master?SG.open:SG.unread)+'</span>':'')+'</button>'+
+      (viewer?'':'<button onclick="closeMenus();goalEdit()">🎯 오늘 목표 설정 <span class="muted" style="margin-left:auto;font-size:12px">'+(S.goal?S.goal+'건':'미설정')+'</span></button>')+
+      (viewer?'':'<button onclick="closeMenus();admMgrEditAny()">🔑 네이버 관리계정 번호</button>')+
+      (AUTO_LOGIN?'':'<hr><button onclick="closeMenus();logout()">↩ 로그아웃</button>');
+  }else{
+    const it=[],viewer=S.master||S.mgr;
+    (CMT.inbox||[]).slice().sort((a,b)=>a.ts<b.ts?1:-1).forEach(c=>it.push('<button class="bi" onclick="closeMenus();inboxGo(\''+esc(c.owner)+'\',\''+esc(c.cid)+'\')"><span>💬 '+(viewer?'<b>'+esc(c.owner)+'</b> · ':'')+esc(c.company)+'</span><small>'+esc(c.author)+': '+esc(c.text.length>40?c.text.slice(0,40)+'…':c.text)+' · '+tsMD(c.ts)+' '+tsHM(c.ts)+'</small></button>'));
+    const sg=S.master?SG.open:SG.unread;
+    if(sg)it.push('<button class="bi" onclick="closeMenus();openSg()"><span>💡 '+(S.master?'새 수정건의 '+sg+'건 (접수)':'수정건의 답변 도착 '+sg+'건')+'</span><small>눌러서 확인</small></button>');
+    m.innerHTML='<div class="mh">알림</div>'+(it.length?it.join(''):'<div class="empty">새 알림 없음</div>')+'<hr><button onclick="closeMenus();openInbox()">💬 코멘트 모아보기</button>';
+  }
+  m.classList.remove('hidden');
+}
+async function admMgrEditAny(){if(!ADM.loaded){const r=await api('adList',{});if(r&&r.success){ADM.items=r.items||[];ADM.groups=r.groups||[];ADM.memos=r.memos||{};ADM.mgrNo=r.mgrNo||'';ADM.loaded=true;}}admMgrEdit();}
 // 헤더 높이 → --topH (테스트 배너·화면 폭에 따라 바뀜)
 (function(){const t=document.querySelector('.top');if(!t)return;const f=()=>document.documentElement.style.setProperty('--topH',t.offsetHeight+'px');f();try{new ResizeObserver(f).observe(t);}catch(e){window.addEventListener('resize',f);}})();
 init();
